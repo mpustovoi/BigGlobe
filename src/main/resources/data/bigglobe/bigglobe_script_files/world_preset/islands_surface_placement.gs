@@ -17,7 +17,7 @@ double rawDepth = floorInt(
 )
 
 if (`bigglobe:islands/is_volcano`:
-	int limit = surfaceY - (hints.fill ? (seed := seed.newSeed()).nextInt(16, 32) : hints.distanceBetweenColumns << 2)
+	int limit = surfaceY - (hints.fill ? (seed := seed.newSeed()).nextInt(16, 32) : max(hints.distanceBetweenColumns << 2, 8))
 	int segmentTop = surfaceY - 1
 	while (segmentTop >= limit:
 		int segmentBottom = getBottomOfSegment(segmentTop)

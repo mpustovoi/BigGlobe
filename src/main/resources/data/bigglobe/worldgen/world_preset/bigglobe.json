@@ -28,7 +28,7 @@
 							},
 							"valid": {
 								"max_y": "ceilInt(`bigglobe:overworld/processed_surface_y`)",
-								"min_y": "hints.fill ? 16x8000_0000u : ceilInt(`bigglobe:overworld/basic_surface_y`) - hints.distanceBetweenColumns << 2"
+								"min_y": "hints.fill ? 16x8000_0000u : ceilInt(`bigglobe:overworld/basic_surface_y`) - max(hints.distanceBetweenColumns << 2, 8)"
 							},
 							"children": [
 								{

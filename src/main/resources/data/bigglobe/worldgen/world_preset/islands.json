@@ -25,7 +25,7 @@
 							"state": "'minecraft:stone'",
 							"valid": {
 								"max_y": "world_traits.`bigglobe:y_level_on_surface`",
-								"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - hints.distanceBetweenColumns << 2"
+								"min_y": "hints.fill ? 16x8000_0000u : world_traits.`bigglobe:y_level_on_surface` - max(hints.distanceBetweenColumns << 2, 8)"
 							},
 							"after_children": {
 								"file": "bigglobe:world_preset/islands_surface_placement",

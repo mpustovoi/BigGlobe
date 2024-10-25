@@ -30,8 +30,6 @@ to finish before release:
 	document version for Purpose/Hints refactors.
 	document version for offset grids.
 	document version for tag-type feature dispatchers.
-	try to make deprecation warning in log for legacy Purpose usage.
-	ensure surface depth is at least 8 for LODs.
 
 changelog:
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.
@@ -50,23 +48,11 @@ alternate world presets:
 			prevent ancient cities from spawning in volcanoes.
 
 breaking changes I want to make:
-	better Purpose system.
-		rename to "Hints"
-		bitflags:
-			fill
-			carve
-			isLod
-		lod (byte)
-		minY, maxY
-		purpose (enum with auto-casting)
-			generic, raw, features, heightmap.
 	rename cavern-related overworld column values to "deep dark".
 	expose IntBoundingBox and DoubleBoundingBox to scripts, with min, mid, and max properties.
 		remove min/max Accessible/Modifiable X/Y/Z
 			replace with accessibleArea and modifiableArea.
 		migrate equivalent getters from Structure/StructurePiece.
-	remove noscope.
-		replace with Type*(name := value)
 
 4.0 stuff:
 	ore features that can place more than one block state randomly.

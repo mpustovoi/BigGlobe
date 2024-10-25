@@ -62,6 +62,14 @@ public class MethodInfo implements BytecodeEmitter {
 		return !this.isPure() ? this : new MethodInfo(this.access & ~PURE, this.owner, this.name, this.returnType, this.paramTypes);
 	}
 
+	public MethodInfo deprecated() {
+		return this.isDeprecated() ? this : new MethodInfo(this.access() | ACC_DEPRECATED, this.owner, this.name, this.returnType, this.paramTypes);
+	}
+
+	public MethodInfo notDeprecated() {
+		return !this.isDeprecated() ? this : new MethodInfo(this.access() & ~ACC_DEPRECATED, this.owner, this.name, this.returnType, this.paramTypes);
+	}
+
 	public String getDescriptor() {
 		StringBuilder builder = new StringBuilder(128).append('(');
 		for (TypeInfo paramType : this.paramTypes) {
@@ -84,7 +92,7 @@ public class MethodInfo implements BytecodeEmitter {
 	}
 
 	public int access() {
-		return this.access & ~PURE;
+		return this.access & ~(PURE | ACC_DEPRECATED);
 	}
 
 	public boolean isStatic() {
@@ -110,6 +118,10 @@ public class MethodInfo implements BytecodeEmitter {
 		return (this.access & PURE) != 0;
 	}
 
+	public boolean isDeprecated() {
+		return (this.access & ACC_DEPRECATED) != 0;
+	}
+
 	public boolean isAbstract() {
 		return (this.access & ACC_ABSTRACT) != 0;
 	}
@@ -132,7 +144,9 @@ public class MethodInfo implements BytecodeEmitter {
 
 	public static MethodInfo forMethod(Method method) {
 		return new MethodInfo(
-			method.getModifiers(),
+			method.isAnnotationPresent(Deprecated.class)
+			? method.getModifiers() |  ACC_DEPRECATED
+			: method.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(method.getDeclaringClass()),
 			method.getName(),
 			TypeInfo.of(method.getGenericReturnType()),
@@ -154,7 +168,9 @@ public class MethodInfo implements BytecodeEmitter {
 
 	public static MethodInfo forConstructor(Constructor<?> constructor) {
 		return new MethodInfo(
-			constructor.getModifiers(),
+			constructor.isAnnotationPresent(Deprecated.class)
+			? constructor.getModifiers() |  ACC_DEPRECATED
+			: constructor.getModifiers() & ~ACC_DEPRECATED,
 			TypeInfo.of(constructor.getDeclaringClass()),
 			"<init>",
 			TypeInfos.VOID,

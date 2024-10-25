@@ -186,10 +186,12 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		return this.params.hints();
 	}
 
+	@Deprecated
 	public boolean distantHorizons() {
 		return this.params.hints().isLod();
 	}
 
+	@Deprecated
 	public boolean surfaceOnly() {
 		return !this.params.hints().fill();
 	}

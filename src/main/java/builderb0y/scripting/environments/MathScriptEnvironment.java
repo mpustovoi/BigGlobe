@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
 
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.scripting.bytecode.MethodCompileContext;
@@ -14,8 +13,6 @@ import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.conditions.ConditionTree;
 import builderb0y.scripting.bytecode.tree.instructions.ReduceInsnTree;
-import builderb0y.scripting.environments.MutableScriptEnvironment.CastResult;
-import builderb0y.scripting.environments.MutableScriptEnvironment.FunctionHandler;
 import builderb0y.scripting.parsing.ScriptParsingException;
 import builderb0y.scripting.util.TypeInfos;
 

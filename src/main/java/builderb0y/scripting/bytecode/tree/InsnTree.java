@@ -42,7 +42,7 @@ public interface InsnTree extends Opcodes, Typeable, BytecodeEmitter {
 	}
 
 	public default InsnTree cast(ExpressionParser parser, TypeInfo type, CastMode mode) {
-		if (this.getTypeInfo().equals(type)) {
+		if (this.getTypeInfo().extendsOrImplements(type)) {
 			return mode.implicit ? this : new IdentityCastInsnTree(this, type);
 		}
 		if (type.isVoid()) {

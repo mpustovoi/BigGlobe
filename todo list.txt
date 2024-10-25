@@ -31,6 +31,7 @@ to finish before release:
 	document version for offset grids.
 	document version for tag-type feature dispatchers.
 	try to make deprecation warning in log for legacy Purpose usage.
+	ensure surface depth is at least 8 for LODs.
 
 changelog:
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.

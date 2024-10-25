@@ -44,6 +44,11 @@ public interface StructureLayoutScript extends Script {
 		Hints hints
 	);
 
+	@Deprecated
+	public static boolean distantHorizons(Hints hints) {
+		return hints.isLod();
+	}
+
 	@Wrapper
 	public static class Holder extends ScriptHolder<StructureLayoutScript> implements StructureLayoutScript {
 
@@ -81,7 +86,7 @@ public interface StructureLayoutScript extends Script {
 						.addVariableLoad("pieces", type(CheckedList.class))
 						.addVariableLoad("hints", type(Hints.class))
 						.configure(ScriptedColumn.hintsEnvironment())
-						.addVariableRenamedInvoke(load("hints", type(Hints.class)), "distantHorizons", MethodInfo.getMethod(Hints.class, "isLod")),
+						.addVariable("distantHorizons", Handlers.builder(StructureLayoutScript.class, "distantHorizons").addImplicitArgument(load("hints", type(Hints.class))).buildVariable()),
 
 						new ExternalEnvironmentParams()
 						.withLookup(load("lookup", type(ScriptedColumnLookup.class)))

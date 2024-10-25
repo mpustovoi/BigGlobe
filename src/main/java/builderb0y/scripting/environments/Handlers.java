@@ -11,10 +11,9 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ObjectArrays;
 import org.jetbrains.annotations.Nullable;
 
-import builderb0y.scripting.bytecode.ConstantFactory;
-import builderb0y.scripting.bytecode.MethodInfo;
-import builderb0y.scripting.bytecode.TypeInfo;
-import builderb0y.scripting.bytecode.Typeable;
+import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.scripting.ScriptLogger;
+import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.InsnTree.CastMode;
 import builderb0y.scripting.bytecode.tree.instructions.invokers.BaseInvokeInsnTree;
@@ -29,92 +28,51 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class Handlers {
 
 	public static Builder builder(Class<?> in, String name) {
-		return new Builder(in, name);
+		return new ReflectiveBuilder(in, name);
 	}
 
 	public static Builder inCaller(String name) {
-		return new Builder(ConstantFactory.STACK_WALKER.getCallerClass(), name);
+		return new ReflectiveBuilder(ConstantFactory.STACK_WALKER.getCallerClass(), name);
 	}
 
-	public static class Builder implements Argument {
+	public static Builder builder(MethodInfo method) {
+		return new ManualBuilder(method);
+	}
 
-		public final Class<?> in;
-		public final String name;
+	@FunctionalInterface
+	public static interface Callback {
+
+		public abstract void onReferenced(ExpressionParser parser, CastResult result);
+
+		public static Callback combine(Callback a, Callback b) {
+			return (ExpressionParser parser, CastResult result) -> {
+				a.onReferenced(parser, result);
+				b.onReferenced(parser, result);
+			};
+		}
+	}
+
+	public static abstract class Builder implements Argument {
+
 		public final List<Argument> arguments;
 		public int currentRequiredIndex;
 		public boolean addedAsNested;
 
-		public Class<?> returnClass;
-		public TypeInfo returnType;
-		public Method cachedMethod;
-		public MethodInfo cachedMethodInfo;
-
 		public boolean pure;
 
-		public Consumer<CastResult> also;
+		public Callback callback;
 
-		public Builder(Class<?> in, String name) {
-			this.in = in;
-			this.name = name;
+		public Builder() {
 			this.arguments = new ArrayList<>(8);
 		}
 
-		public Builder invalidateCache() {
-			this.cachedMethod = null;
-			this.cachedMethodInfo = null;
-			return this;
-		}
+		public abstract Builder invalidateCache();
 
-		public Method resolveRaw() {
-			return this.cachedMethod != null ? this.cachedMethod : (
-				this.cachedMethod = ReflectionData.forClass(this.in).findDeclaredMethod(this.name, method -> {
-					if (this.returnClass != null && this.returnClass != method.getReturnType()) {
-						return false;
-					}
-					Class<?>[] actualTypes = method.getParameterTypes();
-					if (!Modifier.isStatic(method.getModifiers())) {
-						actualTypes = ObjectArrays.concat(method.getDeclaringClass(), actualTypes);
-					}
-					List<Argument> arguments = this.arguments;
-					if (actualTypes.length != arguments.size()) {
-						return false;
-					}
-					for (int index = 0, size = arguments.size(); index < size; index++) {
-						if (actualTypes[index] != arguments.get(index).getArgumentClass()) {
-							return false;
-						}
-					}
-					return true;
-				})
-			);
-		}
+		public abstract MethodInfo resolve();
 
-		public MethodInfo resolve() {
-			if (this.cachedMethodInfo != null) return this.cachedMethodInfo;
-			MethodInfo method = MethodInfo.forMethod(this.resolveRaw());
-			if (this.pure) method = method.pure();
-			return this.cachedMethodInfo = method;
-		}
+		public abstract Builder returnClass(Class<?> clazz);
 
-		public Builder returnClass(Class<?> clazz) {
-			this.returnClass = clazz;
-			this.returnType = type(clazz);
-			return this.invalidateCache();
-		}
-
-		public Builder returnType(TypeInfo type) {
-			this.returnType = type;
-			this.returnClass = type.toClass();
-			return this.invalidateCache();
-		}
-
-		public Builder pure() {
-			this.pure = true;
-			if (this.cachedMethodInfo != null) {
-				this.cachedMethodInfo = this.cachedMethodInfo.pure();
-			}
-			return this;
-		}
+		public abstract Builder returnType(TypeInfo type);
 
 		public Builder addReceiverArgument(Class<?> clazz) {
 			if (this.usesArguments() || this.usesReceiver()) {
@@ -150,7 +108,7 @@ public class Handlers {
 		}
 
 		public Builder addImplicitArgumentOfType(InsnTree tree, Class<?> type) {
-			this.arguments.add(new ImplicitArgument(tree, type));
+			this.arguments.add(new ImplicitArgument(tree, type(type)));
 			return this.invalidateCache();
 		}
 
@@ -175,7 +133,7 @@ public class Handlers {
 				else if (arg instanceof TypeInfo type) this.addRequiredArgument(type);
 				else if (arg instanceof InsnTree tree) this.addImplicitArgument(tree);
 				else if (arg instanceof Builder builder) this.addNestedArgument(builder);
-				else if (arg instanceof ReceiverArgument argument) this.addReceiverArgument(argument.clazz);
+				else if (arg instanceof ReceiverArgument argument) this.addReceiverArgument(argument.type);
 				else if (arg instanceof Character character) this.addRequiredArgument(TypeInfo.parse(character.charValue()));
 				else if (arg instanceof CharSequence string) {
 					for (TypeInfo type : TypeInfo.parseAll(string)) {
@@ -187,8 +145,8 @@ public class Handlers {
 			return this.invalidateCache();
 		}
 
-		public Builder also(Consumer<CastResult> action) {
-			this.also = this.also == null ? action : this.also.andThen(action);
+		public Builder callback(Callback callback) {
+			this.callback = this.callback == null ? callback : Callback.combine(this.callback, callback);
 			return this;
 		}
 
@@ -196,12 +154,16 @@ public class Handlers {
 			if (this.usesReceiver() || this.usesArguments()) {
 				throw new IllegalStateException("Can't build variable when builder requires receiver or arguments.");
 			}
-			this.resolve();
+			boolean deprecated = this.resolve().isDeprecated();
 			return new VariableHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, String name) -> {
 					CastResult result = this.getFrom(parser, null, InsnTree.ARRAY_FACTORY.empty());
-					return result != null ? result.tree() : null;
+					if (result == null) return null;
+					if (deprecated) {
+						ScriptLogger.LOGGER.warn("A script used a deprecated variable: " + name + '\n' + parser.input.getSourceForError() + " <--- HERE");
+					}
+					return result.tree();
 				}
 			);
 		}
@@ -210,14 +172,25 @@ public class Handlers {
 			if (this.usesArguments()) {
 				throw new IllegalStateException("Can't build field when builder requires arguments.");
 			}
-			this.resolve();
+			if (!this.usesReceiver()) {
+				throw new IllegalStateException("Can't build field without receiver.");
+			}
+			boolean deprecated = this.resolve().isDeprecated();
 			return new FieldHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 					CastResult result = this.getFrom(parser, receiver, InsnTree.ARRAY_FACTORY.empty());
 					if (result == null) return null;
+					if (deprecated) {
+						ScriptLogger.LOGGER.warn("A script used a deprecated field: " + name + '\n' + parser.input.getSourceForError() + " <--- HERE");
+					}
 					BaseInvokeInsnTree invoker = (BaseInvokeInsnTree)(result.tree());
-					return mode.makeInvoker(parser, invoker.method, invoker.args);
+					if (invoker.method.isStatic()) {
+						return mode.makeInvoker(parser, invoker.method, invoker.args);
+					}
+					else {
+						return mode.makeInvoker(parser, invoker.args[0], invoker.method, Arrays.copyOfRange(invoker.args, 1, invoker.args.length));
+					}
 				}
 			);
 		}
@@ -226,22 +199,33 @@ public class Handlers {
 			if (this.usesReceiver()) {
 				throw new IllegalStateException("Can't build function when builder requires receiver.");
 			}
-			this.resolve();
+			boolean deprecated = this.resolve().isDeprecated();
 			return new FunctionHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, String name, InsnTree... arguments) -> {
-					return this.getFrom(parser, null, arguments);
+					CastResult result = this.getFrom(parser, null, arguments);
+					if (result == null) return null;
+					if (deprecated) {
+						ScriptLogger.LOGGER.warn("A script used a deprecated function: " + name + '\n' + parser.input.getSourceForError() + " <--- HERE");
+					}
+					return result;
 				}
 			);
 		}
 
 		public MethodHandler.Named buildMethod() {
-			this.resolve();
+			if (!this.usesReceiver()) {
+				throw new IllegalStateException("Can't build method without receiver.");
+			}
+			boolean deprecated = this.resolve().isDeprecated();
 			return new MethodHandler.Named(
 				this.toString(),
 				(ExpressionParser parser, InsnTree receiver, String name, GetMethodMode mode, InsnTree... arguments) -> {
 					CastResult result = this.getFrom(parser, receiver, arguments);
 					if (result == null) return null;
+					if (deprecated) {
+						ScriptLogger.LOGGER.warn("A script used a deprecated method: " + name + '\n' + parser.input.getSourceForError() + " <--- HERE");
+					}
 					BaseInvokeInsnTree invoker = (BaseInvokeInsnTree)(result.tree());
 					return new CastResult(mode.makeInvoker(parser, invoker.method, invoker.args), result.requiredCasting());
 				}
@@ -250,12 +234,7 @@ public class Handlers {
 
 		@Override
 		public TypeInfo getTypeInfo() {
-			return type(this.resolveRaw().getReturnType());
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.resolveRaw().getReturnType();
+			return this.resolve().returnType;
 		}
 
 		@Override
@@ -274,14 +253,14 @@ public class Handlers {
 			MethodInfo resolution = this.resolve();
 			if (resolution.isStatic()) {
 				CastResult result = new CastResult(invokeStatic(resolution, runtimeArgs), requiredCasting);
-				if (this.also != null) this.also.accept(result);
+				if (this.callback != null) this.callback.onReferenced(parser, result);
 				return result;
 			}
 			else {
 				InsnTree runtimeReceiver = runtimeArgs[0];
 				runtimeArgs = Arrays.copyOfRange(runtimeArgs, 1, toLength);
 				CastResult result = new CastResult(invokeInstance(runtimeReceiver, resolution, runtimeArgs), requiredCasting);
-				if (this.also != null) this.also.accept(result);
+				if (this.callback != null) this.callback.onReferenced(parser, result);
 				return result;
 			}
 		}
@@ -295,7 +274,11 @@ public class Handlers {
 
 		@Override
 		public boolean usesReceiver() {
-			return !this.arguments.isEmpty() && this.arguments.get(0).usesReceiver();
+			for (Argument argument : this.arguments) {
+				if (argument.usesReceiver()) return true;
+				if (argument.usesArguments()) return false;
+			}
+			return false;
 		}
 
 		@Override
@@ -305,16 +288,117 @@ public class Handlers {
 			}
 			return false;
 		}
+	}
+
+	public static class ReflectiveBuilder extends Builder {
+
+		public final Class<?> in;
+		public final String name;
+
+		public Class<?> returnClass;
+		public TypeInfo returnType;
+		public Method cachedMethod;
+		public MethodInfo cachedMethodInfo;
+
+		public ReflectiveBuilder(Class<?> in, String name) {
+			this.in = in;
+			this.name = name;
+		}
+
+		@Override
+		public Builder invalidateCache() {
+			this.cachedMethod = null;
+			this.cachedMethodInfo = null;
+			return this;
+		}
+
+		public Method resolveRaw() {
+			return this.cachedMethod != null ? this.cachedMethod : (
+				this.cachedMethod = ReflectionData.forClass(this.in).findDeclaredMethod(this.name, (Method method) -> {
+					if (this.returnClass != null && this.returnClass != method.getReturnType()) {
+						return false;
+					}
+					Class<?>[] actualTypes = method.getParameterTypes();
+					if (!Modifier.isStatic(method.getModifiers())) {
+						actualTypes = ObjectArrays.concat(method.getDeclaringClass(), actualTypes);
+					}
+					List<Argument> arguments = this.arguments;
+					if (actualTypes.length != arguments.size()) {
+						return false;
+					}
+					for (int index = 0, size = arguments.size(); index < size; index++) {
+						if (actualTypes[index] != arguments.get(index).getTypeInfo().toClass()) {
+							return false;
+						}
+					}
+					return true;
+				})
+			);
+		}
+
+		@Override
+		public MethodInfo resolve() {
+			if (this.cachedMethodInfo != null) return this.cachedMethodInfo;
+			MethodInfo method = MethodInfo.forMethod(this.resolveRaw());
+			if (this.pure) method = method.pure();
+			return this.cachedMethodInfo = method;
+		}
+
+		@Override
+		public Builder returnClass(Class<?> clazz) {
+			this.returnClass = clazz;
+			this.returnType = type(clazz);
+			return this.invalidateCache();
+		}
+
+		@Override
+		public Builder returnType(TypeInfo type) {
+			this.returnType = type;
+			this.returnClass = type.toClass();
+			return this.invalidateCache();
+		}
 
 		@Override
 		public String toString() {
-			return this.in.getName() + '.' + this.name + this.arguments.stream().map(Object::toString).collect(Collectors.joining(", ", "(", ")"));
+			return this.in.getName() + '.' + this.name + this.arguments.stream().map(Argument::toString).collect(Collectors.joining(", ", "(", ")"));
+		}
+	}
+
+	public static class ManualBuilder extends Builder {
+
+		public final MethodInfo methodInfo;
+
+		public ManualBuilder(MethodInfo methodInfo) {
+			this.methodInfo = methodInfo;
+		}
+
+		@Override
+		public Builder invalidateCache() {
+			return this;
+		}
+
+		@Override
+		public MethodInfo resolve() {
+			return this.methodInfo;
+		}
+
+		@Override
+		public Builder returnClass(Class<?> clazz) {
+			throw new UnsupportedOperationException("You already specified an exact method.");
+		}
+
+		@Override
+		public Builder returnType(TypeInfo type) {
+			throw new UnsupportedOperationException("You already specified an exact method.");
+		}
+
+		@Override
+		public String toString() {
+			return this.methodInfo.owner.getClassName() + '.' + this.methodInfo.name + this.arguments.stream().map(Argument::toString).collect(Collectors.joining(", ", "(", ")"));
 		}
 	}
 
 	public static interface Argument extends Typeable {
-
-		public abstract Class<?> getArgumentClass();
 
 		public abstract @Nullable CastResult getFrom(ExpressionParser parser, InsnTree receiver, InsnTree[] providedArgs);
 
@@ -327,30 +411,21 @@ public class Handlers {
 
 	public static class RequiredArgument implements Argument {
 
-		public final Class<?> clazz;
 		public final TypeInfo type;
 		public int requiredIndex;
 
 		public RequiredArgument(Class<?> clazz, int requiredIndex) {
-			this.clazz = clazz;
-			this.type = type(clazz);
-			this.requiredIndex = requiredIndex;
+			this(type(clazz), requiredIndex);
 		}
 
 		public RequiredArgument(TypeInfo type, int requiredIndex) {
 			this.type = type;
-			this.clazz = type.toClass();
 			this.requiredIndex = requiredIndex;
 		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
 			return this.type;
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.clazz;
 		}
 
 		@Override
@@ -385,29 +460,24 @@ public class Handlers {
 	public static class ImplicitArgument implements Argument {
 
 		public final InsnTree tree;
-		public final Class<?> clazz;
+		public final TypeInfo type;
 
 		public ImplicitArgument(InsnTree tree) {
 			this.tree = tree;
-			this.clazz = tree.getTypeInfo().toClass();
+			this.type = tree.getTypeInfo();
 		}
 
-		public ImplicitArgument(InsnTree tree, Class<?> clazz) {
-			this.tree = tree;
-			this.clazz = clazz;
-			if (!clazz.isAssignableFrom(tree.getTypeInfo().toClass())) {
-				throw new IllegalArgumentException(tree + " is not a subclass of " + clazz);
+		public ImplicitArgument(InsnTree tree, TypeInfo type) {
+			if (!tree.getTypeInfo().extendsOrImplements(type)) {
+				throw new IllegalArgumentException(tree + " is not a subclass of " + type);
 			}
+			this.tree = tree;
+			this.type = type;
 		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
-			return this.tree.getTypeInfo();
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.clazz;
+			return this.type;
 		}
 
 		@Override
@@ -438,27 +508,19 @@ public class Handlers {
 
 	public static class ReceiverArgument implements Argument {
 
-		public final Class<?> clazz;
 		public final TypeInfo type;
 
 		public ReceiverArgument(Class<?> clazz) {
-			this.clazz = clazz;
-			this.type = type(clazz);
+			this(type(clazz));
 		}
 
 		public ReceiverArgument(TypeInfo type) {
 			this.type = type;
-			this.clazz = type.toClass();
 		}
 
 		@Override
 		public TypeInfo getTypeInfo() {
 			return this.type;
-		}
-
-		@Override
-		public Class<?> getArgumentClass() {
-			return this.clazz;
 		}
 
 		@Override

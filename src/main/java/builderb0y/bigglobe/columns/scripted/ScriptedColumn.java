@@ -276,11 +276,11 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	public int         z              () { return  this.params.z; }
 	public int         minY           () { return  this.params.minY; }
 	public int         maxY           () { return  this.params.maxY; }
-	public String      purpose        () { return  this.params.hints.usage.lowerCaseName; }
-	public boolean     distantHorizons() { return  this.params.hints.isLod(); }
-	public boolean     surfaceOnly    () { return !this.params.hints.fill(); }
 	public Hints       hints          () { return  this.params.hints; }
 	public WorldTraits worldTraits    () { return  this.params.worldTraits; }
+	@Deprecated public String  purpose        () { return  this.params.hints.usage.lowerCaseName; }
+	@Deprecated public boolean distantHorizons() { return  this.params.hints.isLod(); }
+	@Deprecated public boolean surfaceOnly    () { return !this.params.hints.fill(); }
 
 	public long baseSeed() {
 		return this.params.seed;

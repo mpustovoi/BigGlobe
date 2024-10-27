@@ -11,7 +11,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
@@ -39,6 +41,7 @@ import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
@@ -323,7 +326,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public int maxValidYLevel() {
-		return this.world.getTopY();
+		return HeightLimitViewVersions.getTopY(this.world);
 	}
 
 	public @Nullable NbtCompound getBlockData(int x, int y, int z) {
@@ -374,9 +377,9 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		double newY = newPos.y;
 		double newZ = newPos.z;
 		Identifier identifier = IdentifierVersions.create(entityType);
-		if (RegistryVersions.entityType().containsId(identifier)) {
+		if (Registries.ENTITY_TYPE.containsId(identifier)) {
 			this.world.spawnEntity((ServerWorld serverWorld) -> {
-				Entity entity = RegistryVersions.entityType().get(identifier).create(serverWorld);
+				Entity entity = Registries.ENTITY_TYPE.get(identifier).create(serverWorld #if MC_VERSION >= MC_1_21_2 , SpawnReason.CHUNK_GENERATION #endif);
 				if (entity != null) {
 					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
 					return entity;
@@ -404,7 +407,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 		NbtCompound copy = nbt.copy();
 		copy.putString("id", entityType);
 		this.world.spawnEntity((ServerWorld serverWorld) -> {
-			return EntityType.loadEntityWithPassengers(copy, serverWorld, (Entity entity) -> {
+			return EntityType.loadEntityWithPassengers(copy, serverWorld, #if MC_VERSION >= MC_1_21_2 SpawnReason.CHUNK_GENERATION, #endif (Entity entity) -> {
 				entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
 				return entity;
 			});

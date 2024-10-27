@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
@@ -43,11 +44,11 @@ public class RockEntity extends ThrownItemEntity {
 	}
 
 	public RockEntity(EntityType<? extends RockEntity> entityType, double d, double e, double f, World world) {
-		super(entityType, d, e, f, world);
+		super(entityType, d, e, f, world #if MC_VERSION >= MC_1_21_2 , new ItemStack(BigGlobeItems.ROCK) #endif);
 	}
 
 	public RockEntity(EntityType<? extends RockEntity> entityType, LivingEntity livingEntity, World world) {
-		super(entityType, livingEntity, world);
+		super(entityType, livingEntity, world #if MC_VERSION >= MC_1_21_2 , new ItemStack(BigGlobeItems.ROCK) #endif);
 	}
 
 	@Override
@@ -58,10 +59,15 @@ public class RockEntity extends ThrownItemEntity {
 	@Override
 	public void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
-		entityHitResult.getEntity().damage(
-			this.getDamageSources().thrown(this, this.getOwner()),
-			(float)(this.getVelocity().length() * 6.0D)
-		);
+		if (this.getWorld() instanceof ServerWorld serverWorld) {
+			entityHitResult.getEntity().damage(
+				#if MC_VERSION >= MC_1_21_2
+					serverWorld,
+				#endif
+				this.getDamageSources().thrown(this, this.getOwner()),
+				(float)(this.getVelocity().length() * 6.0D)
+			);
+		}
 		this.discard();
 	}
 

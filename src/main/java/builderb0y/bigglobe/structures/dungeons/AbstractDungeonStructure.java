@@ -19,7 +19,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -71,7 +73,6 @@ import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
@@ -241,7 +242,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		public RoomDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
 			super(type, context, nbt);
 			String id = nbt.getString("decorators");
-			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeyVersions.configuredFeature(), IdentifierVersions.create(id));
+			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeys.CONFIGURED_FEATURE, IdentifierVersions.create(id));
 			this.support = nbt.getBoolean("support");
 		}
 
@@ -313,7 +314,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int y = this.y();
 			int z = this.z();
 			if (this.decorators != null && contains(chunkBox, x, y, z)) {
-				RegistryEntryList<ConfiguredFeature<?, ?>> tag = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).getEntryList(this.decorators).orElse(null);
+				RegistryEntryList<ConfiguredFeature<?, ?>> tag = RegistryVersions.getTagNullable(world.getRegistryManager(), this.decorators);
 				if (tag != null) {
 					RegistryEntry<ConfiguredFeature<?, ?>> entry = tag.getRandom(random).orElse(null);
 					if (entry != null) {
@@ -446,7 +447,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			Identifier identifier = BigGlobeMod.modID("chests/advanced_dungeon");
 			chest.setLootTable(
 				#if MC_VERSION >= MC_1_20_5
-					RegistryKey.of(RegistryKeyVersions.lootTable(), identifier),
+					RegistryKey.of(RegistryKeys.LOOT_TABLE, identifier),
 				#else
 					identifier,
 				#endif
@@ -478,14 +479,14 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, context, nbt);
 			String id = nbt.getString("entityType");
 			if (id.isEmpty()) id = "minecraft:zombie";
-			this.spawnerType = RegistryVersions.entityType().get(IdentifierVersions.create(id));
+			this.spawnerType = Registries.ENTITY_TYPE.get(IdentifierVersions.create(id));
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			super.writeNbt(context, nbt);
-			nbt.putString("entityType", RegistryVersions.entityType().getId(this.spawnerType).toString());
+			nbt.putString("entityType", Registries.ENTITY_TYPE.getId(this.spawnerType).toString());
 		}
 
 		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {

@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryLoader;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
@@ -25,7 +26,6 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomLists.IWeightedListElement;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 
 public class BigGlobeDynamicRegistries {
@@ -54,9 +54,9 @@ public class BigGlobeDynamicRegistries {
 				entry(             OVERRIDER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(Overrider           .class))
 			)
 		);
-		addBefore(RegistryKeyVersions.structure(), SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
-		addBefore(RegistryKeyVersions.configuredCarver(),        WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette             .class));
-		addAfter (RegistryKeyVersions.placedFeature(),     FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher       .class));
+		addBefore(RegistryKeys.STRUCTURE,         SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(CombinedStructureScripts.class));
+		addBefore(RegistryKeys.CONFIGURED_CARVER,               WOOD_PALETTE_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(WoodPalette             .class));
+		addAfter (RegistryKeys.PLACED_FEATURE,            FEATURE_DISPATCHER_REGISTRY_KEY, BigGlobeAutoCodec.AUTO_CODEC.createDFUCodec(FeatureDispatcher       .class));
 	}
 
 	public static <T> RegistryLoader.Entry<T> entry(RegistryKey<Registry<T>> key, Codec<T> codec) {

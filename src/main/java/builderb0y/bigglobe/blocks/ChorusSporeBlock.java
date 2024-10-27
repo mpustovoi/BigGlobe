@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
 import builderb0y.bigglobe.features.SingleBlockFeature;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public abstract class ChorusSporeBlock extends PlantBlock implements Fertilizable {
 
@@ -36,7 +37,7 @@ public abstract class ChorusSporeBlock extends PlantBlock implements Fertilizabl
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		return floor.isOpaqueFullCube(world, pos);
+		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 
 	@Override

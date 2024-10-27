@@ -30,6 +30,10 @@ public class DelayedGenerationBlockEntity extends BlockEntity {
 		super(type, pos, state);
 	}
 
+	public DelayedGenerationBlockEntity(BlockPos pos, BlockState state) {
+		this(BigGlobeBlockEntityTypes.DELAYED_GENERATION, pos, state);
+	}
+
 	@SuppressWarnings("deprecation")
 	public void tick() {
 		BlockPos pos = this.pos;

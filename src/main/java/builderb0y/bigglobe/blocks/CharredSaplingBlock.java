@@ -12,6 +12,7 @@ import net.minecraft.block.SaplingGenerator;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 #else
 import net.minecraft.block.sapling.SaplingGenerator;
 
@@ -44,6 +45,6 @@ public class CharredSaplingBlock extends SaplingBlock {
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		return floor.isOpaqueFullCube(world, pos);
+		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 }

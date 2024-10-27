@@ -1,10 +1,10 @@
 package builderb0y.bigglobe.features;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeConfiguredFeatureTagKeys {
 
@@ -27,10 +27,10 @@ public class BigGlobeConfiguredFeatureTagKeys {
 		END_RING_CLOUD_UPPER_FLOOR     =       end("ring_cloud_upper_floor");
 
 	public static TagKey<ConfiguredFeature<?, ?>> overworld(String name) {
-		return TagKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("overworld/" + name));
+		return TagKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("overworld/" + name));
 	}
 
 	public static TagKey<ConfiguredFeature<?, ?>> end(String name) {
-		return TagKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("end/" + name));
+		return TagKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("end/" + name));
 	}
 }

@@ -27,6 +27,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 /** vanilla end gateway logic is a mess. */
 @Mixin(EndGatewayBlockEntity.class)
@@ -109,7 +110,11 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 						mutablePos.set(iterator.floorX(), topY, iterator.floorY());
 						Chunk newChunk = world.getChunk(mutablePos);
 						if (
-							newChunk.getBlockState(mutablePos.setY(topY - 1)).isOpaqueFullCube(world, mutablePos) &&
+							BlockStateVersions.isOpaqueFullCube(
+								newChunk.getBlockState(mutablePos.setY(topY - 1)),
+								world,
+								mutablePos
+							) &&
 							newChunk.getBlockState(mutablePos.setY(topY    )).isAir() &&
 							newChunk.getBlockState(mutablePos.setY(topY + 1)).isAir()
 						) {

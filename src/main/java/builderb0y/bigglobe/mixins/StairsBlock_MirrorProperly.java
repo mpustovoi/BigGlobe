@@ -6,8 +6,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.block.enums.StairShape;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Direction.Axis;
@@ -15,7 +15,6 @@ import net.minecraft.util.math.Direction.Axis;
 @Mixin(StairsBlock.class)
 public abstract class StairsBlock_MirrorProperly extends Block {
 
-	@Shadow @Final public static DirectionProperty FACING;
 	@Shadow @Final public static EnumProperty<StairShape> SHAPE;
 
 	public StairsBlock_MirrorProperly(Settings settings) {
@@ -34,9 +33,9 @@ public abstract class StairsBlock_MirrorProperly extends Block {
 	@Deprecated
 	@SuppressWarnings("deprecation")
 	public BlockState mirror(BlockState state, BlockMirror mirror) {
-		Direction direction = state.get(FACING);
-		StairShape shape = state.get(SHAPE);
 		if (mirror != BlockMirror.NONE) {
+			Direction direction = state.get(Properties.HORIZONTAL_FACING);
+			StairShape shape = state.get(SHAPE);
 			state = state.with(SHAPE, switch (shape) {
 				case STRAIGHT    -> StairShape.STRAIGHT;
 				case INNER_LEFT  -> StairShape.INNER_RIGHT;
@@ -45,7 +44,7 @@ public abstract class StairsBlock_MirrorProperly extends Block {
 				case OUTER_RIGHT -> StairShape.OUTER_LEFT;
 			});
 			if (direction.getAxis() == (mirror == BlockMirror.LEFT_RIGHT ? Axis.Z : Axis.X)) {
-				state = state.with(FACING, direction.getOpposite());
+				state = state.with(Properties.HORIZONTAL_FACING, direction.getOpposite());
 			}
 		}
 		return state;

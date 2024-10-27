@@ -43,7 +43,6 @@ import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.mixins.Items_PlaceableFlint;
 import builderb0y.bigglobe.mixins.Items_PlaceableSticks;
 import builderb0y.bigglobe.trees.SaplingGrowHandler;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeBlocks {

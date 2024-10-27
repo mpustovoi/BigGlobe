@@ -18,10 +18,7 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.AuraBottleItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
-
-#if MC_VERSION >= MC_1_20_5
-import net.minecraft.util.ItemActionResult;
-#endif
+import builderb0y.bigglobe.versions.ActionResultVersions;
 
 public class CloudBlock extends Block {
 
@@ -44,55 +41,33 @@ public class CloudBlock extends Block {
 		this.isVoid = isVoid;
 	}
 
-	#if MC_VERSION >= MC_1_20_5
-
-		@Override
-		public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-			if (!player.isSneaking()) {
-				ItemStack heldItem = player.getStackInHand(hand);
-				if (this.color != CloudColor.BLANK) {
-					if (heldItem.getItem() == Items.GLASS_BOTTLE) {
-						world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(CloudColor.BLANK).getDefaultState());
-						player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
-						return ItemActionResult.SUCCESS;
-					}
-				}
-				else {
-					if (heldItem.getItem() instanceof AuraBottleItem bottle) {
-						world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(bottle.color).getDefaultState());
-						player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(Items.GLASS_BOTTLE)));
-						return ItemActionResult.SUCCESS;
-					}
+	@Override
+	public
+		#if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
+			net.minecraft.util.ItemActionResult
+		#else
+			net.minecraft.util.ActionResult
+		#endif
+	onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (!player.isSneaking()) {
+			ItemStack heldItem = player.getStackInHand(hand);
+			if (this.color != CloudColor.BLANK) {
+				if (heldItem.getItem() == Items.GLASS_BOTTLE) {
+					world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(CloudColor.BLANK).getDefaultState());
+					player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
+					return ActionResultVersions.ITEM_SUCCESS;
 				}
 			}
-			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		}
-	#else
-
-		@Override
-		@Deprecated
-		@SuppressWarnings("deprecation")
-		public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-			if (!player.isSneaking()) {
-				ItemStack heldItem = player.getStackInHand(hand);
-				if (this.color != CloudColor.BLANK) {
-					if (heldItem.getItem() == Items.GLASS_BOTTLE) {
-						world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(CloudColor.BLANK).getDefaultState());
-						player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
-						return ActionResult.SUCCESS;
-					}
-				}
-				else {
-					if (heldItem.getItem() instanceof AuraBottleItem bottle) {
-						world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(bottle.color).getDefaultState());
-						player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(Items.GLASS_BOTTLE)));
-						return ActionResult.SUCCESS;
-					}
+			else {
+				if (heldItem.getItem() instanceof AuraBottleItem bottle) {
+					world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(bottle.color).getDefaultState());
+					player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(Items.GLASS_BOTTLE)));
+					return ActionResultVersions.ITEM_SUCCESS;
 				}
 			}
-			return super.onUse(state, world, pos, player, hand, hit);
 		}
-	#endif
+		return ActionResultVersions.ITEM_PASS;
+	}
 
 	@Override
 	public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {

@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
@@ -36,6 +35,7 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.mixins.FallingBlockEntity_DestroyOnLandingAccess;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.versions.ActionResultVersions;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 
 #if MC_VERSION >= MC_1_21_0
@@ -50,7 +50,6 @@ import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class SpelunkingRopeBlock extends FallingBlock {
 
-	public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 	public static final VoxelShape
 		NORTH_SHAPE     = VoxelShapes.cuboidUnchecked(0.375D, 0.0D, 0.0D,   0.625D, 1.0D,  0.25D ),
 		EAST_SHAPE      = VoxelShapes.cuboidUnchecked(0.75D,  0.0D, 0.375D, 1.0D,   1.0D,  0.625D),
@@ -96,14 +95,14 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		BlockPos upPos = pos.up();
 		BlockState upState = world.getBlockState(upPos);
 		if (upState == state) return;
-		if (this.isExtrusionClear(world, upPos, upState, state.get(FACING))) {
-			Direction ropeDirection = state.get(FACING);
+		if (this.isExtrusionClear(world, upPos, upState, state.get(Properties.HORIZONTAL_FACING))) {
+			Direction ropeDirection = state.get(Properties.HORIZONTAL_FACING);
 			BlockPos anchorPos = upPos.offset(ropeDirection);
 			BlockState anchorState = world.getBlockState(anchorPos);
 			if (
 				anchorState.getBlock() == BigGlobeBlocks.ROPE_ANCHOR &&
 				anchorState.get(RopeAnchorBlock.HAS_ROPE) &&
-				anchorState.get(FACING) == ropeDirection.getOpposite()
+				anchorState.get(Properties.HORIZONTAL_FACING) == ropeDirection.getOpposite()
 			) {
 				return;
 			}
@@ -118,7 +117,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	@Override
 	public void onDestroyedOnLanding(World world, BlockPos pos, FallingBlockEntity fallingBlockEntity) {
-		if (world.getGameRules().getBoolean(GameRules.DO_TILE_DROPS)) {
+		if (world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getBoolean(GameRules.DO_TILE_DROPS)) {
 			world.spawnEntity(
 				new ItemEntity(
 					world,
@@ -163,10 +162,10 @@ public class SpelunkingRopeBlock extends FallingBlock {
 			BlockState sideState = context.getWorld().getBlockState(sidePos);
 			if (
 				sideState.getBlock() == BigGlobeBlocks.ROPE_ANCHOR &&
-				sideState.get(FACING) == direction.getOpposite() &&
+				sideState.get(Properties.HORIZONTAL_FACING) == direction.getOpposite() &&
 				this.isExtrusionClear(upShape, direction)
 			) {
-				return this.getDefaultState().with(FACING, direction);
+				return this.getDefaultState().with(Properties.HORIZONTAL_FACING, direction);
 			}
 		}
 		return null;
@@ -176,7 +175,7 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	@Deprecated
 	@SuppressWarnings("deprecation")
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return switch (state.get(FACING)) {
+		return switch (state.get(Properties.HORIZONTAL_FACING)) {
 			case NORTH    -> NORTH_SHAPE;
 			case EAST     ->  EAST_SHAPE;
 			case SOUTH    -> SOUTH_SHAPE;
@@ -211,42 +210,26 @@ public class SpelunkingRopeBlock extends FallingBlock {
 		};
 	}
 
-	#if MC_VERSION >= MC_1_20_5
-
-		@Override
-		public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-			if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
-				BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
-				if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
-					this.playPlacementSound(player, world, pos);
-					return ItemActionResult.SUCCESS;
-				}
-				else {
-					return ItemActionResult.FAIL;
-				}
+	@Override
+	public
+		#if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
+			net.minecraft.util.ItemActionResult
+		#else
+			net.minecraft.util.ActionResult
+		#endif
+	onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
+			BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
+			if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
+				this.playPlacementSound(player, world, pos);
+				return ActionResultVersions.ITEM_SUCCESS;
 			}
-			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		}
-	#else
-
-		@Override
-		@Deprecated
-		@SuppressWarnings("deprecation")
-		public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-			ItemStack stack = player.getStackInHand(hand);
-			if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
-				BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
-				if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {
-					this.playPlacementSound(player, world, pos);
-					return ActionResult.SUCCESS;
-				}
-				else {
-					return ActionResult.FAIL;
-				}
+			else {
+				return ActionResultVersions.ITEM_FAIL;
 			}
-			return ActionResult.PASS;
 		}
-	#endif
+		return ActionResultVersions.ITEM_PASS;
+	}
 
 	public boolean placeRopesAuto(World world, BlockPos.Mutable mutablePos, BlockState toPlace, PlayerEntity player, ItemStack stack) {
 		if (world.isClient) {
@@ -322,20 +305,20 @@ public class SpelunkingRopeBlock extends FallingBlock {
 
 	@Override
 	public void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, BlockRotation rotation) {
-		return state.with(FACING, rotation.rotate(state.get(FACING)));
+		return state.with(Properties.HORIZONTAL_FACING, rotation.rotate(state.get(Properties.HORIZONTAL_FACING)));
 	}
 
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
 	public BlockState mirror(BlockState state, BlockMirror mirror) {
-		return state.with(FACING, mirror.apply(state.get(FACING)));
+		return state.with(Properties.HORIZONTAL_FACING, mirror.apply(state.get(Properties.HORIZONTAL_FACING)));
 	}
 }

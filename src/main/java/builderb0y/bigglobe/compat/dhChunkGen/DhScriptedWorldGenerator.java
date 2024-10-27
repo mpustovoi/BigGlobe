@@ -28,7 +28,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat.DHCode;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 
@@ -93,11 +93,12 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 				ScriptedColumn[] columns = this.getColumns(totalColumns);
 				IDhApiBiomeWrapper biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(
 					new Object[] {
-						this
-						.serverWorld
-						.getRegistryManager()
-						.get(RegistryKeyVersions.biome())
-						.entryOf(BiomeKeys.PLAINS)
+						RegistryVersions.getObject(
+							this
+							.serverWorld
+							.getRegistryManager(),
+							BiomeKeys.PLAINS
+						)
 					},
 					this.level
 				);
@@ -206,11 +207,12 @@ public class DhScriptedWorldGenerator implements IDhApiWorldGenerator {
 	public DhApiChunk generateChunkOfDataPoints(int chunkX, int chunkZ) {
 		IDhApiBiomeWrapper biome = DhApi.Delayed.wrapperFactory.getBiomeWrapper(
 			new Object[] {
-				this
-				.serverWorld
-				.getRegistryManager()
-				.get(RegistryKeyVersions.biome())
-				.entryOf(BiomeKeys.PLAINS)
+				RegistryVersions.getObject(
+					this
+					.serverWorld
+					.getRegistryManager(),
+					BiomeKeys.PLAINS
+				)
 			},
 			this.level
 		);

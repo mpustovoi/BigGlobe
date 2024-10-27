@@ -15,19 +15,26 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
+import builderb0y.bigglobe.versions.ActionResultVersions;
 import builderb0y.bigglobe.versions.EntityVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+
+#if MC_VERSION >= MC_1_21_2
+	import net.minecraft.item.consume.UseAction;
+	import net.minecraft.util.ActionResult;
+#else
+	import net.minecraft.util.TypedActionResult;
+	import net.minecraft.util.UseAction;
+#endif
 
 /**
 mostly a copy-paste of {@link BowItem} but edited to work with rocks,
@@ -39,7 +46,7 @@ public class SlingshotItem extends RangedWeaponItem
 	#endif
 {
 
-	public static final TagKey<Item> AMMUNITION = TagKey.of(RegistryKeyVersions.item(), BigGlobeMod.modID("slingshot_ammunition"));
+	public static final TagKey<Item> AMMUNITION = TagKey.of(RegistryKeys.ITEM, BigGlobeMod.modID("slingshot_ammunition"));
 	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.isIn(AMMUNITION);
 
 	public SlingshotItem(Settings settings) {
@@ -47,21 +54,27 @@ public class SlingshotItem extends RangedWeaponItem
 	}
 
 	@Override
-	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+	public
+		#if MC_VERSION >= MC_1_21_2
+			boolean
+		#else
+			void
+		#endif
+	onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
 		float progress;
 		if (!(user instanceof PlayerEntity playerEntity)) {
-			return;
+			return #if MC_VERSION >= MC_1_21_2 false #endif;
 		}
 		boolean creative = playerEntity.getAbilities().creativeMode;
 		ItemStack ammunitionStack = EntityVersions.getAmmunition(playerEntity, stack);
 		if ((ammunitionStack.isEmpty() || ammunitionStack.getItem() == Items.ARROW) && !creative) {
-			return;
+			return #if MC_VERSION >= MC_1_21_2 false #endif;
 		}
 		if (ammunitionStack.isEmpty() || ammunitionStack.getItem() == Items.ARROW) {
 			ammunitionStack = new ItemStack(BigGlobeItems.ROCK);
 		}
 		if ((progress = BowItem.getPullProgress(this.getMaxUseTime(stack #if MC_VERSION >= MC_1_21_0 , user #endif) - remainingUseTicks)) < 0.1F) {
-			return;
+			return #if MC_VERSION >= MC_1_21_2 false #endif;
 		}
 		boolean creativeRock = creative && ammunitionStack.isOf(BigGlobeItems.ROCK);
 		if (!world.isClient) {
@@ -79,6 +92,9 @@ public class SlingshotItem extends RangedWeaponItem
 			}
 		}
 		playerEntity.incrementStat(Stats.USED.getOrCreateStat(this));
+		#if MC_VERSION >= MC_1_21_2
+			return true;
+		#endif
 	}
 
 	#if MC_VERSION >= MC_1_20_5
@@ -87,6 +103,7 @@ public class SlingshotItem extends RangedWeaponItem
 		public void shoot(LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target) {
 
 		}
+
 	#endif
 
 	@Override
@@ -119,14 +136,20 @@ public class SlingshotItem extends RangedWeaponItem
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+	public
+		#if MC_VERSION >= MC_1_21_2
+			ActionResult
+		#else
+			TypedActionResult<ItemStack>
+		#endif
+	use(World world, PlayerEntity user, Hand hand) {
 		ItemStack itemStack = user.getStackInHand(hand);
 		boolean hasAmmunition = !EntityVersions.getAmmunition(user, itemStack).isEmpty();
 		if (user.getAbilities().creativeMode || hasAmmunition) {
 			user.setCurrentHand(hand);
-			return TypedActionResult.consume(itemStack);
+			return ActionResultVersions.typedConsume(itemStack);
 		}
-		return TypedActionResult.fail(itemStack);
+		return ActionResultVersions.typedFail(itemStack);
 	}
 
 	@Override

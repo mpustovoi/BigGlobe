@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.wrappers;
 import java.lang.invoke.MethodHandles;
 
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
@@ -11,7 +12,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -29,7 +29,7 @@ public record BiomeEntry(RegistryEntry<Biome> entry) implements EntryWrapper<Bio
 		if (id == null) return null;
 		return new BiomeEntry(
 			BigGlobeMod
-			.getRegistry(RegistryKeyVersions.biome())
+			.getRegistry(RegistryKeys.BIOME)
 			.getByName(id)
 		);
 	}

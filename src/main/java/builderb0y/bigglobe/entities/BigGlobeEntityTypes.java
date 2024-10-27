@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.entities;
 
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,6 +11,7 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EntityType.EntityFactory;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -16,6 +19,7 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.util.Util;
 
 public class BigGlobeEntityTypes {
 
@@ -107,13 +111,17 @@ public class BigGlobeEntityTypes {
 				#endif
 				maxTrackDistance,
 				trackTickInterval,
+				#if MC_VERSION >= MC_1_20_2
+					Util.createTranslationKey("entity", BigGlobeMod.modID(name)),
+					Optional.empty(),
+				#endif
 				FeatureSet.empty()
 			)
 		);
 	}
 
 	public static <E extends Entity> EntityType<E> register(String name, EntityType<E> type) {
-		return Registry.register(RegistryVersions.entityType(), BigGlobeMod.modID(name), type);
+		return Registry.register(Registries.ENTITY_TYPE, BigGlobeMod.modID(name), type);
 	}
 
 	/** triggers static initializer. */

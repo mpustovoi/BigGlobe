@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.nbt.*;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
@@ -16,7 +17,6 @@ import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.mixins.Entity_CurrentIdGetter;
 import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
 data about a specific waypoint that is known to the server.
@@ -98,7 +98,7 @@ implements WaypointData {
 				BigGlobeMod.LOGGER.warn("Attempt to load waypoint with invalid world: " + nbt, exception);
 				return null;
 			}
-			world = RegistryKey.of(RegistryKeyVersions.world(), worldIdentifier);
+			world = RegistryKey.of(RegistryKeys.WORLD, worldIdentifier);
 		}
 
 		PackedWorldPos position;

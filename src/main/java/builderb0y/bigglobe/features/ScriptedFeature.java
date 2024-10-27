@@ -37,6 +37,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.environments.JavaUtilScriptEnvironment;
 import builderb0y.scripting.environments.MathScriptEnvironment;
@@ -96,7 +97,7 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 					context.getWorld().getBottomY(),
 					(chunkZ - 1) << 4,
 					((chunkX + 1) << 4) | 15,
-					context.getWorld().getTopY(),
+					HeightLimitViewVersions.getTopY(context.getWorld()),
 					((chunkZ + 1) << 4) | 15
 				)
 			);

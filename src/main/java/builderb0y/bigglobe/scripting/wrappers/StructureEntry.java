@@ -2,6 +2,8 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.lang.invoke.MethodHandles;
 
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.biome.Biome;
@@ -11,7 +13,6 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
@@ -46,7 +47,7 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 		if (id == null) return null;
 		return new StructureEntry(
 			BigGlobeMod
-			.getRegistry(RegistryKeyVersions.structure())
+			.getRegistry(RegistryKeys.STRUCTURE)
 			.getByName(id)
 		);
 	}
@@ -64,11 +65,9 @@ public class StructureEntry implements EntryWrapper<Structure, StructureTagKey> 
 	public StructureTypeEntry type() {
 		if (this.type == null) {
 			this.type = new StructureTypeEntry(
-				RegistryVersions.structureType().entryOf(
-					UnregisteredObjectException.getKey(
-						RegistryVersions.structureType(),
-						this.entry.value().getType()
-					)
+				RegistryVersions.getEntry(
+					Registries.STRUCTURE_TYPE,
+					this.entry.value().getType()
 				)
 			);
 		}

@@ -1,6 +1,7 @@
 package builderb0y.bigglobe.blocks;
 
 import com.mojang.serialization.MapCodec;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,6 +16,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
+import net.minecraft.world.block.WireOrientation;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
@@ -43,7 +45,18 @@ public class SoulLavaBlock extends FluidBlock {
 	}
 
 	@Override
-	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+	public void neighborUpdate(
+		BlockState state,
+		World world,
+		BlockPos pos,
+		Block sourceBlock,
+		#if MC_VERSION >= MC_1_21_2
+			@Nullable net.minecraft.world.block.WireOrientation wireOrientation,
+		#else
+			BlockPos sourcePos,
+		#endif
+		boolean moved
+	) {
 		if (this.checkNeighborFluids(world, pos, state)) {
 			world.scheduleFluidTick(pos, state.getFluidState().getFluid(), this.fluid.getTickRate(world));
 		}

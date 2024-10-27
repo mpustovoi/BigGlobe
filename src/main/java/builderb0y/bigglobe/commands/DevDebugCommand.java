@@ -7,6 +7,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -24,7 +25,7 @@ import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.util.TagOrObject;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class DevDebugCommand {
 
@@ -44,11 +45,13 @@ public class DevDebugCommand {
 					.executes((CommandContext<ServerCommandSource> context) -> {
 						if (context.getSource().getWorld().getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 							ConfiguredFeature<?, ?> ore = (
-								context
-								.getSource()
-								.getServer()
-								.getRegistryManager()
-								.get(RegistryKeyVersions.configuredFeature())
+								RegistryVersions.getRegistry(
+									context
+									.getSource()
+									.getServer()
+									.getRegistryManager(),
+									RegistryKeys.CONFIGURED_FEATURE
+								)
 								.get(context.getArgument("ore", Identifier.class))
 							);
 							if (ore != null && ore.config() instanceof OreFeature.Config config) {

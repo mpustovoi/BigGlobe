@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -42,20 +43,23 @@ public class SatinCompat {
 	public static final boolean ENABLED = FabricLoader.getInstance().isModLoaded("satin");
 	public static Vec3d cameraPosition = Vec3d.ZERO;
 	public static final Matrix4f SCRATCH_MATRIX = new Matrix4f();
-	public static final TreeSet<WaypointEntity> visibleWaypoints = (
-		ENABLED
-		? new TreeSet<>(
-			Comparator.comparingDouble((WaypointEntity entity) -> {
-				return BigGlobeMath.squareD(
-					entity.getX() - cameraPosition.x,
-					entity.getY() - cameraPosition.y + 1.0D,
-					entity.getZ() - cameraPosition.z
-				);
-			})
-			.thenComparingInt(WaypointEntity::getId)
-		)
-		: null
-	);
+	public static final TreeSet<VisibleWaypointData> visibleWaypoints = ENABLED ? new TreeSet<>() : null;
+
+	public static record VisibleWaypointData(double x, double y, double z, float age, float health) implements Comparable<VisibleWaypointData> {
+
+		public double squareDistanceToCamera() {
+			return BigGlobeMath.squareD(
+				this.x - cameraPosition.x,
+				this.y - cameraPosition.y + 1.0D,
+				this.z - cameraPosition.z
+			);
+		}
+
+		@Override
+		public int compareTo(@NotNull SatinCompat.VisibleWaypointData that) {
+			return Double.compare(this.squareDistanceToCamera(), that.squareDistanceToCamera());
+		}
+	}
 
 	public static void init() {
 		if (ENABLED) try {
@@ -69,9 +73,9 @@ public class SatinCompat {
 		}
 	}
 
-	public static void markWaypointRendered(WaypointEntity entity) {
+	public static void markWaypointRendered(double x, double y, double z, float age, float health) {
 		if (ENABLED) {
-			visibleWaypoints.add(entity);
+			visibleWaypoints.add(new VisibleWaypointData(x, y, z, age, health));
 			if (visibleWaypoints.size() > 16) {
 				visibleWaypoints.pollLast();
 			}
@@ -150,12 +154,12 @@ public class SatinCompat {
 					);
 					Vector4f position = new Vector4f();
 					int count = 0;
-					for (Iterator<WaypointEntity> iterator = visibleWaypoints.descendingIterator(); iterator.hasNext(); ) {
-						WaypointEntity waypoint = iterator.next();
+					for (Iterator<VisibleWaypointData> iterator = visibleWaypoints.descendingIterator(); iterator.hasNext(); ) {
+						VisibleWaypointData waypoint = iterator.next();
 						position.set(
-							waypoint.getX() - cameraPosition.x,
-							waypoint.getY() - cameraPosition.y + 1.0D,
-							waypoint.getZ() - cameraPosition.z,
+							waypoint.x - cameraPosition.x,
+							waypoint.y - cameraPosition.y + 1.0D,
+							waypoint.z - cameraPosition.z,
 							1.0F
 						);
 						RenderSystem.getModelViewMatrix().transform(position);

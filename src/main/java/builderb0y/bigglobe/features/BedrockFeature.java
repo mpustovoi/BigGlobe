@@ -17,6 +17,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implements RockReplacerFeature<BedrockFeature.Config> {
 
@@ -43,7 +44,7 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 		int minY = Math.min(config.full_y, adjustedEmptyY);
 		int maxY = Math.max(config.full_y, adjustedEmptyY);
 		int clampedMinY = Math.max(minY, chunk.getBottomY());
-		int clampedMaxY = Math.min(maxY, chunk.getTopY() - 1);
+		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getTopY(chunk) - 1);
 		int sectionMinY = clampedMinY >> 4;
 		int sectionMaxY = clampedMaxY >> 4;
 		Async.loop(BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {

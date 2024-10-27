@@ -2,6 +2,7 @@ package builderb0y.bigglobe.loot;
 
 import net.minecraft.loot.entry.LootPoolEntryType;
 import net.minecraft.loot.function.LootFunctionType;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -23,21 +24,25 @@ public class BigGlobeLoot {
 	static { BigGlobeMod.LOGGER.debug("Done registering loot pool entry types."); }
 
 	#if MC_VERSION >= MC_1_20_2
+
 		public static LootPoolEntryType registerEntry(String id, LootPoolEntryType serializer) {
-			return Registry.register(RegistryVersions.lootPoolEntryType(), BigGlobeMod.modID(id), serializer);
+			return Registry.register(Registries.LOOT_POOL_ENTRY_TYPE, BigGlobeMod.modID(id), serializer);
 		}
 
 		public static LootFunctionType registerFunction(String id, LootFunctionType serializer) {
-			return Registry.register(RegistryVersions.lootFunctionType(), BigGlobeMod.modID(id), serializer);
+			return Registry.register(Registries.LOOT_FUNCTION_TYPE, BigGlobeMod.modID(id), serializer);
 		}
+
 	#else
+
 		public static LootPoolEntryType registerEntry(String id, JsonSerializer<? extends LootPoolEntry> serializer) {
-			return Registry.register(RegistryVersions.lootPoolEntryType(), BigGlobeMod.modID(id), new LootPoolEntryType(serializer));
+			return Registry.register(Registries.LOOT_POOL_ENTRY_TYPE, BigGlobeMod.modID(id), new LootPoolEntryType(serializer));
 		}
 
 		public static LootFunctionType registerFunction(String id, JsonSerializer<? extends LootFunction> serializer) {
-			return Registry.register(RegistryVersions.lootFunctionType(), BigGlobeMod.modID(id), new LootFunctionType(serializer));
+			return Registry.register(Registries.LOOT_FUNCTION_TYPE, BigGlobeMod.modID(id), new LootFunctionType(serializer));
 		}
+
 	#endif
 
 	public static void init() {}

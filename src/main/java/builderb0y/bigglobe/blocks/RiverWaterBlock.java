@@ -28,6 +28,8 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.ClientState;
@@ -58,11 +60,11 @@ public class RiverWaterBlock extends FluidBlock {
 	}
 
 	public boolean isDangerous(World world) {
-		if (world.isClient) {
-			return ClientState.dangerousRapids;
+		if (world instanceof ServerWorld serverWorld) {
+			return serverWorld.getGameRules().getBoolean(BigGlobeGameRules.DANGEROUS_RAPIDS);
 		}
 		else {
-			return world.getGameRules().getBoolean(BigGlobeGameRules.DANGEROUS_RAPIDS);
+			return ClientState.dangerousRapids;
 		}
 	}
 
@@ -143,7 +145,25 @@ public class RiverWaterBlock extends FluidBlock {
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+	public BlockState getStateForNeighborUpdate(
+		#if MC_VERSION >= MC_1_21_2
+			BlockState state,
+			WorldView world,
+			ScheduledTickView tickView,
+			BlockPos pos,
+			Direction direction,
+			BlockPos neighborPos,
+			BlockState neighborState,
+			Random random
+		#else
+			BlockState state,
+			Direction direction,
+			BlockState neighborState,
+			WorldAccess world,
+			BlockPos pos,
+			BlockPos neighborPos
+		#endif
+	) {
 		return state;
 	}
 

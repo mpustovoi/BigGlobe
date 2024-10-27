@@ -12,6 +12,7 @@ import builderb0y.bigglobe.columns.scripted.traits.WorldTraits;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.scripting.bytecode.*;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.bytecode.tree.instructions.LoadInsnTree;
@@ -150,7 +151,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	) {
 
 		public Params(long seed, int x, int z, HeightLimitView world, Hints hints, WorldTraits traits) {
-			this(seed, x, z, world.getBottomY(), world.getTopY(), hints, traits);
+			this(seed, x, z, world.getBottomY(), HeightLimitViewVersions.getTopY(world), hints, traits);
 		}
 
 		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Hints hints) {
@@ -170,7 +171,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		}
 
 		public Params heightRange(HeightLimitView world) {
-			return this.heightRange(world.getBottomY(), world.getTopY());
+			return this.heightRange(world.getBottomY(), HeightLimitViewVersions.getTopY(world));
 		}
 
 		public Params hints(Hints hints) {

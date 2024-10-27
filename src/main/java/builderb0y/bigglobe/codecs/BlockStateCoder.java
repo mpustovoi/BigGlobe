@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.poi.PointOfInterestTypes;
@@ -31,14 +33,13 @@ import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.codecs.registries.BetterHardCodedRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static final BlockStateCoder INSTANCE = new BlockStateCoder("BlockStateCoder.INSTANCE");
 
-	public static final AutoCoder<BetterRegistry<Block>> BLOCK_REGISTRY_CODER = new BetterHardCodedRegistryCoder<>(RegistryVersions.block());
+	public static final AutoCoder<BetterRegistry<Block>> BLOCK_REGISTRY_CODER = new BetterHardCodedRegistryCoder<>(Registries.BLOCK);
 
 	public BlockStateCoder(String toString) {
 		super(toString);
@@ -89,7 +90,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 	public static BlockProperties decodeState(BetterRegistry<Block> blockRegistry, String input) {
 		int openBracket = input.indexOf('[');
 		Identifier blockID = IdentifierVersions.create(openBracket >= 0 ? input.substring(0, openBracket) : input);
-		Block block = blockRegistry.getOrCreateEntry(RegistryKey.of(RegistryKeyVersions.block(), blockID)).value();
+		Block block = blockRegistry.getOrCreateEntry(RegistryKey.of(RegistryKeys.BLOCK, blockID)).value();
 		BlockState state = block.getDefaultState();
 		if (openBracket >= 0) {
 			if (block.getStateManager().getProperties().isEmpty()) {

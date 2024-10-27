@@ -9,7 +9,7 @@ import net.minecraft.world.gen.feature.EndSpikeFeature.Spike;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.bigglobe.noise.MojangPermuter;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class EndSpikeWorldgenFeature extends Feature<DefaultFeatureConfig> {
 
@@ -23,7 +23,7 @@ public class EndSpikeWorldgenFeature extends Feature<DefaultFeatureConfig> {
 
 	@Override
 	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
-		ConfiguredFeature<?, ?> delegate = context.getWorld().getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(EndSpikeRespawnFeature.DELEGATE_KEY);
+		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.getWorld().getRegistryManager(), EndSpikeRespawnFeature.DELEGATE_KEY);
 		if (delegate == null) return false;
 		MutableBoolean success = new MutableBoolean(false);
 		EndSpikeFeature

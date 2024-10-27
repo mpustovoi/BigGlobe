@@ -1,12 +1,12 @@
 package builderb0y.bigglobe.blocks;
 
 import net.minecraft.block.Block;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeBlockTags {
 
@@ -50,10 +50,10 @@ public class BigGlobeBlockTags {
 		PLANTS                              = of("plants");
 
 	public static TagKey<Block> of(String name) {
-		return TagKey.of(RegistryKeyVersions.block(), BigGlobeMod.modID(name));
+		return TagKey.of(RegistryKeys.BLOCK, BigGlobeMod.modID(name));
 	}
 
 	public static TagKey<Block> common(String name) {
-		return TagKey.of(RegistryKeyVersions.block(), IdentifierVersions.create("c", name));
+		return TagKey.of(RegistryKeys.BLOCK, IdentifierVersions.create("c", name));
 	}
 }

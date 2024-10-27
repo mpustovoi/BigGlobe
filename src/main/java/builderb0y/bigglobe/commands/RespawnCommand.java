@@ -162,11 +162,15 @@ public class RespawnCommand {
 					)
 				)
 			) {
-				player.teleport(
+				EntityVersions.teleport(
+					player,
 					world,
-					WorldPropertiesVersions.getSpawnX(properties) + 0.5D,
-					WorldPropertiesVersions.getSpawnY(properties),
-					WorldPropertiesVersions.getSpawnZ(properties) + 0.5D,
+					new Vec3d(
+						WorldPropertiesVersions.getSpawnX(properties) + 0.5D,
+						WorldPropertiesVersions.getSpawnY(properties),
+						WorldPropertiesVersions.getSpawnZ(properties) + 0.5D
+					),
+					Vec3d.ZERO,
 					properties.getSpawnAngle(),
 					0.0F
 				);
@@ -220,7 +224,7 @@ public class RespawnCommand {
 					return Text.translatable(PREFIX + "bed.destroyed");
 				}
 			}
-			player.teleport(world, actualPosition.x, actualPosition.y, actualPosition.z, 0.0F, 0.0F);
+			EntityVersions.teleport(player, world, actualPosition, Vec3d.ZERO, 0.0F, 0.0F);
 			player.lookAt(EntityAnchor.EYES, new Vec3d(position.getX() + 0.5D, position.getY() + 0.5D, position.getZ() + 0.5D));
 			return null;
 		}
@@ -245,7 +249,7 @@ public class RespawnCommand {
 				)
 			) {
 				float yaw = player.getSpawnAngle();
-				player.teleport(world, position.getX() + 0.5D, position.getY(), position.getZ() + 0.5D, yaw, 0.0F);
+				EntityVersions.teleport(player, world, position.toBottomCenterPos(), Vec3d.ZERO, yaw, 0.0F);
 				return null;
 			}
 
@@ -256,7 +260,14 @@ public class RespawnCommand {
 			if (EntityVersions.getServerWorld(player).getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator) {
 				SpawnPoint spawnPoint = BigGlobeSpawnLocator.findSpawn(EntityVersions.getServerWorld(player), generator, EntityVersions.getServerWorld(player).random.nextLong());
 				if (spawnPoint != null) {
-					player.teleport(EntityVersions.getServerWorld(player), spawnPoint.x, spawnPoint.y, spawnPoint.z, spawnPoint.yaw, 0.0F);
+					EntityVersions.teleport(
+						player,
+						EntityVersions.getServerWorld(player),
+						new Vec3d(spawnPoint.x, spawnPoint.y, spawnPoint.z),
+						Vec3d.ZERO,
+						spawnPoint.yaw,
+						0.0F
+					);
 					return null;
 				}
 				else {

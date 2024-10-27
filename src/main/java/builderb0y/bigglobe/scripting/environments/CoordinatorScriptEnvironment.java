@@ -6,7 +6,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -164,16 +167,16 @@ public class CoordinatorScriptEnvironment {
 
 	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName) {
 		Identifier identifier = IdentifierVersions.create(entityTypeName);
-		if (RegistryVersions.entityType().containsId(identifier)) {
+		if (Registries.ENTITY_TYPE.containsId(identifier)) {
 			EntityType<?> entityType = RegistryVersions.entityType().get(identifier);
 			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
 			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);
 			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);
-			coordinator.addEntity(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (pos, world) -> {
+			coordinator.addEntity(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (BlockPos.Mutable pos, ServerWorld world) -> {
 				double newX = pos.getX() + offsetX;
 				double newY = pos.getY() + offsetY;
 				double newZ = pos.getZ() + offsetZ;
-				Entity entity = entityType.create(world);
+				Entity entity = entityType.create(world #if MC_VERSION >= MC_1_21_2 , SpawnReason.CHUNK_GENERATION #endif);
 				if (entity != null) {
 					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
 					return entity;
@@ -196,11 +199,11 @@ public class CoordinatorScriptEnvironment {
 			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);
 			NbtCompound copy = data.copy();
 			copy.putString("id", entityTypeName);
-			coordinator.addEntity(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (pos, world) -> {
+			coordinator.addEntity(BigGlobeMath.floorI(x), BigGlobeMath.floorI(y), BigGlobeMath.floorI(z), (BlockPos.Mutable pos, ServerWorld world) -> {
 				double newX = pos.getX() + offsetX;
 				double newY = pos.getY() + offsetY;
 				double newZ = pos.getZ() + offsetZ;
-				return EntityType.loadEntityWithPassengers(copy, world, entity -> {
+				return EntityType.loadEntityWithPassengers(copy, world, #if MC_VERSION >= MC_1_21_2 SpawnReason.CHUNK_GENERATION, #endif (Entity entity) -> {
 					entity.refreshPositionAndAngles(newX, newY, newZ, entity.getYaw(), entity.getPitch());
 					return entity;
 				});

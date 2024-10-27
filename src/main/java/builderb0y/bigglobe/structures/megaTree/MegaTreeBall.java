@@ -7,6 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
@@ -38,7 +39,7 @@ import builderb0y.bigglobe.structures.megaTree.MegaTreeBall.Data;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -73,7 +74,13 @@ public class MegaTreeBall extends DataStructurePiece<Data> {
 		}
 
 		public static RegistryEntry<Structure> getActualEntry(MegaTreeStructure structure) {
-			return BigGlobeMod.getCurrentServer().getRegistryManager().get(RegistryKeyVersions.structure()).getEntry(structure);
+			return RegistryVersions.getEntry(
+				RegistryVersions.getRegistry(
+					BigGlobeMod.getCurrentServer().getRegistryManager(),
+					RegistryKeys.STRUCTURE
+				),
+				structure
+			);
 		}
 
 		public Vector3d position() {

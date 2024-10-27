@@ -3,6 +3,7 @@ package builderb0y.bigglobe.structures;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
@@ -126,15 +127,15 @@ public class BigGlobeStructures {
 	static { BigGlobeMod.LOGGER.debug("Done registering structures."); }
 
 	public static BigGlobeStructurePieceType registerPiece(String name, BigGlobeStructurePieceType type) {
-		return Registry.register(RegistryVersions.structurePieceType(), BigGlobeMod.modID(name), type);
+		return Registry.register(Registries.STRUCTURE_PIECE, BigGlobeMod.modID(name), type);
 	}
 
 	public static <T_Structure extends Structure> StructureType<T_Structure> registerType(String name, #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif <T_Structure> codec) {
-		return Registry.register(RegistryVersions.structureType(), BigGlobeMod.modID(name), () -> codec);
+		return Registry.register(Registries.STRUCTURE_TYPE, BigGlobeMod.modID(name), () -> codec);
 	}
 
 	public static <T_Placement extends StructurePlacement> StructurePlacementType<T_Placement> registerPlacement(String name, #if MC_VERSION >= MC_1_20_5 MapCodec #else Codec #endif <T_Placement> codec) {
-		return Registry.register(RegistryVersions.structurePlacementType(), BigGlobeMod.modID(name), () -> codec);
+		return Registry.register(Registries.STRUCTURE_PLACEMENT, BigGlobeMod.modID(name), () -> codec);
 	}
 
 	public static void init() {}

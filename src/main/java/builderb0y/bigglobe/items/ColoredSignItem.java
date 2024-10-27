@@ -19,7 +19,11 @@ public class ColoredSignItem extends SignItem {
 	public final DyeColor color;
 
 	public ColoredSignItem(Settings settings, Block standingBlock, Block wallBlock, DyeColor color) {
-		super(settings, standingBlock, wallBlock);
+		#if MC_VERSION >= MC_1_21_2
+			super(standingBlock, wallBlock, settings);
+		#else
+			super(settings, standingBlock, wallBlock);
+		#endif
 		this.color = color;
 	}
 

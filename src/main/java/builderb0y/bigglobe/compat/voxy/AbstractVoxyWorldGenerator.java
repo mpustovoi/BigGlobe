@@ -36,7 +36,8 @@ import builderb0y.bigglobe.mixins.Voxy_WorldSection_DataGetter;
 import builderb0y.bigglobe.util.AsyncConsumer;
 import builderb0y.bigglobe.util.AsyncRunner;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @Environment(EnvType.CLIENT)
 public abstract class AbstractVoxyWorldGenerator {
@@ -70,7 +71,7 @@ public abstract class AbstractVoxyWorldGenerator {
 		for (int index = 0; index < 1024; index++) {
 			this.columns[index] = factory.create(params);
 		}
-		this.plainsBiomeId = engine.getMapper().getIdForBiome(world.getRegistryManager().get(RegistryKeyVersions.biome()).entryOf(BiomeKeys.PLAINS));
+		this.plainsBiomeId = engine.getMapper().getIdForBiome(RegistryVersions.getEntry(world.getRegistryManager(), BiomeKeys.PLAINS));
 	}
 
 	public static void reloadWith(Factory factory, IGetVoxelCore coreGetter) {
@@ -201,7 +202,7 @@ public abstract class AbstractVoxyWorldGenerator {
 											previousColumnStateID = previousColumnState.isAir() ? 0 : this.engine.getMapper().getIdForBlockState(previousColumnState);
 										}
 										byte startLightLevel = segment.lightLevel;
-										int diminishment = previousColumnState.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+										int diminishment = BlockStateVersions.getOpacity(previousColumnState, EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 										int blockLightLevel = previousColumnState.getLuminance() << 4;
 										if (startLightLevel == 0 || diminishment == 0) {
 											long id = Mapper.composeMappingId((byte)((15 - startLightLevel) | blockLightLevel), previousColumnStateID, this.plainsBiomeId);

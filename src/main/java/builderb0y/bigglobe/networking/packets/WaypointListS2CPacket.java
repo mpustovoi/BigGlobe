@@ -15,6 +15,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
@@ -26,7 +27,6 @@ import builderb0y.bigglobe.networking.base.S2CPlayPacketHandler;
 import builderb0y.bigglobe.util.NbtIo2;
 import builderb0y.bigglobe.util.TextCoding;
 import builderb0y.bigglobe.versions.EntityVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 /**
 schema:
@@ -107,7 +107,7 @@ public class WaypointListS2CPacket implements S2CPlayPacketHandler<List<SyncedWa
 		int worldCount = buffer.readVarInt();
 		List<RegistryKey<World>> worlds = new ArrayList<>(worldCount);
 		for (int worldIndex = 0; worldIndex < worldCount; worldIndex++) {
-			worlds.add(buffer.readRegistryKey(RegistryKeyVersions.world()));
+			worlds.add(buffer.readRegistryKey(RegistryKeys.WORLD));
 		}
 		int waypointCount = buffer.readVarInt();
 		List<SyncedWaypointData> waypoints = new ArrayList<>(waypointCount);

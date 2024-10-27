@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.entry.RegistryEntryList.Named;
@@ -26,7 +27,6 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
 
@@ -103,7 +103,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 			return this.script.get(column, y << 2).entry();
 		}
 		else {
-			return BigGlobeMod.getRegistry(RegistryKeyVersions.biome()).getOrCreateEntry(BiomeKeys.PLAINS);
+			return BigGlobeMod.getRegistry(RegistryKeys.BIOME).getOrCreateEntry(BiomeKeys.PLAINS);
 		}
 	}
 }

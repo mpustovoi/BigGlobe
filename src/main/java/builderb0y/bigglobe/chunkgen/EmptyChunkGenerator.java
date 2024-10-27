@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
@@ -34,7 +35,6 @@ import net.minecraft.world.biome.SpawnSettings.SpawnEntry;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -77,7 +77,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	public static void init() {
-		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("empty"), CODEC);
+		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("empty"), CODEC);
 	}
 
 	@Override
@@ -86,7 +86,15 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void carve(ChunkRegion chunkRegion, long seed, NoiseConfig noiseConfig, BiomeAccess biomeAccess, StructureAccessor structureAccessor, Chunk chunk, Carver carverStep) {
+	public void carve(
+		ChunkRegion chunkRegion,
+		long seed,
+		NoiseConfig noiseConfig,
+		BiomeAccess biomeAccess,
+		StructureAccessor structureAccessor,
+		Chunk chunk
+		#if MC_VERSION < MC_1_21_2 , net.minecraft.world.gen.GenerationStep.Carver carverStep #endif
+	) {
 
 	}
 
@@ -141,7 +149,13 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
+	public void
+		#if MC_VERSION >= MC_1_21_2
+			appendDebugHudText
+		#else
+			getDebugHudText
+		#endif
+	(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
 
 	}
 

@@ -10,8 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SnowballItem;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Position;
 import net.minecraft.world.World;
@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.RockEntity;
 import builderb0y.bigglobe.sounds.BigGlobeSoundEvents;
+import builderb0y.bigglobe.versions.ActionResultVersions;
 
 public class RockItem extends BlockItem implements SlingshotAmmunition {
 
@@ -28,7 +29,13 @@ public class RockItem extends BlockItem implements SlingshotAmmunition {
 
 	/** mostly copy-pasted from {@link SnowballItem}. */
 	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+	public
+		#if MC_VERSION >= MC_1_21_2
+			ActionResult
+		#else
+			net.minecraft.util.TypedActionResult<ItemStack>
+		#endif
+	use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
 		world.playSound(null, user.getX(), user.getY(), user.getZ(), BigGlobeSoundEvents.ENTITY_ROCK_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 		if (!world.isClient) {
@@ -41,7 +48,7 @@ public class RockItem extends BlockItem implements SlingshotAmmunition {
 		if (!user.getAbilities().creativeMode) {
 			stack.decrement(1);
 		}
-		return TypedActionResult.success(stack, true);
+		return ActionResultVersions.typedSuccess(stack);
 	}
 
 	@Override

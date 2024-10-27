@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.versions;
 
+import java.util.Collections;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -37,7 +39,9 @@ public class EntityVersions {
 	}
 
 	public static double getBlockReachDistance(PlayerEntity player) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_2
+			return player.getAttributeValue(EntityAttributes.BLOCK_INTERACTION_RANGE);
+		#elif MC_VERSION >= MC_1_20_5
 			return player.getAttributeValue(EntityAttributes.PLAYER_BLOCK_INTERACTION_RANGE);
 		#else
 			return 8.0D;
@@ -49,7 +53,9 @@ public class EntityVersions {
 	}
 
 	public static double getEntityReachDistance(PlayerEntity player) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_2
+			return player.getAttributeValue(EntityAttributes.ENTITY_INTERACTION_RANGE);
+		#elif MC_VERSION >= MC_1_20_5
 			return player.getAttributeValue(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE);
 		#else
 			return 8.0D;
@@ -69,7 +75,21 @@ public class EntityVersions {
 	}
 
 	public static ServerPlayerEntity teleport(ServerPlayerEntity player, ServerWorld destinationWorld, Vec3d position, Vec3d velocity, float yaw, float pitch) {
-		#if MC_VERSION >= MC_1_21_0
+		#if MC_VERSION >= MC_1_21_2
+			return player.teleportTo(
+				new TeleportTarget(
+					destinationWorld,
+					position,
+					velocity,
+					yaw,
+					pitch,
+					false,
+					false,
+					Collections.emptySet(),
+					TeleportTarget.NO_OP
+				)
+			);
+		#elif MC_VERSION >= MC_1_21_0
 			return (ServerPlayerEntity)(
 				player.teleportTo(
 					new TeleportTarget(

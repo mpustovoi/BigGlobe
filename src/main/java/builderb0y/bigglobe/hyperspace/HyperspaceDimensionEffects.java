@@ -33,8 +33,12 @@ public class HyperspaceDimensionEffects extends DimensionEffects {
 		return false;
 	}
 
-	@Override
-	public float @Nullable [] getFogColorOverride(float skyAngle, float tickDelta) {
-		return null;
-	}
+	#if MC_VERSION < MC_1_21_2
+
+		@Override
+		public float @Nullable [] getFogColorOverride(float skyAngle, float tickDelta) {
+			return null;
+		}
+
+	#endif
 }

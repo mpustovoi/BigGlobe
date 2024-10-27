@@ -12,8 +12,12 @@ import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.BigGlobeMod;
 
+#if MC_VERSION >= MC_1_21_2
+	import net.minecraft.client.render.entity.state.ProjectileEntityRenderState;
+#endif
+
 @Environment(EnvType.CLIENT)
-public class TorchArrowRenderer extends ProjectileEntityRenderer<TorchArrowEntity> {
+public class TorchArrowRenderer extends ProjectileEntityRenderer<TorchArrowEntity #if MC_VERSION >= MC_1_21_2 , ProjectileEntityRenderState #endif> {
 
 	public static final Identifier TEXTURE = BigGlobeMod.modID("textures/entity/projectiles/torch_arrow.png");
 
@@ -22,15 +26,52 @@ public class TorchArrowRenderer extends ProjectileEntityRenderer<TorchArrowEntit
 	}
 
 	@Override
-	public void render(TorchArrowEntity persistentProjectileEntity, float yaw, float partialTicks, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light) {
+	public void render(
+		#if MC_VERSION >= MC_1_21_2
+			ProjectileEntityRenderState state,
+		#else
+			TorchArrowEntity entity,
+			float yaw,
+			float partialTicks,
+		#endif
+		MatrixStack matrixStack,
+		VertexConsumerProvider vertexConsumerProvider,
+		int light
+	) {
 		int skylight = LightmapTextureManager.getSkyLightCoordinates(light);
 		int blockLight = 15;
 		light = LightmapTextureManager.pack(blockLight, skylight);
-		super.render(persistentProjectileEntity, yaw, partialTicks, matrixStack, vertexConsumerProvider, light);
+		super.render(
+			#if MC_VERSION >= MC_1_21_2
+				state,
+			#else
+				entity,
+				yaw,
+				partialTicks,
+			#endif
+			matrixStack,
+			vertexConsumerProvider,
+			light
+		);
 	}
 
+	#if MC_VERSION >= MC_1_21_2
+
+		@Override
+		public ProjectileEntityRenderState createRenderState() {
+			return new ProjectileEntityRenderState();
+		}
+
+	#endif
+
 	@Override
-	public Identifier getTexture(TorchArrowEntity entity) {
+	public Identifier getTexture(
+		#if MC_VERSION >= MC_1_21_2
+			ProjectileEntityRenderState state
+		#else
+			TorchArrowEntity entity
+		#endif
+	) {
 		return TEXTURE;
 	}
 }

@@ -9,11 +9,11 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -24,12 +24,9 @@ import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.versions.ActionResultVersions;
 
 import static builderb0y.bigglobe.blocks.BigGlobeBlocks.SPELUNKING_ROPE;
-
-#if MC_VERSION >= MC_1_20_5
-import net.minecraft.util.ItemActionResult;
-#endif
 
 public class RopeAnchorBlock extends HorizontalFacingBlock {
 
@@ -73,62 +70,36 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 		super.onStateReplaced(state, world, pos, newState, moved);
 	}
 
-	#if MC_VERSION >= MC_1_20_5
-
-		@Override
-		public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-			if (stack.isEmpty() && player.isSneaking()) {
-				if (this.retractRopeAuto(world, pos, state, player)) {
-					if (!world.isClient && !player.isCreative()) {
-						player.getInventory().insertStack(new ItemStack(BigGlobeItems.SPELUNKING_ROPE));
-					}
-					return ItemActionResult.SUCCESS;
+	@Override
+	public
+		#if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
+			net.minecraft.util.ItemActionResult
+		#else
+			net.minecraft.util.ActionResult
+		#endif
+	onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (stack.isEmpty() && player.isSneaking()) {
+			if (this.retractRopeAuto(world, pos, state, player)) {
+				if (!world.isClient && !player.isCreative()) {
+					player.getInventory().insertStack(new ItemStack(BigGlobeItems.SPELUNKING_ROPE));
 				}
-				else {
-					return ItemActionResult.FAIL;
-				}
+				return ActionResultVersions.ITEM_SUCCESS;
 			}
-			else if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
-				if (this.placeRopes(world, pos, state, player, stack)) {
-					SPELUNKING_ROPE.playPlacementSound(player, world, pos);
-					return ItemActionResult.SUCCESS;
-				}
-				else {
-					return ItemActionResult.FAIL;
-				}
+			else {
+				return ActionResultVersions.ITEM_FAIL;
 			}
-			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
-	#else
-
-		@Override
-		@Deprecated
-		@SuppressWarnings("deprecation")
-		public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-			ItemStack stack = player.getStackInHand(hand);
-			if (stack.isEmpty() && player.isSneaking()) {
-				if (this.retractRopeAuto(world, pos, state, player)) {
-					if (!world.isClient && !player.isCreative()) {
-						player.getInventory().insertStack(new ItemStack(BigGlobeItems.SPELUNKING_ROPE));
-					}
-					return ActionResult.SUCCESS;
-				}
-				else {
-					return ActionResult.FAIL;
-				}
+		else if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
+			if (this.placeRopes(world, pos, state, player, stack)) {
+				SPELUNKING_ROPE.playPlacementSound(player, world, pos);
+				return ActionResultVersions.ITEM_SUCCESS;
 			}
-			else if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
-				if (this.placeRopes(world, pos, state, player, stack)) {
-					SPELUNKING_ROPE.playPlacementSound(player, world, pos);
-					return ActionResult.SUCCESS;
-				}
-				else {
-					return ActionResult.FAIL;
-				}
+			else {
+				return ActionResultVersions.ITEM_FAIL;
 			}
-			return ActionResult.PASS;
 		}
-	#endif
+		return ActionResultVersions.ITEM_PASS;
+	}
 
 	public boolean placeRopes(World world, BlockPos anchorPos, BlockState anchorState, PlayerEntity player, ItemStack heldItem) {
 		Direction direction = anchorState.get(FACING);
@@ -209,7 +180,25 @@ public class RopeAnchorBlock extends HorizontalFacingBlock {
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+	public BlockState getStateForNeighborUpdate(
+		#if MC_VERSION >= MC_1_21_2
+			BlockState state,
+			WorldView world,
+			net.minecraft.world.tick.ScheduledTickView tickView,
+			BlockPos pos,
+			Direction direction,
+			BlockPos neighborPos,
+			BlockState neighborState,
+			Random random
+		#else
+			BlockState state,
+			Direction direction,
+			BlockState neighborState,
+			WorldAccess world,
+			BlockPos pos,
+			BlockPos neighborPos
+		#endif
+	) {
 		return (
 			direction == Direction.DOWN
 			&& !this.canPlaceOn(world, neighborPos, neighborState)

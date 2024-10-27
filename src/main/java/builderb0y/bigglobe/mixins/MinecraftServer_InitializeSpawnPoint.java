@@ -13,7 +13,7 @@ import net.minecraft.world.gen.feature.MiscConfiguredFeatures;
 import net.minecraft.world.level.ServerWorldProperties;
 
 import builderb0y.bigglobe.spawning.BigGlobeSpawnLocator;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.bigglobe.versions.WorldPropertiesVersions;
 
 @Mixin(MinecraftServer.class)
@@ -29,7 +29,7 @@ public class MinecraftServer_InitializeSpawnPoint {
 	) {
 		if (BigGlobeSpawnLocator.initWorldSpawn(world)) {
 			if (bonusChest) {
-				ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(MiscConfiguredFeatures.BONUS_CHEST);
+				ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.getRegistryManager(), MiscConfiguredFeatures.BONUS_CHEST);
 				if (feature != null) feature.generate(
 					world,
 					world.getChunkManager().getChunkGenerator(),

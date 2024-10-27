@@ -24,6 +24,7 @@ import builderb0y.bigglobe.columns.scripted.dependencies.IndirectDependencyColle
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @UseCoder(name = "CODER", in = Overrider.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER)
 public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureOverrider.Entry {
@@ -43,8 +44,8 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 	public static Object SETUP = new Object() {{
 		CommonLifecycleEvents.TAGS_LOADED.register((DynamicRegistryManager registries, boolean client) -> {
 			if (!client) {
-				registries
-				.get(BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
+				RegistryVersions
+				.getRegistry(registries, BigGlobeDynamicRegistries.OVERRIDER_REGISTRY_KEY)
 				.streamEntries()
 				.filter((RegistryEntry<Overrider> entry) -> entry.streamTags().findAny().isEmpty())
 				.forEach((RegistryEntry<Overrider> entry) -> {

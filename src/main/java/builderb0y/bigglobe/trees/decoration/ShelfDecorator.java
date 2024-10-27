@@ -24,7 +24,7 @@ public class ShelfDecorator implements TrunkLayerDecorator {
 	public double probability;
 
 	public ShelfDecorator(KnownTotalWeightRandomList<ShelfPlacer> placers, double maxHeightFrac, double density) {
-		if (placers.contains(null)) throw Util.throwOrPause(new IllegalArgumentException("placers contains null"));
+		if (placers.contains(null)) throw new IllegalArgumentException("placers contains null");
 		this.placers = placers;
 		this.maxHeightFrac = maxHeightFrac;
 		this.density = density;
@@ -37,7 +37,7 @@ public class ShelfDecorator implements TrunkLayerDecorator {
 		double probability = this.probability;
 		if (Permuter.nextChancedBoolean(generator.random, probability / (probability + 1.0D))) {
 			ShelfPlacer placer = this.placers.getRandomElement(generator.random);
-			if (placer == null) throw Util.throwOrPause(new AssertionError("placer is null"));
+			if (placer == null) throw new AssertionError("placer is null");
 			double angle = generator.random.nextDouble(TAU);
 			double distanceFromCenter = generator.trunk.currentRadius + 1.0D;
 			double centerX = Math.cos(angle) * distanceFromCenter + generator.trunk.currentX;

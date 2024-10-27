@@ -18,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
@@ -46,7 +47,7 @@ public class WaypointEntity extends Entity {
 				waypoint.data != null
 			) {
 				if (!player.isSpectator()) {
-					waypoint.damage(player.getDamageSources().playerAttack(player), 1.0F);
+					waypoint.implDamage(player.getDamageSources().playerAttack(player), 1.0F);
 					if (!(waypoint.health > 0.0F)) {
 						WaypointRemoveC2SPacket.INSTANCE.send(waypoint.data.id());
 					}
@@ -160,13 +161,16 @@ public class WaypointEntity extends Entity {
 		);
 	}
 
-	@Override
 	public boolean isInvulnerableTo(DamageSource damageSource) {
 		return !this.isVulnerableTo(damageSource);
 	}
 
 	@Override
-	public boolean damage(DamageSource source, float amount) {
+	public boolean damage(#if MC_VERSION >= MC_1_20_2 ServerWorld world, #endif DamageSource source, float amount) {
+		return this.implDamage(source, amount);
+	}
+
+	public boolean implDamage(DamageSource source, float amount) {
 		if (this.isInvulnerableTo(source)) {
 			return false;
 		}

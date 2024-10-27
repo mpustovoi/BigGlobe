@@ -9,6 +9,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -33,7 +34,13 @@ public abstract class SoulLavaFluid extends FlowableFluid {
 	}
 
 	@Override
-	public boolean isInfinite(World world) {
+	public boolean isInfinite(
+		#if MC_VERSION >= MC_1_21_2
+			ServerWorld world
+		#else
+			World world
+		#endif
+	) {
 		return world.getGameRules().getBoolean(BigGlobeGameRules.SOUL_LAVA_SOURCE_CONVERSION);
 	}
 

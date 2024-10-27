@@ -18,6 +18,7 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class MoltenRockReplacerFeature extends DummyFeature<MoltenRockReplacerFeature.Config> implements RockReplacerFeature<MoltenRockReplacerFeature.Config> {
 
@@ -52,7 +53,7 @@ public class MoltenRockReplacerFeature extends DummyFeature<MoltenRockReplacerFe
 		int minY = Math.min(adjustedColdY, adjustedHotY);
 		int maxY = Math.max(adjustedColdY, adjustedHotY);
 		int clampedMinY = Math.max(minY, chunk.getBottomY());
-		int clampedMaxY = Math.min(maxY, chunk.getTopY() - 1);
+		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getTopY(chunk) - 1);
 		int sectionMinY = clampedMinY >> 4;
 		int sectionMaxY = clampedMaxY >> 4;
 		Async.loop(BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {

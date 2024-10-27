@@ -1,10 +1,10 @@
 package builderb0y.bigglobe.structures;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.gen.structure.Structure;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeStructureTags {
 
@@ -21,6 +21,6 @@ public class BigGlobeStructureTags {
 		UNDERGROUND_POCKETS   = of("underground_pockets");
 
 	public static TagKey<Structure> of(String name) {
-		return TagKey.of(RegistryKeyVersions.structure(), BigGlobeMod.modID(name));
+		return TagKey.of(RegistryKeys.STRUCTURE, BigGlobeMod.modID(name));
 	}
 }

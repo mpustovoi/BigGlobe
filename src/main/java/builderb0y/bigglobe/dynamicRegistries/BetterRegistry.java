@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.mojang.datafixers.util.Pair;
@@ -73,12 +74,20 @@ public interface BetterRegistry<T> {
 
 		@Override
 		public RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key) {
-			return this.registry.entryOf(key);
+			#if MC_VERSION >= MC_1_21_2
+				return this.registry.getOrThrow(key);
+			#else
+				return this.registry.entryOf(key);
+			#endif
 		}
 
 		@Override
 		public RegistryEntryList<T> getOrCreateTag(TagKey<T> key) {
-			return this.registry.getOrCreateEntryList(key);
+			#if MC_VERSION >= MC_1_21_2
+				return this.registry.getOrThrow(key);
+			#else
+				return this.registry.getOrCreateEntryList(key);
+			#endif
 		}
 
 		@Override
@@ -87,8 +96,13 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Stream<RegistryEntryList<T>> streamTags() {
-			return this.registry.streamTagsAndEntries().map(Pair::getSecond);
+			#if MC_VERSION >= MC_1_21_2
+				return castStream(this.registry.streamTags());
+			#else
+				return this.registry.streamTagsAndEntries().map(Pair::getSecond);
+			#endif
 		}
 	}
 
@@ -124,7 +138,11 @@ public interface BetterRegistry<T> {
 
 		@Override
 		public Stream<RegistryEntryList<T>> streamTags() {
-			return castStream(this.wrapperImpl.streamTags());
+			#if MC_VERSION >= MC_1_21_2
+				return castStream(this.wrapperImpl.getTags());
+			#else
+				return castStream(this.wrapperImpl.streamTags());
+			#endif
 		}
 	}
 

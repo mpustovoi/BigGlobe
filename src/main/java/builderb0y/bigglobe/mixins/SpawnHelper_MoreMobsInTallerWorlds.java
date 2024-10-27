@@ -10,6 +10,8 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.chunk.WorldChunk;
 
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
+
 /**
 vanilla logic picks a single random Y level to spawn at,
 but in worlds as tall as big globe, there's a lot more opportunities
@@ -35,7 +37,7 @@ public class SpawnHelper_MoreMobsInTallerWorlds {
 		SpawnHelper.Checker checker,
 		SpawnHelper.Runner runner
 	) {
-		for (int baseY = world.getBottomY(), topY = world.getTopY(); baseY < topY; baseY += 128) {
+		for (int baseY = world.getBottomY(), topY = HeightLimitViewVersions.getTopY(world); baseY < topY; baseY += 128) {
 			int rng = world.random.nextInt();
 			int x = chunk.getPos().getStartX() | (rng & 15);
 			int z = chunk.getPos().getStartZ() | ((rng >>> 4) & 15);

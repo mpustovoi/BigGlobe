@@ -20,6 +20,7 @@ import builderb0y.bigglobe.trees.branches.ThickBranchConfig;
 import builderb0y.bigglobe.trees.decoration.*;
 import builderb0y.bigglobe.trees.trunks.TrunkConfig;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 import static builderb0y.bigglobe.math.BigGlobeMath.*;
 
@@ -81,7 +82,7 @@ public class TreeGenerator {
 	public void generateTrunk() throws NotEnoughSpaceException {
 		int startY = this.trunk.startY;
 		int height = this.trunk.height;
-		if (startY + height >= this.worldQueue.getTopY()) {
+		if (startY + height >= HeightLimitViewVersions.getTopY(this.worldQueue)) {
 			throw NotEnoughSpaceException.INSTANCE;
 		}
 		for (int offsetY = height; true; offsetY--) {

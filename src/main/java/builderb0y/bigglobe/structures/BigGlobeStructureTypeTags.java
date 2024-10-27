@@ -1,10 +1,10 @@
 package builderb0y.bigglobe.structures;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public class BigGlobeStructureTypeTags {
 
@@ -16,6 +16,6 @@ public class BigGlobeStructureTypeTags {
 	UNDERGROUND             = of("underground");
 
 	public static TagKey<StructureType<?>> of(String name) {
-		return TagKey.of(RegistryKeyVersions.structureType(), BigGlobeMod.modID(name));
+		return TagKey.of(RegistryKeys.STRUCTURE_TYPE, BigGlobeMod.modID(name));
 	}
 }

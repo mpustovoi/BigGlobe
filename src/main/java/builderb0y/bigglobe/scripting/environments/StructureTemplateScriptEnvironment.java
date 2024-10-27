@@ -3,6 +3,7 @@ package builderb0y.bigglobe.scripting.environments;
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.processor.StructureProcessorList;
@@ -13,7 +14,6 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.Handlers;
@@ -88,7 +88,7 @@ public class StructureTemplateScriptEnvironment {
 	public static StructureProcessorList getProcessorList(String id) {
 		if (id == null) return null;
 		Identifier identifier = IdentifierVersions.create(id);
-		StructureProcessorList template = BigGlobeMod.getRegistry(RegistryKeyVersions.processorList()).getById(identifier).value();
+		StructureProcessorList template = BigGlobeMod.getRegistry(RegistryKeys.PROCESSOR_LIST).getById(identifier).value();
 		if (template != null) return template;
 		else throw new IllegalArgumentException("Template not found: " + identifier);
 	}

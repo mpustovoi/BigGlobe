@@ -10,7 +10,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.trees.TreeGenerator;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class FeatureDecorator implements BlockDecorator {
 
@@ -22,7 +22,7 @@ public class FeatureDecorator implements BlockDecorator {
 
 	@Override
 	public void decorate(TreeGenerator generator, BlockPos pos, BlockState state) {
-		ConfiguredFeature<?, ?> feature = generator.worldQueue.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(this.feature);
+		ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(generator.worldQueue.getRegistryManager(), this.feature);
 		if (feature != null) {
 			feature.generate(
 				generator.worldQueue,
@@ -32,8 +32,8 @@ public class FeatureDecorator implements BlockDecorator {
 			);
 		}
 		else {
-			Identifier id = generator.worldQueue.getRegistryManager().get(BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getId(generator.palette);
-			BigGlobeMod.LOGGER.warn("No feature found for ID " + this.feature.getValue() + "; used by tree with ID: " + id);
+			Identifier id = RegistryVersions.getRegistry(generator.worldQueue.getRegistryManager(), BigGlobeDynamicRegistries.WOOD_PALETTE_REGISTRY_KEY).getId(generator.palette);
+			BigGlobeMod.LOGGER.warn("No feature found for ID " + this.feature.getValue() + "; used by tree with palette " + id);
 		}
 	}
 }

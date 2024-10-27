@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -41,7 +42,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.*;
-import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -118,8 +118,13 @@ import builderb0y.bigglobe.structures.StructureManager.StructureGenerationParams
 import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
+
+#if MC_VERSION < MC_1_21_2
+import net.minecraft.world.gen.GenerationStep.Carver;
+#endif
 
 @AddPseudoField("biome_source")
 @AddPseudoField("decodeContext")
@@ -342,8 +347,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	#endif
 
 	public static void init() {
-		Registry.register(RegistryVersions.chunkGenerator(), BigGlobeMod.modID("scripted"), CODEC);
-		Registry.register(RegistryVersions.biomeSource(), BigGlobeMod.modID("scripted"), ScriptedColumnBiomeSource.CODEC);
+		Registry.register(Registries.CHUNK_GENERATOR, BigGlobeMod.modID("scripted"), CODEC);
+		Registry.register(Registries.BIOME_SOURCE, BigGlobeMod.modID("scripted"), ScriptedColumnBiomeSource.CODEC);
 	}
 
 	public static AutoCoder<BigGlobeScriptedChunkGenerator> createCoder(FactoryContext<BigGlobeScriptedChunkGenerator> context) {
@@ -462,8 +467,16 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public void carve(ChunkRegion chunkRegion, long seed, NoiseConfig noiseConfig, BiomeAccess biomeAccess, StructureAccessor structureAccessor, Chunk chunk, Carver carverStep) {
-
+	public void carve(
+		ChunkRegion chunkRegion,
+		long seed,
+		NoiseConfig noiseConfig,
+		BiomeAccess biomeAccess,
+		StructureAccessor structureAccessor,
+		Chunk chunk
+		#if MC_VERSION < MC_1_21_2 , Carver carverStep #endif
+	) {
+		//no-op.
 	}
 
 	@Override
@@ -475,7 +488,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public void populateEntities(ChunkRegion region) {
 		//copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
-		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(region.getTopY() - 1));
+		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(HeightLimitViewVersions.getTopY(region) - 1));
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
 		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
@@ -504,13 +517,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), chunk.getTopY(), ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons), this.compiledWorldTraits);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), HeightLimitViewVersions.getTopY(chunk), ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons), this.compiledWorldTraits);
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();
 				int startZ = chunk.getPos().getStartZ();
 				int chunkMinY = chunk.getBottomY();
-				int chunkMaxY = chunk.getTopY();
+				int chunkMaxY = HeightLimitViewVersions.getTopY(chunk);
 				ScriptedColumn[] columns = this.chunkReuseColumns.get();
 				BlockSegmentList[] lists = new BlockSegmentList[256];
 				try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
@@ -690,7 +703,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 			),
 			ColumnUsage.FEATURES.maybeDhHints()
 		);
-		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.distantHorizons());
+		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), worldWrapper.params.hints().isLod());
 		ScriptedColumn[] columns = this.chunkReuseColumns.get();
 		worldWrapper.overriders = new AutoOverride(
 			structures,
@@ -961,7 +974,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		return CompletableFuture.runAsync(
 			() -> {
 				int bottomY = chunk.getBottomY();
-				int topY = chunk.getTopY();
+				int topY    = HeightLimitViewVersions.getTopY(chunk);
 				ScriptedColumn column = this.newColumn(chunk, 0, 0, ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
 				for (int z = 0; z < 16; z += 4) {
 					for (int x = 0; x < 16; x += 4) {
@@ -1003,7 +1016,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
-		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
+		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), HeightLimitViewVersions.getTopY(world));
 		this.layer.emitSegments(column, list);
 		return getHeight(list, heightmap);
 	}
@@ -1021,7 +1034,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
-		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), world.getTopY());
+		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), HeightLimitViewVersions.getTopY(world));
 		this.layer.emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);
 		for (int index = 0, length = states.length; index < length; index++) {
@@ -1031,7 +1044,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	}
 
 	@Override
-	public void getDebugHudText(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
+	public void
+		#if MC_VERSION >= MC_1_21_2
+			appendDebugHudText
+		#else
+			getDebugHudText
+		#endif
+	(List<String> text, NoiseConfig noiseConfig, BlockPos pos) {
 		ScriptedColumn column = this.columnEntryRegistry.columnFactory.create(new ScriptedColumn.Params(this, pos.getX(), pos.getZ(), ColumnUsage.GENERIC.normalHints()));
 		this.rootDebugDisplay.forEach(column, pos.getY(), (String id, Object value) -> text.add(id + ": " + value));
 	}

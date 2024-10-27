@@ -15,7 +15,6 @@ import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.poi.PointOfInterestStorage;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -47,8 +46,8 @@ I opted for solution 2, because it feels more stable,
 and also because there isn't a lot of overlap between
 "places I could put a post-deserialization hook" and
 "places that have access to a ChunkGenerator in some way".
-the only real candidate that I could find is in
-{@link ChunkSerializer#deserialize(ServerWorld, PointOfInterestStorage, ChunkPos, NbtCompound)},
+the only real candidate that I could find
+is/was in ChunkSerializer.deserialize(),
 and this location is a bit awkward to work with.
 */
 @Mixin(StructureStart.class)

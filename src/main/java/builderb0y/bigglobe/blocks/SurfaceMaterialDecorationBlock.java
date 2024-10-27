@@ -11,6 +11,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
@@ -52,14 +53,32 @@ public abstract class SurfaceMaterialDecorationBlock extends Block implements Wa
 	@Override
 	@Deprecated
 	@SuppressWarnings("deprecation")
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+	public BlockState getStateForNeighborUpdate(
+		#if MC_VERSION >= MC_1_21_2
+			BlockState state,
+			WorldView world,
+			net.minecraft.world.tick.ScheduledTickView tickView,
+			BlockPos pos,
+			Direction direction,
+			BlockPos neighborPos,
+			BlockState neighborState,
+			Random random
+		#else
+			BlockState state,
+			Direction direction,
+			BlockState neighborState,
+			WorldAccess world,
+			BlockPos pos,
+			BlockPos neighborPos
+		#endif
+	) {
 		if (state.get(Properties.WATERLOGGED)) {
-			world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+			#if MC_VERSION >= MC_1_21_2 tickView #else world #endif .scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 		}
 		if (direction == Direction.DOWN && !this.canPlaceAt(state, world, pos)) {
 			return BlockStates.AIR;
 		}
-		return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+		return state;
 	}
 
 	@Override

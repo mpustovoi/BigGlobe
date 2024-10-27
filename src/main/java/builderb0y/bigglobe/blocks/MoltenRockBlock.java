@@ -12,10 +12,9 @@ import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldEvents;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.*;
+import net.minecraft.world.tick.ScheduledTickView;
 
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -51,12 +50,23 @@ public class MoltenRockBlock extends Block {
 	@Deprecated
 	@SuppressWarnings("deprecation")
 	public BlockState getStateForNeighborUpdate(
-		BlockState state,
-		Direction direction,
-		BlockState neighborState,
-		WorldAccess world,
-		BlockPos pos,
-		BlockPos neighborPos
+		#if MC_VERSION >= MC_1_21_2
+			BlockState state,
+			WorldView world,
+			ScheduledTickView tickView,
+			BlockPos pos,
+			Direction direction,
+			BlockPos neighborPos,
+			BlockState neighborState,
+			Random random
+		#else
+			BlockState state,
+			Direction direction,
+			BlockState neighborState,
+			WorldAccess world,
+			BlockPos pos,
+			BlockPos neighborPos
+		#endif
 	) {
 		if (
 			world instanceof ServerWorld serverWorld &&
@@ -76,14 +86,14 @@ public class MoltenRockBlock extends Block {
 			}
 			return BlockStates.STONE;
 		}
-		return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+		return state;
 	}
 
 	@Override
 	public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
 		super.onSteppedOn(world, pos, state, entity);
 		if (
-			!world.isClient &&
+			world instanceof ServerWorld serverWorld &&
 			entity instanceof LivingEntity living &&
 			#if MC_VERSION < MC_1_21_0
 				//MC 1.21 checks this condition automatically.
@@ -91,7 +101,7 @@ public class MoltenRockBlock extends Block {
 			#endif
 			world.random.nextInt((10 - this.heat) * 10) == 0
 		) {
-			entity.damage(world.getDamageSources().hotFloor(), this.heat * 0.5F);
+			entity.damage(#if MC_VERSION >= MC_1_21_2 serverWorld, #endif world.getDamageSources().hotFloor(), this.heat * 0.5F);
 		}
 	}
 

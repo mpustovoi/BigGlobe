@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -16,11 +17,11 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class ChorusNyliumBlock extends Block implements Fertilizable {
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> FEATURE_KEY = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("patch_chorus_spores"));
+	public static final RegistryKey<ConfiguredFeature<?, ?>> FEATURE_KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("patch_chorus_spores"));
 
 	#if MC_VERSION >= MC_1_20_3
 		public static final MapCodec<ChorusNyliumBlock> CODEC = BigGlobeAutoCodec.AUTO_CODEC.createDFUMapCodec(ChorusNyliumBlock.class);
@@ -53,7 +54,7 @@ public class ChorusNyliumBlock extends Block implements Fertilizable {
 
 	@Override
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		ConfiguredFeature<?, ?> feature = world.getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(FEATURE_KEY);
+		ConfiguredFeature<?, ?> feature = RegistryVersions.getObject(world.getRegistryManager(), FEATURE_KEY);
 		if (feature != null) feature.generate(world, world.getChunkManager().getChunkGenerator(), random, pos.up());
 	}
 }

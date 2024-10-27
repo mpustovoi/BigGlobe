@@ -13,6 +13,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
@@ -21,6 +22,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
@@ -49,9 +51,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
-import builderb0y.bigglobe.versions.BlockEntityVersions;
-import builderb0y.bigglobe.versions.ItemStackVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
+import builderb0y.bigglobe.versions.*;
 
 public class PortalTempleStructure extends BigGlobeStructure {
 
@@ -75,13 +75,13 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		int z = context.chunkPos().getStartZ() | (permuter.nextInt() & 15);
 		VerticalBlockSample sample = context.chunkGenerator().getColumnSample(x, z, context.world(), context.noiseConfig());
 		int minY = context.world().getBottomY();
-		int maxY = context.world().getTopY();
+		int maxY = HeightLimitViewVersions.getTopY(context.world());
 		for (int startAttempt = 0; startAttempt < 16; startAttempt++) {
 			int y = permuter.nextInt(minY, maxY);
 			if (sample.getState(y).isAir()) {
 				do y--;
 				while (y >= minY && sample.getState(y).isAir());
-				if (sample.getState(y).isOpaqueFullCube(EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
+				if (BlockStateVersions.isOpaqueFullCube(sample.getState(y), EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
 					int y_ = y;
 					return Optional.of(
 						new StructurePosition(
@@ -313,7 +313,11 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 		public PositionState(NbtCompound nbt) {
 			super(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-			this.state = NbtHelper.toBlockState(RegistryVersions.block().getReadOnlyWrapper(), nbt);
+			#if MC_VERSION >= MC_1_21_2
+				this.state = NbtHelper.toBlockState(Registries.BLOCK, nbt);
+			#else
+				this.state = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt);
+			#endif
 			this.blockEntityData = nbt.get("BlockEntityTag") instanceof NbtCompound compound ? compound : null;
 		}
 
@@ -731,7 +735,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				BlockPos pos = BlockPos.ofFloored(x, y, z);
 				if (chunkBox.contains(pos)) {
 					nbt.put("Pos", makeEntityPos(x, y, z));
-					EntityType.getEntityFromNbt(nbt, world.toServerWorld()).ifPresent(entity -> {
+					EntityType.getEntityFromNbt(nbt, world.toServerWorld() #if MC_VERSION >= MC_1_21_2 , SpawnReason.STRUCTURE #endif).ifPresent((Entity entity) -> {
 						if (entity instanceof MobEntity mob) {
 							mob.initialize(
 								world,

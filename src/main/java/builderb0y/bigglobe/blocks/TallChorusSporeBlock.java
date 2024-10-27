@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class TallChorusSporeBlock extends TallPlantBlock {
 
@@ -27,6 +28,6 @@ public class TallChorusSporeBlock extends TallPlantBlock {
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		return floor.isOpaqueFullCube(world, pos);
+		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 }

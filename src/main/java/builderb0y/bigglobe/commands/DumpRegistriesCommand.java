@@ -19,6 +19,7 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -27,6 +28,7 @@ import net.minecraft.util.Identifier;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 import net.minecraft.registry.RegistryLoader;
 
@@ -135,14 +137,14 @@ public class DumpRegistriesCommand {
 			.comparing(Identifier::getNamespace)
 			.thenComparing(Identifier::getPath)
 		);
-		dynamicRegistryEntry.value().streamTagsAndEntries().forEach(pair -> {
-			File file = new File(perTagRoot, identifierPath(pair.getFirst().id()) + ".txt");
+		RegistryVersions.streamTags(dynamicRegistryEntry.value()).forEach((RegistryEntryList<?> list) -> {
+			File file = new File(perTagRoot, identifierPath(UnregisteredObjectException.getTagKey(list).id()) + ".txt");
 			file.getParentFile().mkdirs();
 			try (PrintStream stream = new PrintStream(new FileOutputStream(file), false, StandardCharsets.UTF_8)) {
-				pair.getSecond().stream().map(UnregisteredObjectException::getKey).map(RegistryKey::getValue).sorted(comparator).forEachOrdered(stream::println);
+				list.stream().map(UnregisteredObjectException::getKey).map(RegistryKey::getValue).sorted(comparator).forEachOrdered(stream::println);
 			}
 			catch (IOException exception) {
-				BigGlobeMod.LOGGER.error("Error dumping tag #" + pair.getFirst().id() + ':', exception);
+				BigGlobeMod.LOGGER.error("Error dumping tag #" + UnregisteredObjectException.getTagKey(list).id() + ':', exception);
 			}
 		});
 	}

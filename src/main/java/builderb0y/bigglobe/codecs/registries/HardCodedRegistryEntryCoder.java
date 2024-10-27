@@ -30,7 +30,7 @@ public class HardCodedRegistryEntryCoder<T> extends NamedCoder<RegistryEntry<T>>
 		if (context.isEmpty()) return null;
 		Identifier identifier = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		RegistryKey<T> key = RegistryKey.of(RegistryVersions.getRegistryKey(this.registry), identifier);
-		RegistryEntry<T> entry = this.registry.getEntry(key).orElse(null);
+		RegistryEntry<T> entry = RegistryVersions.getEntry(this.registry, key);
 		if (entry != null) {
 			return entry;
 		}

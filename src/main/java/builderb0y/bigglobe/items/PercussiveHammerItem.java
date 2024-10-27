@@ -22,6 +22,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 
 public class PercussiveHammerItem extends MiningToolItem {
@@ -33,7 +34,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 	}
 
 	public PercussiveHammerItem(float attackDamage, float attackSpeed, ToolMaterial material, TagKey<Block> effectiveBlocks, Settings settings) {
-		super(#if MC_VERSION < MC_1_20_5 attackDamage, attackSpeed, #endif material, effectiveBlocks, settings);
+		super(#if MC_VERSION < MC_1_20_5 attackDamage, attackSpeed, #endif material, effectiveBlocks, #if MC_VERSION >= MC_1_21_2 attackDamage, attackSpeed, #endif settings);
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class PercussiveHammerItem extends MiningToolItem {
 	}
 
 	public static boolean isSolidOpaqueFullCube(BlockView world, BlockPos pos, BlockState state) {
-		return state.isOpaqueFullCube(world, pos);
+		return BlockStateVersions.isOpaqueFullCube(state, world, pos);
 	}
 
 	public static class SoundPulse {

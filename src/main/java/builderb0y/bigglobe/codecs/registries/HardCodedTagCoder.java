@@ -31,7 +31,7 @@ public class HardCodedTagCoder<T> extends NamedCoder<RegistryEntryList<T>> {
 		if (context.isEmpty()) return null;
 		Identifier tagID = context.decodeWith(BigGlobeAutoCodec.IDENTIFIER_CODER);
 		TagKey<T> tagKey = TagKey.of(RegistryVersions.getRegistryKey(this.registry), tagID);
-		RegistryEntryList<T> tag = this.registry.getOrCreateEntryList(tagKey);
+		RegistryEntryList<T> tag = RegistryVersions.getTagNullable(this.registry, tagKey);
 		if (tag != null) {
 			return tag;
 		}

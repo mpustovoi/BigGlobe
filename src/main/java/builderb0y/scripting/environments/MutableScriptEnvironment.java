@@ -562,7 +562,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	//////////////// invoke ////////////////
 
 	public MutableScriptEnvironment addFunctionInvoke(String name, InsnTree receiver, MethodInfo method) {
-		return this.addFunction(name, Handlers.builder(method).addImplicitArgument(receiver).addArguments(method.paramTypes).buildFunction());
+		return this.addFunction(name, Handlers.builder(method).addImplicitArgument(receiver).addArguments((Object[])(method.paramTypes)).buildFunction());
 	}
 
 	public MutableScriptEnvironment addFunctionInvoke(InsnTree receiver, MethodInfo method) {

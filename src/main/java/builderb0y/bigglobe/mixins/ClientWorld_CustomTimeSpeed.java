@@ -1,15 +1,15 @@
 package builderb0y.bigglobe.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.world.ClientWorld.Properties;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.ClientState;
@@ -22,20 +22,20 @@ public abstract class ClientWorld_CustomTimeSpeed extends World {
 	private double bigglobe_customTime;
 
 	public ClientWorld_CustomTimeSpeed() {
-		super(null, null, null, null, null, false, false, 0L, 0);
+		#if MC_VERSION >= MC_1_21_2
+			super(null, null, null, null, false, false, 0L, 0);
+		#else
+			super(null, null, null, null, null, false, false, 0L, 0);
+		#endif
 	}
 
-	@Shadow
-	public abstract void setTimeOfDay(long timeOfDay);
-
-	@Inject(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/MutableWorldProperties;getTimeOfDay()J"), cancellable = true)
-	private void bigglobe_tickTime(CallbackInfo callback) {
+	@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld$Properties;setTimeOfDay(J)V"))
+	private void bigglobe_tickTime(Properties instance, long timeOfDay, Operation<Void> original) {
 		this.bigglobe_customTime += ClientState.timeSpeed;
 		int elapsedTicks = (int)(this.bigglobe_customTime);
 		if (elapsedTicks > 0) {
 			this.bigglobe_customTime -= elapsedTicks;
-			this.setTimeOfDay(this.properties.getTimeOfDay() + elapsedTicks);
+			original.call(instance, timeOfDay + elapsedTicks - 1L);
 		}
-		callback.cancel();
 	}
 }

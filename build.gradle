@@ -1,5 +1,5 @@
 plugins() {
-	id('fabric-loom') version('1.7-SNAPSHOT')
+	id('fabric-loom') version('1.8-SNAPSHOT')
 	//id('maven-publish')
 }
 
@@ -213,7 +213,8 @@ for (Version version in [
 	new Version(20, 2),
 	new Version(20, 4),
 	new Version(20, 6),
-	new Version(21, 1)
+	new Version(21, 1),
+	new Version(21, 3)
 ]) {
 	Version capturedVersion = version
 	tasks.register("Switch to ${capturedVersion.longhand()}", WriteProperties) {
@@ -233,6 +234,8 @@ MC_1_20_5=12005
 MC_1_20_6=12006
 MC_1_21_0=12100
 MC_1_21_1=12101
+MC_1_21_2=12102
+MC_1_21_3=12103
 MC_VERSION=${capturedVersion.shorthand()}"""
 			)
 		}

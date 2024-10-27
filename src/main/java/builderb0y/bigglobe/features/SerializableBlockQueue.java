@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
@@ -135,7 +136,13 @@ public class SerializableBlockQueue extends BlockQueue {
 		SerializableBlockQueue queue = new SerializableBlockQueue(centerX, centerY, centerZ, flags);
 		NbtList paletteNBT = nbt.getList("palette", NbtElement.COMPOUND_TYPE);
 		ObjectList<BlockState> palette = new ObjectArrayList<>(paletteNBT.size());
-		RegistryWrapper<Block> registry = RegistryVersions.block().getReadOnlyWrapper();
+		RegistryWrapper<Block> registry = (
+			#if MC_VERSION >= MC_1_21_2
+				Registries.BLOCK
+			#else
+				Registries.BLOCK.getReadOnlyWrapper()
+			#endif
+		);
 		for (int index = 0, size = paletteNBT.size(); index < size; index++) {
 			palette.add(NbtHelper.toBlockState(registry, paletteNBT.getCompound(index)));
 		}

@@ -88,7 +88,7 @@ public class BlockSegmentList extends SegmentList<BlockState> {
 		for (int index = this.size(); --index >= 0;) {
 			LitSegment segment = this.getLit(index);
 			segment.lightLevel = lightLevel;
-			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - segment.value.getOpacity(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) * (segment.maxY() - segment.minY()), 0));
+			if (lightLevel > 0) lightLevel = (byte)(Math.max(lightLevel - segment.value.getOpacity(#if MC_VERSION < MC_1_21_2 EmptyBlockView.INSTANCE, BlockPos.ORIGIN #endif) * (segment.maxY() - segment.minY()), 0));
 		}
 	}
 

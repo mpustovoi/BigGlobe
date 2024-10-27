@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -18,11 +19,11 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class EndSpikeRespawnFeature extends Feature<EndSpikeFeatureConfig> {
 
-	public static final RegistryKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("end/nest_spike"));
+	public static final RegistryKey<ConfiguredFeature<?, ?>> DELEGATE_KEY = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("end/nest_spike"));
 
 	public EndSpikeRespawnFeature(Codec<EndSpikeFeatureConfig> configCodec) {
 		super(configCodec);
@@ -38,7 +39,7 @@ public class EndSpikeRespawnFeature extends Feature<EndSpikeFeatureConfig> {
 
 	@Override
 	public boolean generate(FeatureContext<EndSpikeFeatureConfig> context) {
-		ConfiguredFeature<?, ?> delegate = context.getWorld().getRegistryManager().get(RegistryKeyVersions.configuredFeature()).get(DELEGATE_KEY);
+		ConfiguredFeature<?, ?> delegate = RegistryVersions.getObject(context.getWorld().getRegistryManager(), DELEGATE_KEY);
 		if (delegate == null) return false;
 		BlockPos beamTarget = context.getConfig().getPos();
 		boolean placedAny = false;

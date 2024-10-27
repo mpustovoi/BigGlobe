@@ -7,6 +7,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class NetherPortalUtil {
 
@@ -15,7 +16,7 @@ public class NetherPortalUtil {
 		int startX = startPos.getX();
 		int startZ = startPos.getZ();
 		int minY = world.getBottomY();
-		int maxY = world.getTopY() - size.getY();
+		int maxY = HeightLimitViewVersions.getTopY(world) - size.getY();
 		for (int y = maxY; y >= minY; y--) {
 			if (canPortalSpawnHere(world, mutable.set(startX, y, startZ), size)) {
 				return mutable.set(startX, y, startZ);

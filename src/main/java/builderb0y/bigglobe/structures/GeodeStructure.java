@@ -15,6 +15,7 @@ import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -42,6 +43,7 @@ import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectList;
 import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectSet;
 import builderb0y.bigglobe.util.Vectors;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class GeodeStructure extends BigGlobeStructure implements RawGenerationStructure {
 
@@ -310,7 +312,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			int minY = Math.max(this.boundingBox.getMinY(), context.chunk.getBottomY());
 			int minZ = chunkPos.getStartZ();
 			int maxX = chunkPos.getEndX();
-			int maxY = Math.min(this.boundingBox.getMaxY(), context.chunk.getTopY() - 1);
+			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getTopY(context.chunk) - 1);
 			int maxZ = chunkPos.getEndZ();
 			try (NumberArray samples = NumberArray.allocateDoublesDirect(maxY - minY + 1)) {
 				double rcpRadius = 1.0D / this.data.radius;
@@ -486,7 +488,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			int minY = Math.max(this.boundingBox.getMinY(), context.chunk.getBottomY());
 			int minZ = chunkPos.getStartZ();
 			int maxX = chunkPos.getEndX();
-			int maxY = Math.min(this.boundingBox.getMaxY(), context.chunk.getTopY() - 1);
+			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getTopY(context.chunk) - 1);
 			int maxZ = chunkPos.getEndZ();
 
 			Vector3d spikeOffset = new Vector3d(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -53,6 +54,7 @@ public class StringEntity extends Entity {
 		public void initDataTracker(DataTracker.Builder builder) {
 			builder.add(PREVIOUS_ID, 0).add(NEXT_ID, 0);
 		}
+
 	#else
 
 		@Override
@@ -60,9 +62,9 @@ public class StringEntity extends Entity {
 			this.dataTracker.startTracking(PREVIOUS_ID, 0);
 			this.dataTracker.startTracking(NEXT_ID, 0);
 		}
+
 	#endif
 
-	@Override
 	public Box getVisibilityBoundingBox() {
 		Entity next = this.getNextEntity();
 		if (next != null) {
@@ -77,6 +79,19 @@ public class StringEntity extends Entity {
 	public boolean canHit() {
 		return this.getNextEntity() == null;
 	}
+
+	#if MC_VERSION >= MC_1_21_2
+
+		@Override
+		public boolean damage(ServerWorld world, DamageSource source, float amount) {
+			if (this.isAlwaysInvulnerableTo(source)) {
+				return false;
+			}
+			this.remove(RemovalReason.KILLED);
+			return true;
+		}
+
+	#endif
 
 	@Override
 	public ActionResult interact(PlayerEntity player, Hand hand) {

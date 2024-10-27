@@ -46,7 +46,7 @@ public class WaypointRemoveC2SPacket implements C2SPlayPacketHandler<Integer> {
 						if (player.getEyePos().squaredDistanceTo(waypoint.displayPosition().x(), waypoint.displayPosition().y(), waypoint.displayPosition().z()) <= EntityVersions.getEntityReachDistanceSquared(player)) {
 							serverManager.removeWaypoint(id, true);
 							Item drop = waypoint.owner() != null ? BigGlobeItems.PRIVATE_WAYPOINT : BigGlobeItems.PUBLIC_WAYPOINT;
-							if (drop != null && player.getWorld().getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
+							if (drop != null && EntityVersions.getServerWorld(player).getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
 								ItemStack stack = new ItemStack(drop);
 								if (waypoint.destination().name() != null) {
 									ItemStackVersions.setCustomName(stack, waypoint.destination().name());

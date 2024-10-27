@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.features;
 
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.world.gen.feature.Feature;
 
@@ -32,7 +33,7 @@ public class BigGlobeFeatures {
 	static { BigGlobeMod.LOGGER.debug("Done registering features."); }
 
 	public static <F extends Feature<?>> F register(String name, F feature) {
-		return Registry.register(RegistryVersions.feature(), BigGlobeMod.modID(name), feature);
+		return Registry.register(Registries.FEATURE, BigGlobeMod.modID(name), feature);
 	}
 
 	public static void init() {}

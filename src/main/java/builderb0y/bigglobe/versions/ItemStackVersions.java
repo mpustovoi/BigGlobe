@@ -78,7 +78,9 @@ public class ItemStackVersions {
 	}
 
 	public static NbtCompound toNbt(ItemStack stack) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_2
+			return (NbtCompound)(stack.toNbt(BigGlobeMod.getCurrentServer().getRegistryManager()));
+		#elif if MC_VERSION >= MC_1_20_5
 			return (NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager()));
 		#else
 			return stack.writeNbt(new NbtCompound());
@@ -86,7 +88,9 @@ public class ItemStackVersions {
 	}
 
 	public static void toNbt(ItemStack stack, NbtCompound nbt) {
-		#if MC_VERSION >= MC_1_20_5
+		#if MC_VERSION >= MC_1_21_2
+			nbt.copyFrom((NbtCompound)(stack.toNbt(BigGlobeMod.getCurrentServer().getRegistryManager())));
+		#elif MC_VERSION >= MC_1_20_5
 			nbt.copyFrom((NbtCompound)(stack.encode(BigGlobeMod.getCurrentServer().getRegistryManager())));
 		#else
 			stack.writeNbt(nbt);

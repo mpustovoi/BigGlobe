@@ -12,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -33,7 +35,6 @@ import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.autocodec.util.AutoCodecUtil;
 import builderb0y.bigglobe.versions.BlockArgumentParserVersions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BlockStateCollectionImprinter extends NamedImprinter<Collection<BlockState>> {
@@ -114,10 +115,10 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectName(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier id) throws DecodeException {
-		if (!RegistryVersions.block().containsId(id)) {
+		if (!Registries.BLOCK.containsId(id)) {
 			throw new DecodeException(() -> "Unknown block: " + id);
 		}
-		Block block = RegistryVersions.block().get(id);
+		Block block = Registries.BLOCK.get(id);
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		if (stringProperties.isEmpty()) {
 			context.object.addAll(block.getStateManager().getStates());
@@ -131,9 +132,9 @@ public class BlockStateCollectionImprinter extends NamedImprinter<Collection<Blo
 	}
 
 	public <T_Encoded> void imprintAsObjectTag(ImprintContext<T_Encoded, Collection<BlockState>> context, Identifier tagID) throws DecodeException {
-		TagKey<Block> tagKey = TagKey.of(RegistryKeyVersions.block(), tagID);
-		RegistryEntryList<Block> tagEntries = RegistryVersions.block().getEntryList(tagKey).orElse(null);
-		if (tagEntries == null) throw new ImprintException(() -> "No such tag " + tagID + " in registry " + RegistryKeyVersions.block().getValue());
+		TagKey<Block> tagKey = TagKey.of(RegistryKeys.BLOCK, tagID);
+		RegistryEntryList<Block> tagEntries = RegistryVersions.getTagNullable(Registries.BLOCK, tagKey);
+		if (tagEntries == null) throw new ImprintException(() -> "No such tag " + tagID + " in registry " + RegistryKeys.BLOCK.getValue());
 		Map<String, String> stringProperties = this.getObjectProperties(context);
 		this.filterAndAdd(context.object, tagEntries, stringProperties);
 	}

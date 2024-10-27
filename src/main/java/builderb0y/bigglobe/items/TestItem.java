@@ -5,6 +5,7 @@ import org.jetbrains.annotations.TestOnly;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePiecesList;
@@ -16,7 +17,7 @@ import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.Structure.StructurePosition;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
+import builderb0y.bigglobe.versions.RegistryVersions;
 
 @TestOnly
 @Deprecated
@@ -34,9 +35,10 @@ public class TestItem extends Item {
 		this.placeStructure(
 			world,
 			context.getBlockPos(),
-			world
-			.getRegistryManager()
-			.get(RegistryKeyVersions.structure())
+			RegistryVersions.getRegistry(
+				world.getRegistryManager(),
+				RegistryKeys.STRUCTURE
+			)
 			.get(BigGlobeMod.modID("dungeons/large"))
 		);
 		return ActionResult.SUCCESS;

@@ -10,13 +10,13 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryKeyVersions;
 
 public record PackedWorldPos(RegistryKey<World> world, PackedPos pos) {
 
@@ -60,7 +60,7 @@ public record PackedWorldPos(RegistryKey<World> world, PackedPos pos) {
 	}
 
 	public static PackedWorldPos read(PacketByteBuf buffer) {
-		return new PackedWorldPos(buffer.readRegistryKey(RegistryKeyVersions.world()), buffer.readInt(), buffer.readInt(), buffer.readInt());
+		return new PackedWorldPos(buffer.readRegistryKey(RegistryKeys.WORLD), buffer.readInt(), buffer.readInt(), buffer.readInt());
 	}
 
 	public void writeBulk(PacketByteBuf buffer, Object2IntMap<RegistryKey<World>> worlds) {
@@ -84,7 +84,7 @@ public record PackedWorldPos(RegistryKey<World> world, PackedPos pos) {
 		RegistryKey<World> world;
 		gotWorld: {
 			if (!worldString.isEmpty()) try {
-				world = RegistryKey.of(RegistryKeyVersions.world(), IdentifierVersions.create(worldString));
+				world = RegistryKey.of(RegistryKeys.WORLD, IdentifierVersions.create(worldString));
 				break gotWorld;
 			}
 			catch (InvalidIdentifierException exception) {}

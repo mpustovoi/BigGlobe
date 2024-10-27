@@ -274,10 +274,8 @@ public class ClientState {
 						if (registry == null) return Optional.empty();
 						return Optional.of(
 							new RegistryInfo<>(
-								registry.getEntryOwner(),
-								mutable
-								? registry.createMutableEntryLookup()
-								: registry.getReadOnlyWrapper(),
+								registry,
+								registry,
 								Lifecycle.experimental()
 							)
 						);

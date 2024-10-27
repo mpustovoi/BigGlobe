@@ -11,6 +11,7 @@ import net.minecraft.world.BlockView;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 @AddPseudoField("suspicious_stew_effect")
 @AddPseudoField("effect_duration")
@@ -58,6 +59,6 @@ public class NetherFlowerBlock extends FlowerBlock {
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		return floor.isOpaqueFullCube(world, pos);
+		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 }

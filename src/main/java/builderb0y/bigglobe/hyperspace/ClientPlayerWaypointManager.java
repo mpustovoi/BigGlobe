@@ -7,6 +7,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Entity.RemovalReason;
+import net.minecraft.entity.SpawnReason;
 
 import builderb0y.bigglobe.entities.BigGlobeEntityTypes;
 import builderb0y.bigglobe.entities.WaypointEntity;
@@ -44,7 +45,7 @@ public class ClientPlayerWaypointManager extends PlayerWaypointManager {
 		if (super.addWaypoint(waypoint, sync)) {
 			if (sync) {
 				ClientWorld world = this.clientPlayer().clientWorld;
-				WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world);
+				WaypointEntity entity = BigGlobeEntityTypes.WAYPOINT.create(world #if MC_VERSION >= MC_1_21_2 , SpawnReason.SPAWN_ITEM_USE #endif);
 				if (entity != null) {
 					entity.setPosition(waypoint.displayPosition().x(), waypoint.displayPosition().y() - 1.0D, waypoint.displayPosition().z());
 					entity.health = WaypointEntity.MAX_HEALTH;

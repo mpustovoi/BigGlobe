@@ -11,6 +11,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class NetherGrassBlock extends PlantBlock {
 
@@ -32,7 +33,7 @@ public class NetherGrassBlock extends PlantBlock {
 
 	@Override
 	public boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-		return floor.isOpaqueFullCube(world, pos);
+		return BlockStateVersions.isOpaqueFullCube(floor, world, pos);
 	}
 
 	@Override

@@ -8,13 +8,18 @@ import net.minecraft.block.Block;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
 import net.minecraft.command.argument.BlockArgumentParser.TagResult;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 
 @Deprecated //minecraft will hopefully be making blocks data-driven in the future.
 public class BlockArgumentParserVersions {
 
 	public static RegistryWrapper<Block> blockRegistry() {
-		return RegistryVersions.block().getReadOnlyWrapper();
+		#if MC_VERSION >= MC_1_21_2
+			return Registries.BLOCK;
+		#else
+			return Registries.BLOCK.getReadOnlyWrapper();
+		#endif
 	}
 
 	public static BlockResult block(String string, boolean allowNBT) throws CommandSyntaxException {

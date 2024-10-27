@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.versions.BlockStateVersions;
 
 public class OvergrownSandBlock extends FallingBlock implements Fertilizable {
 
@@ -58,7 +59,7 @@ public class OvergrownSandBlock extends FallingBlock implements Fertilizable {
 	@SuppressWarnings("deprecation")
 	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		BlockPos upPos = pos.up();
-		if (world.getBlockState(upPos).isOpaqueFullCube(world, upPos)) {
+		if (BlockStateVersions.isOpaqueFullCube(world.getBlockState(upPos), world, upPos)) {
 			world.setBlockState(pos, BlockStates.SAND);
 		}
 	}

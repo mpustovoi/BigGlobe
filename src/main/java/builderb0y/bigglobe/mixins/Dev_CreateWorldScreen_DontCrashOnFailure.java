@@ -20,7 +20,17 @@ import builderb0y.bigglobe.BigGlobeMod;
 @Mixin(CreateWorldScreen.class)
 public class Dev_CreateWorldScreen_DontCrashOnFailure {
 
-	@WrapOperation(method = "create(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;join()Ljava/lang/Object;"))
+	#if MC_VERSION >= MC_1_21_2
+		@WrapOperation(
+			method = "show(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/gui/screen/Screen;Ljava/util/function/Function;Lnet/minecraft/client/world/GeneratorOptionsFactory;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/client/gui/screen/world/CreateWorldCallback;)V",
+			at = @At(
+				value = "INVOKE",
+				target = "Ljava/util/concurrent/CompletableFuture;join()Ljava/lang/Object;"
+			)
+		)
+	#else
+		@WrapOperation(method = "create(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/gui/screen/Screen;)V", at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;join()Ljava/lang/Object;"))
+	#endif
 	private static Object bigglobe_wrapLoading(
 		CompletableFuture<GeneratorOptionsHolder> future,
 		Operation<GeneratorOptionsHolder> original,

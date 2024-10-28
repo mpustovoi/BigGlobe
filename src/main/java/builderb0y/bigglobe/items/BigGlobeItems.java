@@ -1,5 +1,6 @@
 package builderb0y.bigglobe.items;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -12,6 +13,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.world.ClientWorld;
@@ -25,10 +27,7 @@ import net.minecraft.loot.LootTables;
 import net.minecraft.loot.condition.RandomChanceLootCondition;
 import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.loot.entry.TagEntry;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.*;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
@@ -42,6 +41,8 @@ import builderb0y.bigglobe.config.BigGlobeConfig;
 import builderb0y.bigglobe.fluids.BigGlobeFluids;
 import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 
 #if MC_VERSION < MC_1_21_2
 	import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -85,7 +86,7 @@ public class BigGlobeItems {
 		SLATED_PRISMARINE        = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
 		SLATED_PRISMARINE_STAIRS = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
-		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings())),
+		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings().registryKey(key("rock")))),
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -100,8 +101,28 @@ public class BigGlobeItems {
 		CHARRED_WOOD             = registerPlacer(BigGlobeBlocks.CHARRED_WOOD),
 		STRIPPED_CHARRED_WOOD    = registerPlacer(BigGlobeBlocks.STRIPPED_CHARRED_WOOD),
 		CHARRED_LEAVES           = registerPlacer(BigGlobeBlocks.CHARRED_LEAVES),
-		CHARRED_SIGN             = register("charred_sign", new ColoredSignItem(new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_SIGN, BigGlobeBlocks.CHARRED_WALL_SIGN, DyeColor.LIGHT_GRAY)),
-		CHARRED_HANGING_SIGN     = register("charred_hanging_sign", new ColoredHangingSignItem(new Item.Settings().maxCount(16), BigGlobeBlocks.CHARRED_HANGING_SIGN, BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN, DyeColor.LIGHT_GRAY)),
+		CHARRED_SIGN             = register(
+			"charred_sign",
+			new ColoredSignItem(
+				new Item.Settings()
+				.registryKey(key("charred_sign"))
+				.maxCount(16),
+				BigGlobeBlocks.CHARRED_SIGN,
+				BigGlobeBlocks.CHARRED_WALL_SIGN,
+				DyeColor.LIGHT_GRAY
+			)
+		),
+		CHARRED_HANGING_SIGN     = register(
+			"charred_hanging_sign",
+			new ColoredHangingSignItem(
+				new Item.Settings()
+				.registryKey(key("charred_hanging_sign"))
+				.maxCount(16),
+				BigGlobeBlocks.CHARRED_HANGING_SIGN,
+				BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN,
+				DyeColor.LIGHT_GRAY
+			)
+		),
 		CHARRED_PRESSURE_PLATE   = registerPlacer(BigGlobeBlocks.CHARRED_PRESSURE_PLATE),
 		CHARRED_TRAPDOOR         = registerPlacer(BigGlobeBlocks.CHARRED_TRAPDOOR),
 		CHARRED_STAIRS           = registerPlacer(BigGlobeBlocks.CHARRED_STAIRS),
@@ -109,7 +130,14 @@ public class BigGlobeItems {
 		CHARRED_SLAB             = registerPlacer(BigGlobeBlocks.CHARRED_SLAB),
 		CHARRED_FENCE_GATE       = registerPlacer(BigGlobeBlocks.CHARRED_FENCE_GATE),
 		CHARRED_FENCE            = registerPlacer(BigGlobeBlocks.CHARRED_FENCE),
-		CHARRED_DOOR             = register("charred_door", new TallBlockItem(BigGlobeBlocks.CHARRED_DOOR, new Item.Settings())),
+		CHARRED_DOOR             = register(
+			"charred_door",
+			new TallBlockItem(
+				BigGlobeBlocks.CHARRED_DOOR,
+				new Item.Settings()
+				.registryKey(key("charred_door"))
+			)
+		),
 		SOUL_MAGMA               = registerPlacer(BigGlobeBlocks.SOUl_MAGMA),
 		ROUGH_QUARTZ             = registerPlacer(BigGlobeBlocks.ROUGH_QUARTZ),
 		BUDDING_QUARTZ           = registerPlacer(BigGlobeBlocks.BUDDING_QUARTZ),
@@ -128,10 +156,10 @@ public class BigGlobeItems {
 		VOID_CLOUDS = new EnumMap<>(CloudColor.class);
 	static {
 		for (CloudColor color : CloudColor.VALUES) {
-			Block block1 = BigGlobeBlocks.     CLOUDS.get(color);
-			CLOUDS     .put(color, registerPlacer(block1));
-			Block block = BigGlobeBlocks.VOID_CLOUDS.get(color);
-			VOID_CLOUDS.put(color, registerPlacer(block));
+			Block normalBlock = BigGlobeBlocks.     CLOUDS.get(color);
+			Block   voidBlock = BigGlobeBlocks.VOID_CLOUDS.get(color);
+			CLOUDS     .put(color, registerPlacer(normalBlock));
+			VOID_CLOUDS.put(color, registerPlacer(  voidBlock));
 		}
 	}
 	public static final BlockItem[] MOLTEN_ROCKS = new BlockItem[8];
@@ -143,55 +171,63 @@ public class BigGlobeItems {
 
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
-		new TorchArrowItem(new Item.Settings())
+		new TorchArrowItem(new Item.Settings().registryKey(key("torch_arrow")))
 	);
 	public static final PercussiveHammerItem PERCUSSIVE_HAMMER = register(
 		"percussive_hammer",
 		new PercussiveHammerItem(
 			2.0F,
 			-2.8F,
-			#if MC_VERSION >= MC_1_21_2 ToolMaterial #else ToolMaterials #endif .IRON,
+			#if MC_VERSION >= MC_1_21_2
+				ToolMaterial.IRON
+			#else
+				ToolMaterials.IRON
+			#endif,
 			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
 			new Item.Settings()
+			.registryKey(key("percussive_hammer"))
 			.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
 		)
 	);
 	public static final SlingshotItem SLINGSHOT = register(
 		"slingshot",
-		new SlingshotItem(new Item.Settings().maxDamage(192))
+		new SlingshotItem(new Item.Settings().registryKey(key("slingshot")).maxDamage(192))
 	);
 	public static final BallOfStringItem BALL_OF_STRING = register(
 		"ball_of_string",
-		new BallOfStringItem(new Item.Settings().maxCount(1))
+		new BallOfStringItem(new Item.Settings().registryKey(key("ball_of_string")).maxCount(1))
 	);
-	public static final Item ASH = register("ash", new Item(new Item.Settings()));
-	public static final Item SULFUR = register("sulfur", new Item(new Item.Settings()));
+	public static final Item ASH = register("ash", new Item(new Item.Settings().registryKey(key("ash"))));
+	public static final Item SULFUR = register("sulfur", new Item(new Item.Settings().registryKey(key("sulfur"))));
 	public static final BucketItem SOUL_LAVA_BUCKET = register(
 		"soul_lava_bucket",
 		new BucketItem(
 			BigGlobeFluids.SOUL_LAVA,
-			new Item.Settings().recipeRemainder(Items.BUCKET).maxCount(1)
+			new Item.Settings()
+			.registryKey(key("soul_lava_bucket"))
+			.recipeRemainder(Items.BUCKET)
+			.maxCount(1)
 		)
 	);
-	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(new Item.Settings()));
+	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(new Item.Settings().registryKey(key("chorus_spore"))));
 	public static final @Nullable WaypointItem
-		PUBLIC_WAYPOINT  = register("public_waypoint",  new WaypointItem(new Item.Settings(), false)),
-		PRIVATE_WAYPOINT = register("private_waypoint", new WaypointItem(new Item.Settings(), true ));
+		PUBLIC_WAYPOINT  = register("public_waypoint",  new WaypointItem(new Item.Settings().registryKey(key("public_waypoint")), false)),
+		PRIVATE_WAYPOINT = register("private_waypoint", new WaypointItem(new Item.Settings().registryKey(key("private_waypoint")), true ));
 	public static final EnumMap<CloudColor, AuraBottleItem> AURA_BOTTLES = new EnumMap<>(CloudColor.class);
 	static {
 		for (CloudColor color : CloudColor.VALUES) {
 			if (color != CloudColor.BLANK) {
-				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(new Item.Settings(), color)));
+				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(new Item.Settings().registryKey(key(color.bottleName)), color)));
 			}
 		}
 	}
-	public static final Item VOIDMETAL_INGOT = register("voidmetal_ingot", new Item(new Item.Settings()));
+	public static final Item VOIDMETAL_INGOT = register("voidmetal_ingot", new Item(new Item.Settings().registryKey(key("voidmetal_ingot"))));
 	public static final SmithingTemplateItem VOIDMETAL_UPGRADE = register(
 		"voidmetal_upgrade",
 		new SmithingTemplateItem(
 			Text.translatable("item.bigglobe.voidmetal_upgrade.applies_to").formatted(Formatting.BLUE),
 			Text.translatable("item.bigglobe.voidmetal_upgrade.ingredients").formatted(Formatting.BLUE),
-			#if MC_VERSION < MC_1_20_2
+			#if MC_VERSION < MC_1_21_2
 				Text.translatable("upgrade.bigglobe.voidmetal_upgrade").formatted(Formatting.GRAY),
 			#endif
 			Text.translatable("item.bigglobe.voidmetal_upgrade.base_slot_description"),
@@ -205,8 +241,9 @@ public class BigGlobeItems {
 			Collections.singletonList(
 				BigGlobeMod.mcID("item/empty_slot_ingot")
 			)
-			#if MC_VERSION >= MC_1_20_2
+			#if MC_VERSION >= MC_1_21_2
 				, new Item.Settings()
+				.registryKey(key("voidmetal_upgrade"))
 			#endif
 		)
 	);
@@ -214,10 +251,10 @@ public class BigGlobeItems {
 	#if MC_VERSION >= MC_1_21_2
 
 		public static final ArmorItem
-			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.HELMET,     new Item.Settings())),
-			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.CHESTPLATE, new Item.Settings())),
-			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.LEGGINGS,   new Item.Settings())),
-			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.BOOTS,      new Item.Settings()));
+			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.HELMET,     new Item.Settings().registryKey(key("voidmetal_helmet"    )))),
+			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.CHESTPLATE, new Item.Settings().registryKey(key("voidmetal_chestplate")))),
+			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.LEGGINGS,   new Item.Settings().registryKey(key("voidmetal_leggings"  )))),
+			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.BOOTS,      new Item.Settings().registryKey(key("voidmetal_boots"     ))));
 
 	#elif MC_VERSION >= MC_1_20_5
 
@@ -239,16 +276,29 @@ public class BigGlobeItems {
 
 	static { BigGlobeMod.LOGGER.debug("Done registering items."); }
 
+	public static RegistryKey<Item> key(String name) {
+		return RegistryKey.of(RegistryKeys.ITEM, BigGlobeMod.modID(name));
+	}
+
 	public static BlockItem registerPlacer(Block block) {
+		Identifier id = Registries.BLOCK.getId(block);
 		return Registry.register(
 			Registries.ITEM,
-			Registries.BLOCK.getId(block),
-			new BlockItem(block, new Item.Settings())
+			id,
+			new BlockItem(
+				block,
+				new Item.Settings()
+				.registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
+			)
 		);
 	}
 
 	public static <I extends Item> I register(String name, I item) {
-		return Registry.register(RegistryVersions.item(), BigGlobeMod.modID(name), item);
+		Identifier id = BigGlobeMod.modID(name);
+		if (!item.getTranslationKey().equals(Util.createTranslationKey("item", id))) {
+			throw new IllegalArgumentException("Name mismatch");
+		}
+		return Registry.register(Registries.ITEM, id, item);
 	}
 
 	public static void init() {

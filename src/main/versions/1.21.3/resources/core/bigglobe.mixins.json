@@ -38,6 +38,7 @@
 		"Items_PlaceableFlint",
 		"Items_PlaceableSticks",
 		"ItemStack_DynamicMaxDamage",
+		"JsonDataLoader_BackwardsCompatibleRecipes",
 		"MinecraftServer_InitializeSpawnPoint",
 		"MinecraftServer_SessionAccess",
 		"MobSpawnerLogic_GettersAndSettersForEverything",
@@ -55,7 +56,6 @@
 		"PlayerManager_SyncOverworldSettingsHook",
 		"PortalForcer_PlaceInNetherCaverns",
 		"RailBlock_RotateProperly",
-		"RecipeManager_BackwardsCompatibleRecipes",
 		"RegistryLoader_AddBigGlobeEntries",
 		"RegistryLoader_LoadColumnEntryRegistry",
 		"SaplingBlock_GrowIntoBigGlobeTree",
@@ -78,7 +78,6 @@
 		"Voxy_WorldEngine_UseBigGlobeGenerator",
 		"Voxy_WorldSection_DataGetter",
 		"WoodlandMansionStructure_DontHardCodeSeaLevel",
-		"World_UseCorrectSeaLevel",
 		"WorldPresets_MakeBigGlobeTheDefaultWorldType2"
 	],
 	"client": [

@@ -7,10 +7,10 @@ import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class BigGlobeFluids {
 
@@ -33,6 +33,6 @@ public class BigGlobeFluids {
 	}
 
 	public static <F extends Fluid> F register(String name, F fluid) {
-		return Registry.register(RegistryVersions.fluid(), BigGlobeMod.modID(name), fluid);
+		return Registry.register(Registries.FLUID, BigGlobeMod.modID(name), fluid);
 	}
 }

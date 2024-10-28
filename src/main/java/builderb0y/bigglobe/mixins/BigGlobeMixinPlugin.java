@@ -293,6 +293,9 @@ public class BigGlobeMixinPlugin implements IMixinConfigPlugin {
 			case "builderb0y.bigglobe.mixins.MobSpawnerLogic_SpawnLightning" -> {
 				yield this.isEnabledInConfig(mixinClassName) && checkNoMod(mixinClassName, "connector");
 			}
+			case "builderb0y.bigglobe.mixins.DhScriptedWorldGenerator_BackwardsCompatibility" -> {
+				yield checkMod(mixinClassName, "distanthorizons");
+			}
 			default -> {
 				yield this.isEnabledInConfig(mixinClassName);
 			}

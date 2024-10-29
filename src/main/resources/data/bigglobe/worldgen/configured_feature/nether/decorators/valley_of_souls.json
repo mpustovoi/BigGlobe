@@ -20,7 +20,7 @@
 							"placeFeature(originX, y, originZ, 'bigglobe:nether/grass/valley_of_souls')",
 						")",
 					")",
-					"else if (getBlockState(originX, y + 1, originZ).isIn('bigglobe:valley_of_souls_base_blocks'):",
+					"else if (getBlockState(originX, y + 1, originZ).isIn('#bigglobe:valley_of_souls_base_blocks'):",
 						"random.if (",
 							"unmixSmooth(",
 								"double(`bigglobe:nether/mid_y` - `bigglobe:nether/cavern_fade_radius`),",

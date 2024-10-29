@@ -2,7 +2,7 @@
 	"type": "column_value",
 	"script": [
 		"for (StructureStart start in structures:",
-			"if (start.structure.isIn('bigglobe:nether_pillars'):",
+			"if (start.structure.isIn('#bigglobe:nether_pillars'):",
 				"for (ScriptStructurePiece piece in start.pieces:",
 					"class PillarData (",
 						"double*(",

@@ -3,8 +3,8 @@
 	"script": [
 		"!(",
 			"hints.isLod && (",
-				"start.structure.isIn('bigglobe:underground') ||",
-				"start.structure.type.isIn('bigglobe:underground')",
+				"start.structure.isIn('#bigglobe:underground') ||",
+				"start.structure.type.isIn('#bigglobe:underground')",
 			")",
 		")"
 	]

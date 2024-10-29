@@ -4,7 +4,7 @@
 	"script": [
 		"if (!hints.carve: return())",
 		"for (StructureStart start in structures:",
-			"if (start.structure.isIn('bigglobe:dungeons'):",
+			"if (start.structure.isIn('#bigglobe:dungeons'):",
 				"int structureMinY = start.minY",
 				"int structureMaxY = start.maxY",
 				"int bufferMinY = structureMinY - 16",

@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.nbt.NbtCompound;
@@ -26,18 +25,15 @@ import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.decoders.DecodeException;
-import builderb0y.autocodec.util.AutoCodecUtil;
-import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.scripting.wrappers.StructurePlacementScriptEntry;
+import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper.Coordination;
 import builderb0y.bigglobe.structures.BigGlobeStructure;
@@ -254,7 +250,7 @@ public class ScriptedStructure extends BigGlobeStructure implements RawGeneratio
 
 		@Override
 		public void generateRaw(Context context) {
-			StructurePlacementScript.Holder rawPlacement = this.placement.entry().value().raw_placement;
+			StructurePlacementScript.Holder rawPlacement = this.placement.entry.value().raw_placement;
 			if (rawPlacement == null) return;
 			int minX = this.originalBoundingBox.getMinX();
 			int minY = this.originalBoundingBox.getMinY();

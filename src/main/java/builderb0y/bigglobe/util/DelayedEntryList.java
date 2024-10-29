@@ -15,6 +15,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.SingletonArray;
 import builderb0y.bigglobe.BigGlobeMod;
@@ -47,10 +48,28 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 		this.registryKey = registryKey;
 	}
 
+	public DelayedEntryList(@NotNull RegistryKey<Registry<T>> registryKey, @NotNull RegistryEntryList<T> list) {
+		this.registryKey = registryKey;
+		Optional<TagKey<T>> key = list.getTagKey();
+		if (key.isPresent()) {
+			this.delayedEntries = Collections.singletonList(
+				new DelayedEntry('#' + key.get().id().toString())
+			);
+		}
+		else {
+			this.delayedEntries = list.stream().map(UnregisteredObjectException::getID).map((Identifier id) -> new DelayedEntry(id, false)).toList();
+			this.entryList = list.stream().toList();
+		}
+	}
+
 	public static DelayedEntryList<?> constant(String... args) {
 		RegistryKey<Registry<Object>> key = RegistryKey.ofRegistry(IdentifierVersions.create(args[0]));
 		List<DelayedEntry> entries = Arrays.stream(args, 1, args.length).map(DelayedEntry::new).toList();
 		return new DelayedEntryList<>(key, entries);
+	}
+
+	public static <T> DelayedEntryList<T> constant(RegistryKey<Registry<T>> registryKey, String input) {
+		return new DelayedEntryList<>(registryKey, Collections.singletonList(new DelayedEntry(input)));
 	}
 
 	public boolean isResolved() {

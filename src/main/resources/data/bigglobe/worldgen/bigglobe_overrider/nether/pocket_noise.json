@@ -3,7 +3,7 @@
 	"script": [
 		"double peek2 = 0.8382 ^ 2",
 		"for (StructureStart start in structures:",
-			"if (start.structure.isIn('bigglobe:underground_pockets'):",
+			"if (start.structure.isIn('#bigglobe:underground_pockets'):",
 				"double scaledX = unmixLinear(double(start.midX), double(start.maxX), double(x))",
 				"double scaledZ = unmixLinear(double(start.midZ), double(start.maxZ), double(z))",
 				"double radius2 = scaledX ^ 2 + scaledZ ^ 2",

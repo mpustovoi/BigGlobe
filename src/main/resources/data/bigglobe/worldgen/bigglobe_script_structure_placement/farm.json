@@ -26,7 +26,7 @@
 		"fillBlockState(minX + 1, minY, minZ + 1, maxX - 1, minY, maxZ - 1, 'minecraft:farmland[moisture=7]')",
 		"for (int z in range(minZ, maxZ):",
 			"for (int x in range(minX, maxX):",
-				"setBlockState(x, midY, z, BlockTag('bigglobe:farm_structure_crops').random().getRandomState())",
+				"setBlockState(x, midY, z, BlockTag('#bigglobe:farm_structure_crops').random().getRandomState())",
 			")",
 		")",
 

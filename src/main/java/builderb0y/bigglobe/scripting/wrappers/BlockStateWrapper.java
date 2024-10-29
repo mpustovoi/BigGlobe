@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EmptyBlockView;
 
 import builderb0y.bigglobe.fluids.BigGlobeFluidTags;
+import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.scripting.ScriptLogger;
@@ -87,8 +88,8 @@ public class BlockStateWrapper {
 		}
 	}
 
-	public static boolean isIn(BlockState state, BlockTagKey key) {
-		return state.isIn(key.key());
+	public static boolean isIn(BlockState state, BlockTag tag) {
+		return tag.list.contains(state.getRegistryEntry());
 	}
 
 	public static Block getBlock(BlockState state) {

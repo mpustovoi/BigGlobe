@@ -23,7 +23,7 @@
 					"excludeSurface(mixLevel)",
 				")",
 			")",
-			"else if (start.structure.isIn('bigglobe:lakes'):",
+			"else if (start.structure.isIn('#bigglobe:lakes'):",
 				"double distance = distanceToCircle(start)",
 				"double mixLevel = smooth(1.0L - distance * 0.0625L)",
 				"excludeSurface(mixLevel)",

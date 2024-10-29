@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.Weather;
 
-import builderb0y.bigglobe.scripting.wrappers.BiomeEntry.BiomeDownfallAccessor;
+import builderb0y.bigglobe.mixinInterfaces.BiomeDownfallAccessor;
 
 @Mixin(Biome.class)
 public class Biome_DownfallAccessor implements BiomeDownfallAccessor {

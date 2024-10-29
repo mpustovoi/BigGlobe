@@ -6,8 +6,8 @@ import java.util.random.RandomGenerator;
 import builderb0y.autocodec.common.Case;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
 import builderb0y.bigglobe.scripting.wrappers.BlockStateWrapper;
-import builderb0y.bigglobe.scripting.wrappers.WoodPaletteEntry;
-import builderb0y.bigglobe.scripting.wrappers.WoodPaletteTagKey;
+import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
+import builderb0y.bigglobe.scripting.wrappers.tags.WoodPaletteTag;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -28,11 +28,11 @@ public class WoodPaletteScriptEnvironment {
 	public static final MutableScriptEnvironment BASE = (
 		new MutableScriptEnvironment()
 		.addType("WoodPalette", WoodPaletteEntry.class)
-		.addType("WoodPaletteTag", WoodPaletteTagKey.class)
+		.addType("WoodPaletteTag", WoodPaletteTag.class)
 		.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, true)
-		.addCastConstant(WoodPaletteTagKey.CONSTANT_FACTORY, true)
-		.addMethodInvokeSpecific(WoodPaletteTagKey.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
-		.addMethodInvokeSpecific(WoodPaletteTagKey.class, "random", WoodPaletteEntry.class, long.class)
+		.addCastConstant(WoodPaletteTag.CONSTANT_FACTORY, true)
+		.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, long.class)
 		.addFieldInvoke(WoodPaletteEntry.class, "features")
 	);
 

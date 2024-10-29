@@ -1,7 +1,7 @@
 {
 	"type": "structure",
 	"script": [
-		"if (start.structure.isIn('bigglobe:dungeons'):",
+		"if (start.structure.isIn('#bigglobe:dungeons'):",
 			"OverworldCaveCell cell = `bigglobe:overworld/cave`(start.minX, start.minZ)",
 			"if (cell != `bigglobe:overworld/cave`(start.minX, start.maxZ): return(false))",
 			"if (cell != `bigglobe:overworld/cave`(start.maxX, start.minZ): return(false))",

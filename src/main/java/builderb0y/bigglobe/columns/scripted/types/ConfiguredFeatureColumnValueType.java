@@ -10,7 +10,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
-import builderb0y.bigglobe.scripting.wrappers.ConfiguredFeatureEntry;
+import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;

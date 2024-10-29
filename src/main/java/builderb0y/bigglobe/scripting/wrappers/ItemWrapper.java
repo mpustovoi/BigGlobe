@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
+import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -41,9 +42,8 @@ public class ItemWrapper {
 		return UnregisteredObjectException.getID(item.getRegistryEntry()).toString();
 	}
 
-	@SuppressWarnings("deprecation")
-	public static boolean isIn(Item item, ItemTagKey key) {
-		return item.getRegistryEntry().isIn(key.key());
+	public static boolean isIn(Item item, ItemTag tag) {
+		return tag.contains(item);
 	}
 
 	public static ItemStack getDefaultStack(Item item) {

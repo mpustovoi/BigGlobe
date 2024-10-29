@@ -32,6 +32,8 @@ to finish before release:
 	document version for Purpose/Hints refactors.
 	document version for offset grids.
 	document version for tag-type feature dispatchers.
+	Tag('a', 'b')
+	object.isIn('a', 'b')
 
 changelog:
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.

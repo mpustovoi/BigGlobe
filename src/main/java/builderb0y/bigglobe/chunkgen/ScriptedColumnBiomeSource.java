@@ -91,7 +91,7 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 		ScriptedColumn column = this.columnThreadLocal.get();
 		if (column != null) {
 			column.setParams(column.params.at(x << 2, z << 2).hints(ColumnUsage.GENERIC.maybeDhHints()));
-			return this.script.get(column, y << 2).entry();
+			return this.script.get(column, y << 2).entry;
 		}
 		else {
 			return BigGlobeMod.getRegistry(RegistryKeys.BIOME).getOrCreateEntry(BiomeKeys.PLAINS);

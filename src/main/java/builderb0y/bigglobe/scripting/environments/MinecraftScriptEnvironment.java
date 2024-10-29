@@ -17,8 +17,9 @@ import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.scripting.wrappers.*;
+import builderb0y.bigglobe.scripting.wrappers.entries.*;
+import builderb0y.bigglobe.scripting.wrappers.tags.*;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.ConstantValue;
@@ -40,42 +41,41 @@ public class MinecraftScriptEnvironment {
 
 	public static final MutableScriptEnvironment BASE = (
 		new MutableScriptEnvironment()
-		.addType("Block",                BlockWrapper           .TYPE)
-		.addType("BlockTag",             BlockTagKey            .TYPE)
-		.addType("BlockState",           BlockStateWrapper      .TYPE)
-		.addType("Biome",                BiomeEntry             .TYPE)
-		.addType("BiomeTag",             BiomeTagKey            .TYPE)
-		.addType("ConfiguredFeature",    ConfiguredFeatureEntry .TYPE)
-		.addType("ConfiguredFeatureTag", ConfiguredFeatureTagKey.TYPE)
+		.addType("Block",                BlockWrapper          .TYPE)
+		.addType("BlockTag",             BlockTag              .TYPE)
+		.addType("BlockState",           BlockStateWrapper     .TYPE)
+		.addType("Biome",                BiomeEntry            .TYPE)
+		.addType("BiomeTag",             BiomeTag              .TYPE)
+		.addType("ConfiguredFeature",    ConfiguredFeatureEntry.TYPE)
+		.addType("ConfiguredFeatureTag", ConfiguredFeatureTag  .TYPE)
 		.addType("Tag", TagWrapper.TYPE)
 		.addFieldInvokeStatic(BlockWrapper.class, "id")
-		.addFieldInvoke(TagWrapper.class, "id")
 		.addFieldInvoke(EntryWrapper.class, "id")
 		.addFieldInvokes(BiomeEntry.class, "temperature", "downfall")
 		.addMethodInvokeStatics(BlockWrapper.class, "getDefaultState", "isIn")
 		.addMethodMultiInvokeStatic(BlockWrapper.class, "getRandomState")
-		.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, RandomGenerator.class)
-		.addMethodInvokeSpecific(BlockTagKey.class, "random", Block.class, long.class)
+		.addMethodInvokeSpecific(BlockTag.class, "random", Block.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(BlockTag.class, "random", Block.class, long.class)
 		.addMethodInvokeStatics(BlockStateWrapper.class, "isIn", "getBlock", "isAir", "isReplaceable", "hasWater", "hasLava", "hasSoulLava", "hasFluid", "blocksLight", "hasCollision", "hasFullCubeCollision", "hasFullCubeOutline", "rotate", "mirror", "with")
 		.addField(BlockStateWrapper.TYPE, null, new FieldHandler.Named("<property getter>", (ExpressionParser parser, InsnTree receiver, String name, GetFieldMode mode) -> {
 			return mode.makeInvoker(parser, receiver, BlockStateWrapper.GET_PROPERTY, ldc(name));
 		}))
-		.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTagKey.class)
-		.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, RandomGenerator.class)
-		.addMethodInvokeSpecific(BiomeTagKey.class, "random", BiomeEntry.class, long.class)
-		.addMethodInvokeSpecific(ConfiguredFeatureEntry.class, "isIn", boolean.class, ConfiguredFeatureTagKey.class)
-		.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
-		.addMethodInvokeSpecific(ConfiguredFeatureTagKey.class, "random", ConfiguredFeatureEntry.class, long.class)
+		.addMethodInvokeSpecific(BiomeEntry.class, "isIn", boolean.class, BiomeTag.class)
+		.addMethodInvokeSpecific(BiomeTag.class, "random", BiomeEntry.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(BiomeTag.class, "random", BiomeEntry.class, long.class)
+		.addMethodInvokeSpecific(ConfiguredFeatureEntry.class, "isIn", boolean.class, ConfiguredFeatureTag.class)
+		.addMethodInvokeSpecific(ConfiguredFeatureTag.class, "random", ConfiguredFeatureEntry.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(ConfiguredFeatureTag.class, "random", ConfiguredFeatureEntry.class, long.class)
 
 		//casting
 
-		.addCastConstant(BlockWrapper           .CONSTANT_FACTORY, true)
-		.addCastConstant(BlockStateWrapper      .CONSTANT_FACTORY, true)
-		.addCastConstant(BlockTagKey            .CONSTANT_FACTORY, true)
-		.addCastConstant(BiomeEntry             .CONSTANT_FACTORY, true)
-		.addCastConstant(BiomeTagKey            .CONSTANT_FACTORY, true)
-		.addCastConstant(ConfiguredFeatureEntry .CONSTANT_FACTORY, true)
-		.addCastConstant(ConfiguredFeatureTagKey.CONSTANT_FACTORY, true)
+		.addCastConstant(BlockWrapper          .CONSTANT_FACTORY, true)
+		.addCastConstant(BlockStateWrapper     .CONSTANT_FACTORY, true)
+		.addCastConstant(BlockTag              .CONSTANT_FACTORY, true)
+		.addCastConstant(BiomeEntry            .CONSTANT_FACTORY, true)
+		.addCastConstant(BiomeTag              .CONSTANT_FACTORY, true)
+		.addCastConstant(ConfiguredFeatureEntry.CONSTANT_FACTORY, true)
+		.addCastConstant(ConfiguredFeatureTag  .CONSTANT_FACTORY, true)
 
 		.addKeyword("BlockState", blockStateKeyword())
 	);
@@ -89,9 +89,9 @@ public class MinecraftScriptEnvironment {
 			environment
 			.configure(create())
 			.addMethod(BlockWrapper.TYPE, "getRandomState", Handlers.builder(BlockWrapper.class, "getRandomState").addReceiverArgument(BlockWrapper.TYPE).addImplicitArgument(loadRandom).buildMethod())
-			.addMethod(BlockTagKey.TYPE, "random", tagRandom(loadRandom, BlockTagKey.class, Block.class))
-			.addMethod(BiomeTagKey.TYPE, "random", tagRandom(loadRandom, BiomeTagKey.class, BiomeEntry.class))
-			.addMethod(ConfiguredFeatureTagKey.TYPE, "random", tagRandom(loadRandom, ConfiguredFeatureTagKey.class, ConfiguredFeatureEntry.class))
+			.addMethod(BlockTag.TYPE, "random", tagRandom(loadRandom, BlockTag.class, Block.class))
+			.addMethod(BiomeTag.TYPE, "random", tagRandom(loadRandom, BiomeTag.class, BiomeEntry.class))
+			.addMethod(ConfiguredFeatureTag.TYPE, "random", tagRandom(loadRandom, ConfiguredFeatureTag.class, ConfiguredFeatureEntry.class))
 			;
 		};
 	}

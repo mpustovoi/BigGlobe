@@ -32,6 +32,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumnLookup;
 import builderb0y.bigglobe.features.SingleBlockFeature;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.util.SymmetricOffset;
@@ -43,7 +44,6 @@ import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockEntityVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.FieldInfo;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;
@@ -280,7 +280,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	public boolean placeFeature(int x, int y, int z, ConfiguredFeatureEntry feature) {
 		BlockPos pos = this.mutablePos(x, y, z);
 		if (pos != null) {
-			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, UnregisteredObjectException.getID(feature.entry()).hashCode(), x, y, z));
+			Permuter permuter = new Permuter(Permuter.permute(this.seed() ^ 0xB5ECAC279BD1E7FBL, feature.identifier().hashCode(), x, y, z));
 			return this.world.placeFeature(pos, feature.object(), permuter.mojang());
 		}
 		return false;

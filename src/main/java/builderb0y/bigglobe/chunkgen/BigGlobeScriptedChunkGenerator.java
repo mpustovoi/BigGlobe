@@ -982,7 +982,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						for (int y = bottomY; y < topY; y += 4) {
 							ChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
 							PalettedContainer<RegistryEntry<Biome>> container = (PalettedContainer<RegistryEntry<Biome>>)(section.getBiomeContainer());
-							int newID = SectionUtil.id(container, source.script.get(column, y).entry());
+							int newID = SectionUtil.id(container, source.script.get(column, y).entry);
 							SectionUtil.storage(container).set(((y & 0b1100) << 2) | z | (x >>> 2), newID);
 						}
 					}

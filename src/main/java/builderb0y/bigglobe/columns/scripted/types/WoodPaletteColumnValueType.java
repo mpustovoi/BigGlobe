@@ -3,12 +3,11 @@ package builderb0y.bigglobe.columns.scripted.types;
 import com.mojang.datafixers.util.Unit;
 
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
 
 import builderb0y.autocodec.annotations.RecordLike;
 import builderb0y.bigglobe.columns.scripted.compile.ColumnCompileContext;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
-import builderb0y.bigglobe.scripting.wrappers.WoodPaletteEntry;
+import builderb0y.bigglobe.scripting.wrappers.entries.WoodPaletteEntry;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.TypeInfo;
 import builderb0y.scripting.bytecode.tree.InsnTree;

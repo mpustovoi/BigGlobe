@@ -2,13 +2,17 @@ package builderb0y.bigglobe.scripting.wrappers;
 
 import java.util.List;
 
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.world.gen.structure.Structure;
 
+import builderb0y.bigglobe.scripting.wrappers.entries.StructureEntry;
+import builderb0y.bigglobe.scripting.wrappers.tags.BiomeTag;
 import builderb0y.bigglobe.structures.DelegatingStructure;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -47,8 +51,11 @@ public record StructureStartWrapper(
 		return new StructureStartWrapper(
 			new StructureEntry(
 				entry,
-				UnregisteredObjectException.getTagKey(
-					original.value().getValidBiomes()
+				new BiomeTag(
+					new DelayedEntryList<>(
+						RegistryKeys.BIOME,
+						original.value().getValidBiomes()
+					)
 				),
 				original.value().getFeatureGenerationStep()
 			),

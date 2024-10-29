@@ -12,7 +12,7 @@
 						"++logZ 'north',",
 						"--logZ 'south'",
 					")",
-					"if (getBlockState(logX, originY, logZ).isIn('minecraft:logs_that_burn'):",
+					"if (getBlockState(logX, originY, logZ).isIn('#minecraft:logs_that_burn'):",
 						"setBlockState(originX, originY, originZ, BlockState(",
 							"'minecraft:bee_nest',",
 							"facing:      orientation,",

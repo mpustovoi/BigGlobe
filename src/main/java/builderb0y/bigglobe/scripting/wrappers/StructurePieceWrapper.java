@@ -20,9 +20,9 @@ public class StructurePieceWrapper {
 	public static int midX(StructurePiece piece) { return (piece.getBoundingBox().getMinX() + piece.getBoundingBox().getMaxX() + 1) >> 1; }
 	public static int midY(StructurePiece piece) { return (piece.getBoundingBox().getMinY() + piece.getBoundingBox().getMaxY() + 1) >> 1; }
 	public static int midZ(StructurePiece piece) { return (piece.getBoundingBox().getMinZ() + piece.getBoundingBox().getMaxZ() + 1) >> 1; }
-	public static int sizeX(StructurePiece piece) { return piece.getBoundingBox().getMaxX() - piece.getBoundingBox().getMinX(); }
-	public static int sizeY(StructurePiece piece) { return piece.getBoundingBox().getMaxY() - piece.getBoundingBox().getMinY(); }
-	public static int sizeZ(StructurePiece piece) { return piece.getBoundingBox().getMaxZ() - piece.getBoundingBox().getMinZ(); }
+	public static int sizeX(StructurePiece piece) { return piece.getBoundingBox().getMaxX() - piece.getBoundingBox().getMinX() + 1; }
+	public static int sizeY(StructurePiece piece) { return piece.getBoundingBox().getMaxY() - piece.getBoundingBox().getMinY() + 1; }
+	public static int sizeZ(StructurePiece piece) { return piece.getBoundingBox().getMaxZ() - piece.getBoundingBox().getMinZ() + 1; }
 
 	public static StructurePieceType type(StructurePiece piece) {
 		return piece.getType();

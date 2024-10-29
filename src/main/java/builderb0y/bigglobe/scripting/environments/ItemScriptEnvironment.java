@@ -6,8 +6,8 @@ import java.util.random.RandomGenerator;
 import net.minecraft.item.Item;
 
 import builderb0y.bigglobe.scripting.wrappers.ItemStackWrapper;
-import builderb0y.bigglobe.scripting.wrappers.ItemTagKey;
 import builderb0y.bigglobe.scripting.wrappers.ItemWrapper;
+import builderb0y.bigglobe.scripting.wrappers.tags.ItemTag;
 import builderb0y.scripting.bytecode.tree.InsnTree;
 import builderb0y.scripting.environments.MutableScriptEnvironment;
 
@@ -17,16 +17,16 @@ public class ItemScriptEnvironment {
 		new MutableScriptEnvironment()
 		.addType("Item", ItemWrapper.TYPE)
 		.addType("ItemStack", ItemStackWrapper.TYPE)
-		.addType("ItemTag", ItemTagKey.TYPE)
+		.addType("ItemTag", ItemTag.TYPE)
 		.addCastConstant(ItemWrapper.CONSTANT_FACTORY, true)
-		.addCastConstant(ItemTagKey.CONSTANT_FACTORY, true)
+		.addCastConstant(ItemTag.CONSTANT_FACTORY, true)
 		.addQualifiedFunctionRenamedMultiInvokeStatic(ItemStackWrapper.TYPE, ItemStackWrapper.class, "new", "create")
 
 		.addFieldInvokeStatic(ItemWrapper.class, "id")
 		.addMethodInvokeStatics(ItemWrapper.class, "isIn", "getDefaultStack")
 
-		.addMethodInvokeSpecific(ItemTagKey.class, "random", Item.class, RandomGenerator.class)
-		.addMethodInvokeSpecific(ItemTagKey.class, "random", Item.class, long.class)
+		.addMethodInvokeSpecific(ItemTag.class, "random", Item.class, RandomGenerator.class)
+		.addMethodInvokeSpecific(ItemTag.class, "random", Item.class, long.class)
 
 		.addQualifiedVariableGetStatic(ItemStackWrapper.TYPE, ItemStackWrapper.class, "EMPTY")
 		.addFieldInvokeStatic(ItemStackWrapper.class, "item")
@@ -39,7 +39,7 @@ public class ItemScriptEnvironment {
 		return (MutableScriptEnvironment environment) -> {
 			environment
 			.addAll(INSTANCE)
-			.addMethod(ItemTagKey.TYPE, "random", MinecraftScriptEnvironment.tagRandom(loadRandom, ItemTagKey.class, Item.class))
+			.addMethod(ItemTag.TYPE, "random", MinecraftScriptEnvironment.tagRandom(loadRandom, ItemTag.class, Item.class))
 			;
 		};
 	}

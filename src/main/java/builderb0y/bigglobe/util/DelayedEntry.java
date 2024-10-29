@@ -24,6 +24,16 @@ public class DelayedEntry {
 		}
 	}
 
+	public DelayedEntry(@NotNull Identifier id, boolean isTag) {
+		this.id = id;
+		this.encoding = (
+			isTag
+			? '#' + id.toString()
+			: id.toString()
+		)
+		.intern();
+	}
+
 	public String encoding() {
 		return this.encoding;
 	}

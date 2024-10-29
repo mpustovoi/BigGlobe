@@ -118,7 +118,7 @@
 		".$setBlockState(1, 2,  0, palette.pressurePlateState(powered: false))",
 		"Coordinator(walls.(4))",
 		".$setBlockStateLine(1, 1, -1, 0, 0, 1, 3, 'minecraft:bookshelf')",
-		".$setBlockState(1, 2, random.if (-1) else (1), BlockTag('minecraft:flower_pots').random().getDefaultState())",
+		".$setBlockState(1, 2, random.if (-1) else (1), BlockTag('#minecraft:flower_pots').random().getDefaultState())",
 		"BlockState bed1 = BlockState('minecraft:$randomColor()_bed', facing: 'east', occupied: false, part: 'foot')",
 		"BlockState bed2 = BlockState('minecraft:$randomColor()_bed', facing: 'east', occupied: false, part: 'foot')",
 		"Coordinator(walls.(5))",

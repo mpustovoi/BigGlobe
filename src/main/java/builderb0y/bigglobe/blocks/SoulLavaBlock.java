@@ -39,6 +39,7 @@ public class SoulLavaBlock extends FluidBlock {
 		super((FlowableFluid)(fluid.value()), settings);
 	}
 
+	@SuppressWarnings("deprecation")
 	public RegistryEntry<Fluid> fluid() {
 		return this.fluid.getRegistryEntry();
 	}

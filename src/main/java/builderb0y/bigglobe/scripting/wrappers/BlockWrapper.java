@@ -12,10 +12,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.scripting.wrappers.tags.BlockTag;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.bytecode.TypeInfo;
 
@@ -52,9 +52,8 @@ public class BlockWrapper {
 		return UnregisteredObjectException.getID(block.getRegistryEntry()).toString();
 	}
 
-	@SuppressWarnings("deprecation")
-	public static boolean isIn(Block block, BlockTagKey key) {
-		return block.getRegistryEntry().isIn(key.key());
+	public static boolean isIn(Block block, BlockTag tag) {
+		return tag.contains(block);
 	}
 
 	public static BlockState getDefaultState(Block block) {

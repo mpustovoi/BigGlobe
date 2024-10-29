@@ -3,7 +3,7 @@
 	"config": {
 		"script": [
 			"--originY",
-			"unless (getBlockState(originX, originY, originZ).isIn('minecraft:dirt'): return(false))",
+			"unless (getBlockState(originX, originY, originZ).isIn('#minecraft:dirt'): return(false))",
 			"boolean hasSolidOrWater(int x, int z:",
 				"BlockState state = getBlockState(x, originY, z)",
 				"return(state.hasFullCubeCollision() || state.hasWater())",

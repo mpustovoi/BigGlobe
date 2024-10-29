@@ -10,6 +10,7 @@ import net.minecraft.block.FluidBlock;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -20,7 +21,6 @@ import net.minecraft.world.block.WireOrientation;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.codecs.UseSuperClass;
 
 @AddPseudoField("fluid")
 public class SoulLavaBlock extends FluidBlock {
@@ -35,13 +35,12 @@ public class SoulLavaBlock extends FluidBlock {
 		}
 	#endif
 
-	public SoulLavaBlock(FlowableFluid fluid, Settings settings) {
-		super(fluid, settings);
+	public SoulLavaBlock(RegistryEntry<Fluid> fluid, Settings settings) {
+		super((FlowableFluid)(fluid.value()), settings);
 	}
 
-	@UseSuperClass(Fluid.class)
-	public FlowableFluid fluid() {
-		return this.fluid;
+	public RegistryEntry<Fluid> fluid() {
+		return this.fluid.getRegistryEntry();
 	}
 
 	@Override

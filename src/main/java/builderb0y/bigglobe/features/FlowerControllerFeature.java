@@ -30,10 +30,7 @@ import builderb0y.bigglobe.noise.Grid2D;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RestrictedList;
 import builderb0y.bigglobe.randomSources.RandomSource;
-import builderb0y.bigglobe.util.Async;
-import builderb0y.bigglobe.util.BigGlobeThreadPool;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
-import builderb0y.bigglobe.util.WorldUtil;
+import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.versions.RegistryEntryListVersions;
 
 public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Config> {
@@ -164,12 +161,12 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 	public static class Config implements FeatureConfig {
 
 		public final ColumnToIntScript.Holder y_level;
-		public final RegistryEntryList<ConfiguredFeature<?, ?>> flowers;
+		public final DelayedEntryList<ConfiguredFeature<?, ?>> flowers;
 		public transient FlowerFeature.Config @Nullable [] flattenedFlowers;
 
 		public Config(
 			ColumnToIntScript.Holder y_level,
-			RegistryEntryList<ConfiguredFeature<?, ?>> flowers
+			DelayedEntryList<ConfiguredFeature<?, ?>> flowers
 		) {
 			this.y_level = y_level;
 			this.flowers = flowers;
@@ -180,13 +177,13 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 				this.flattenedFlowers = (
 					this
 					.flowers
-					.stream()
+					.entryStream()
 					.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
 						if (entry.value().feature() == BigGlobeFeatures.FLOWER) {
 							return true;
 						}
 						else {
-							BigGlobeMod.LOGGER.warn("A flower controller references tag " + RegistryEntryListVersions.getKeyNullable(this.flowers) + " which contains " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
+							BigGlobeMod.LOGGER.warn("A flower controller references " + UnregisteredObjectException.getID(entry) + ", but this feature is not of type \"bigglobe:flower\". It will be ignored.");
 							return false;
 						}
 					})

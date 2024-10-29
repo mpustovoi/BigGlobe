@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.noise.Permuter;
@@ -38,8 +39,8 @@ public class BlockWrapper {
 			}
 		#endif
 		Identifier identifier = IdentifierVersions.create(id);
-		if (RegistryVersions.block().containsId(identifier)) {
-			return RegistryVersions.block().get(identifier);
+		if (Registries.BLOCK.containsId(identifier)) {
+			return Registries.BLOCK.get(identifier);
 		}
 		else {
 			throw new IllegalArgumentException("Unknown block: " + identifier);

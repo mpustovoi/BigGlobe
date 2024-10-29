@@ -6,6 +6,7 @@ import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.Potions;
 import net.minecraft.recipe.BrewingRecipeRegistry;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 
@@ -49,6 +50,6 @@ public class BigGlobeBrewing {
 	}
 
 	public static #if MC_VERSION >= MC_1_20_5 RegistryEntry<Potion> #else Potion #endif register(String name, Potion potion) {
-		return Registry. #if MC_VERSION >= MC_1_20_5 registerReference #else register #endif (RegistryVersions.potion(), BigGlobeMod.modID(name), potion);
+		return Registry. #if MC_VERSION >= MC_1_20_5 registerReference #else register #endif (Registries.POTION, BigGlobeMod.modID(name), potion);
 	}
 }

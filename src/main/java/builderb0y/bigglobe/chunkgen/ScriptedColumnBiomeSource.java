@@ -27,6 +27,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Params;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
+import builderb0y.bigglobe.util.DelayedEntryList;
 
 public class ScriptedColumnBiomeSource extends BiomeSource {
 
@@ -37,15 +38,14 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 	#endif
 
 	public final ColumnYToBiomeScript.Holder script;
-	public final TagKey<Biome> all_possible_biomes;
+	public final DelayedEntryList<Biome> all_possible_biomes;
 	public transient BigGlobeScriptedChunkGenerator generator;
 	public transient ThreadLocal<@Nullable ScriptedColumn> columnThreadLocal;
 	public final BetterRegistry<Biome> biomeRegistry;
-	public transient Set<RegistryEntry<Biome>> allPossibleBiomes = Collections.emptySet();
 
 	public ScriptedColumnBiomeSource(
 		ColumnYToBiomeScript.Holder script,
-		TagKey<Biome> all_possible_biomes,
+		DelayedEntryList<Biome> all_possible_biomes,
 		BetterRegistry<Biome> biomeRegistry
 	) {
 		this.script = script;
@@ -78,21 +78,12 @@ public class ScriptedColumnBiomeSource extends BiomeSource {
 
 	@Override
 	public Set<RegistryEntry<Biome>> getBiomes() {
-		if (this.allPossibleBiomes.isEmpty()) {
-			RegistryEntryList<Biome> tag = this.biomeRegistry.getOrCreateTag(this.all_possible_biomes);
-			if (tag.size() != 0) {
-				this.allPossibleBiomes = tag.stream().collect(Collectors.toSet());
-			}
-			else {
-				BigGlobeMod.LOGGER.warn("", new IllegalStateException("Something tried to query ScriptedColumnBiomeSource.getBiomes() before tags are loaded OR the biome tag " + this.all_possible_biomes.id() + " is empty."));
-			}
-		}
-		return this.allPossibleBiomes;
+		return this.all_possible_biomes.entrySet();
 	}
 
 	@Override
 	protected Stream<RegistryEntry<Biome>> biomeStream() {
-		return this.getBiomes().stream();
+		return this.all_possible_biomes.entryStream();
 	}
 
 	@Override

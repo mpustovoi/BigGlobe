@@ -9,7 +9,7 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:islands/biome`",
-					"all_possible_biomes": "bigglobe:overworld"
+					"all_possible_biomes": "#bigglobe:overworld"
 				},
 				"height": {
 					"min_y": -1024,
@@ -152,7 +152,7 @@
 					"raw": "bigglobe:islands/raw_root",
 					"normal": "bigglobe:islands/normal_root"
 				},
-				"overriders": "bigglobe:islands",
+				"overriders": "#bigglobe:islands",
 				"spawn_point": {
 					"file": "bigglobe:world_preset/islands_spawn_point"
 				},

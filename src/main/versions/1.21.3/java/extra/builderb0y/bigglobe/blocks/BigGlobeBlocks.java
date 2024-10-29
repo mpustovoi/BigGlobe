@@ -268,7 +268,7 @@ public class BigGlobeBlocks {
 	public static final RiverWaterBlock RIVER_WATER = register(
 		"river_water",
 		new RiverWaterBlock(
-			Fluids.WATER,
+			Fluids.WATER.getRegistryEntry(),
 			AbstractBlock
 			.Settings
 			.copy(Blocks.WATER)
@@ -434,7 +434,7 @@ public class BigGlobeBlocks {
 	public static final SoulLavaBlock SOUL_LAVA = register(
 		"soul_lava",
 		new SoulLavaBlock(
-			BigGlobeFluids.SOUL_LAVA,
+			BigGlobeFluids.SOUL_LAVA.getRegistryEntry(),
 			AbstractBlock
 			.Settings
 			.create()
@@ -886,7 +886,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			TALL_CHORUS_SPORES
+			TALL_CHORUS_SPORES.getRegistryEntry()
 		)
 	);
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
@@ -904,7 +904,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			MEDIUM_CHORUS_SPORES
+			MEDIUM_CHORUS_SPORES.getRegistryEntry()
 		)
 	);
 	public static final EnumMap<CloudColor, CloudBlock> VOID_CLOUDS = new EnumMap<>(CloudColor.class);

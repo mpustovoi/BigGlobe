@@ -141,9 +141,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:overworld/biome`",
-					"all_possible_biomes": "bigglobe:overworld"
+					"all_possible_biomes": "#bigglobe:overworld_except_volcano"
 				},
-				"overriders": "bigglobe:overworld",
+				"overriders": "#bigglobe:overworld",
 				"spawn_point": {
 					"file": "bigglobe:world_preset/overworld_spawn_point"
 				},
@@ -238,9 +238,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:nether/bubble`.biome",
-					"all_possible_biomes": "bigglobe:nether"
+					"all_possible_biomes": "#bigglobe:nether"
 				},
-				"overriders": "bigglobe:nether"
+				"overriders": "#bigglobe:nether"
 			}
 		},
 
@@ -346,9 +346,9 @@
 				"biome_source": {
 					"type": "bigglobe:scripted",
 					"script": "`bigglobe:end/surface`.biome",
-					"all_possible_biomes": "bigglobe:end"
+					"all_possible_biomes": "#bigglobe:end"
 				},
-				"overriders": "bigglobe:end",
+				"overriders": "#bigglobe:end",
 				"end_overrides": {
 					"spawning": {
 						"location": [ 96, 67, 0 ],

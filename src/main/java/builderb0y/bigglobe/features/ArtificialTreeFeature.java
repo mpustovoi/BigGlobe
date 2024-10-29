@@ -66,9 +66,9 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		if (!(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return false;
 		StructureWorldAccess world = context.getWorld();
 		Config config = context.getConfig();
-		IRandomList<Block> saplingBlocks = config.palette.value().saplingBlocks();
+		IRandomList<RegistryEntry<Block>> saplingBlocks = config.palette.value().saplingBlocks();
 		BlockPos origin = context.getOrigin();
-		if (!saplingBlocks.contains(world.getBlockState(origin).getBlock())) return false;
+		if (!saplingBlocks.contains(world.getBlockState(origin).getRegistryEntry())) return false;
 		Permuter permuter = Permuter.from(context.getRandom());
 		BlockQueue blockQueue = new BlockQueue(true);
 		Deque<BlockPos> toCheck = new ArrayDeque<>(8);
@@ -81,7 +81,7 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		for (BlockPos pos; (pos = toCheck.pollFirst()) != null;) {
 			for (Direction direction : Directions.HORIZONTAL) {
 				BlockPos offset = pos.offset(direction);
-				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).getBlock())) {
+				if (blockQueue.getBlockStateOrNull(offset) == null && saplingBlocks.contains(world.getBlockState(offset).getRegistryEntry())) {
 					blockQueue.queueBlock(offset, BlockStates.AIR);
 					centerX += offset.getX();
 					centerZ += offset.getZ();

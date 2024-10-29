@@ -19,7 +19,9 @@ import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette;
 import builderb0y.bigglobe.dynamicRegistries.WoodPalette.WoodPaletteType;
+import builderb0y.bigglobe.randomLists.ComputedRandomList;
 import builderb0y.bigglobe.randomLists.IRandomList;
+import builderb0y.bigglobe.randomLists.MappingRandomList;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -54,8 +56,8 @@ public record WoodPaletteEntry(RegistryEntry<WoodPalette> entry) implements Entr
 	}
 
 	public IRandomList<Block> getBlocks(WoodPaletteType type) {
-		IRandomList<Block> block = this.palette().blocks.get(type);
-		if (block != null) return block;
+		IRandomList<RegistryEntry<Block>> blocks = this.palette().blocks.get(type);
+		if (blocks != null) return MappingRandomList.create(blocks, RegistryEntry<Block>::value);
 		else throw new IllegalStateException("WoodPaletteType " + type + " not present on WoodPalette " + UnregisteredObjectException.getID(this.entry));
 	}
 

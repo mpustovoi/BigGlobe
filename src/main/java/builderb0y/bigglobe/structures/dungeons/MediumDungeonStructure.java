@@ -17,6 +17,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.block.enums.StairShape;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePieceType;
@@ -41,6 +42,7 @@ import builderb0y.bigglobe.mixins.MobSpawnerLogic_GettersAndSettersForEverything
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.structures.BigGlobeStructures;
 import builderb0y.bigglobe.structures.LabyrinthLayout;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
@@ -56,8 +58,8 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 	public MediumDungeonStructure(
 		Config config,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
-		@VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators,
-		IRandomList<EntityType<?>> spawner_entries,
+		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
+		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config, surface_y, room_decorators, spawner_entries, palettes);
@@ -75,7 +77,14 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Layout extends DungeonLayout {
 
-		public Layout(ScriptedColumn column, int y, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators, IRandomList<EntityType<?>> spawnerEntries, List<Palette> palettes) {
+		public Layout(
+			ScriptedColumn column,
+			int y,
+			RandomGenerator random,
+			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
+			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
+			List<Palette> palettes
+		) {
 			super(column, y, random, (random.nextInt() & 255) + 128, roomDecorators, spawnerEntries, palettes);
 		}
 
@@ -113,7 +122,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 	public static class Room extends RoomDungeonPiece {
 
-		public Room(StructurePieceType type, Palette palette, RandomGenerator random, @Nullable TagKey<ConfiguredFeature<?, ?>> decorators) {
+		public Room(StructurePieceType type, Palette palette, RandomGenerator random, @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators) {
 			super(type, 0, null, palette, decorators);
 			this.setPit((random.nextInt() & 15) == 0);
 			this.setPos(0, 0, 0);
@@ -222,7 +231,7 @@ public class MediumDungeonStructure extends AbstractDungeonStructure {
 
 	public static class SpawnerPiece extends SpawnerDungeonPiece {
 
-		public SpawnerPiece(StructurePieceType type, int x, int y, int z, Palette palette, EntityType<?> spawnerType) {
+		public SpawnerPiece(StructurePieceType type, int x, int y, int z, Palette palette, RegistryEntry<EntityType<?>> spawnerType) {
 			super(type, 0, new BlockBox(x - 1, y, z - 1, x + 1, y + 1, z + 1), palette, spawnerType);
 		}
 

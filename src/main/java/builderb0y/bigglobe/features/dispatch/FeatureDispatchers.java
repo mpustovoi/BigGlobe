@@ -1,9 +1,6 @@
 package builderb0y.bigglobe.features.dispatch;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,18 +16,18 @@ import builderb0y.bigglobe.features.RockReplacerFeature;
 import builderb0y.bigglobe.features.RockReplacerFeature.ConfiguredRockReplacerFeature;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
-import builderb0y.bigglobe.util.TagOrObject;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class FeatureDispatchers implements DelayedCompileable {
 
-	public final TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers;
+	public final DelayedEntryList<ConfiguredFeature<?, ?>>[] rock_replacers;
 	public transient ConfiguredRockReplacerFeature<?> @Nullable [] flattenedRockReplacers;
 	public final RegistryEntry<FeatureDispatcher> raw, normal;
 
 	public FeatureDispatchers(
-		TagOrObject<ConfiguredFeature<?, ?>>[] rock_replacers,
+		DelayedEntryList<ConfiguredFeature<?, ?>>[] rock_replacers,
 		RegistryEntry<FeatureDispatcher> raw,
 		RegistryEntry<FeatureDispatcher> normal
 	) {
@@ -89,9 +86,7 @@ public class FeatureDispatchers implements DelayedCompileable {
 			this.flattenedRockReplacers = (
 				Arrays
 				.stream(this.rock_replacers)
-				.flatMap((TagOrObject<ConfiguredFeature<?, ?>> tagOrObject) -> {
-					return tagOrObject.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID));
-				})
+				.flatMap(DelayedEntryList::entryStream)
 				.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> {
 					//entry.value().feature().is(RockReplacerFeature).unless(
 					//	log warning

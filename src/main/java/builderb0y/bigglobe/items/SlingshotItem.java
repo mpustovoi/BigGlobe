@@ -46,8 +46,7 @@ public class SlingshotItem extends RangedWeaponItem
 	#endif
 {
 
-	public static final TagKey<Item> AMMUNITION = TagKey.of(RegistryKeys.ITEM, BigGlobeMod.modID("slingshot_ammunition"));
-	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.isIn(AMMUNITION);
+	public static final Predicate<ItemStack> AMMUNITION_PREDICATE = (ItemStack stack) -> stack.isIn(BigGlobeItemTags.SLINGSHOT_AMMUNITION);
 
 	public SlingshotItem(Settings settings) {
 		super(settings);

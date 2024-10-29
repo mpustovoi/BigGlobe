@@ -11,7 +11,6 @@ import net.minecraft.command.argument.BlockArgumentParser.TagResult;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 
-@Deprecated //minecraft will hopefully be making blocks data-driven in the future.
 public class BlockArgumentParserVersions {
 
 	public static RegistryWrapper<Block> blockRegistry() {

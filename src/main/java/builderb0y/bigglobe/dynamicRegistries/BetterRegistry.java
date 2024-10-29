@@ -4,6 +4,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.mojang.datafixers.util.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -33,7 +35,13 @@ public interface BetterRegistry<T> {
 
 	public abstract RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key);
 
-	public abstract RegistryEntryList<T> getOrCreateTag(TagKey<T> key);
+	public abstract @Nullable RegistryEntryList<T> getTag(TagKey<T> key);
+
+	public default @NotNull RegistryEntryList<T> requireTag(TagKey<T> key) {
+		RegistryEntryList<T> tag = this.getTag(key);
+		if (tag != null) return tag;
+		else throw new NullPointerException(key + " does not exist");
+	}
 
 	public abstract Stream<RegistryEntry<T>> streamEntries();
 
@@ -82,11 +90,12 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
-		public RegistryEntryList<T> getOrCreateTag(TagKey<T> key) {
+		public RegistryEntryList<T> getTag(TagKey<T> key) {
 			#if MC_VERSION >= MC_1_21_2
 				return this.registry.getOrThrow(key);
 			#else
-				return this.registry.getOrCreateEntryList(key);
+				todo: ensure this returns a non-null value.
+				return this.registry.getEntryList(key);
 			#endif
 		}
 
@@ -127,8 +136,8 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
-		public RegistryEntryList<T> getOrCreateTag(TagKey<T> key) {
-			return this.lookup.getOrThrow(key);
+		public RegistryEntryList<T> getTag(TagKey<T> key) {
+			return this.lookup.getOptional(key).orElse(null);
 		}
 
 		@Override

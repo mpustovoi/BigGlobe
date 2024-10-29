@@ -17,6 +17,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 import builderb0y.bigglobe.BigGlobeMod;
@@ -31,7 +32,7 @@ import net.minecraft.network.codec.PacketCodec;
 public class SporeParticles {
 
 	public static void init() {
-		Registry.register(RegistryVersions.particleType(), BigGlobeMod.modID("spore"), Type.INSTANCE);
+		Registry.register(Registries.PARTICLE_TYPE, BigGlobeMod.modID("spore"), Type.INSTANCE);
 	}
 
 	@Environment(EnvType.CLIENT)

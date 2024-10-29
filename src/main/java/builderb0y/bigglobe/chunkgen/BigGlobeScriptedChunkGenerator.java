@@ -162,7 +162,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public final Height height;
 	public final RootLayer layer;
 	public final FeatureDispatchers feature_dispatcher;
-	public final RegistryEntryList<Overrider> overriders;
+	public final DelayedEntryList<Overrider> overriders;
 	public final ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point;
 	public static record ColorOverrides(
 		ColorScript.@VerifyNullable Holder grass,
@@ -221,7 +221,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		RootLayer layer,
 		FeatureDispatchers feature_dispatcher,
 		BiomeSource biome_source,
-		RegistryEntryList<Overrider> overriders,
+		DelayedEntryList<Overrider> overriders,
 		ColumnRandomToBooleanScript.@VerifyNullable Holder spawn_point,
 		@VerifyNullable ColorOverrides colors,
 		@VerifyNullable NetherOverrides nether_overrides,

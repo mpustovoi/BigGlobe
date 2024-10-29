@@ -19,10 +19,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -48,6 +45,7 @@ import builderb0y.autocodec.annotations.VerifyNotEmpty;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.autocodec.decoders.DecodeException;
+import builderb0y.autocodec.reflection.reification.ReifiedType;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -68,7 +66,9 @@ import builderb0y.bigglobe.structures.LabyrinthLayout.HallPiece;
 import builderb0y.bigglobe.structures.LabyrinthLayout.LabyrinthPiece;
 import builderb0y.bigglobe.structures.LabyrinthLayout.RoomPiece;
 import builderb0y.bigglobe.structures.RawGenerationStructure;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.Directions;
+import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldUtil;
 import builderb0y.bigglobe.util.coordinators.CoordinateFunctions.CoordinateSupplier;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
@@ -77,15 +77,15 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 
 public abstract class AbstractDungeonStructure extends BigGlobeStructure implements RawGenerationStructure {
 
-	public final @VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators;
-	public final @VerifyNotEmpty IRandomList<@UseName("entity") EntityType<?>> spawner_entries;
+	public final @VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators;
+	public final @VerifyNotEmpty IRandomList<@UseName("entity") RegistryEntry<EntityType<?>>> spawner_entries;
 	public final @VerifyNotEmpty List<Palette> palettes;
 
 	public AbstractDungeonStructure(
 		Config config,
 		ColumnToIntScript.@VerifyNullable Holder surface_y,
-		@VerifyNullable TagKey<ConfiguredFeature<?, ?>> room_decorators,
-		IRandomList<EntityType<?>> spawner_entries,
+		@VerifyNullable DelayedEntryList<ConfiguredFeature<?, ?>> room_decorators,
+		IRandomList<RegistryEntry<EntityType<?>>> spawner_entries,
 		List<Palette> palettes
 	) {
 		super(config, surface_y);
@@ -126,16 +126,16 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 		public int centerX, centerZ;
 		public Palette palette;
-		public @Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators;
-		public IRandomList<EntityType<?>> spawnerEntries;
+		public @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators;
+		public IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries;
 
 		public DungeonLayout(
 			ScriptedColumn column,
 			int y,
 			RandomGenerator random,
 			int maxRooms,
-			@Nullable TagKey<ConfiguredFeature<?, ?>> roomDecorators,
-			IRandomList<EntityType<?>> spawnerEntries,
+			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> roomDecorators,
+			IRandomList<RegistryEntry<EntityType<?>>> spawnerEntries,
 			List<Palette> palettes
 		) {
 			super(random, maxRooms);
@@ -228,21 +228,41 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class RoomDungeonPiece extends DungeonPiece implements RoomPiece, RawGenerationStructurePiece {
 
+		public static final AutoCoder<DelayedEntryList<ConfiguredFeature<?, ?>>> DECORATORS_CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(new ReifiedType<>() {});
 		public static final int PIT_BIT = 1 << 1;
 
 		public final RoomDungeonPiece[] connections = new RoomDungeonPiece[4];
-		public @Nullable TagKey<ConfiguredFeature<?, ?>> decorators;
+		public @Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators;
 		public boolean support;
 
-		public RoomDungeonPiece(StructurePieceType type, int chainLength, BlockBox boundingBox, Palette palette, @Nullable TagKey<ConfiguredFeature<?, ?>> decorators) {
+		public RoomDungeonPiece(
+			StructurePieceType type,
+			int chainLength,
+			BlockBox boundingBox,
+			Palette palette,
+			@Nullable DelayedEntryList<ConfiguredFeature<?, ?>> decorators
+		) {
 			super(type, chainLength, boundingBox, palette);
 			this.decorators = decorators;
 		}
 
-		public RoomDungeonPiece(StructurePieceType type, StructureContext context, NbtCompound nbt) {
+		public RoomDungeonPiece(
+			StructurePieceType type,
+			StructureContext context,
+			NbtCompound nbt
+		) {
 			super(type, context, nbt);
-			String id = nbt.getString("decorators");
-			this.decorators = id.isEmpty() ? null : TagKey.of(RegistryKeys.CONFIGURED_FEATURE, IdentifierVersions.create(id));
+			NbtElement nbtDecorators = nbt.get("decorators");
+			if (nbtDecorators != null) try {
+				this.decorators = BigGlobeAutoCodec.AUTO_CODEC.decode(
+					DECORATORS_CODER,
+					nbtDecorators,
+					RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager())
+				);
+			}
+			catch (DecodeException exception) {
+				BigGlobeMod.LOGGER.error("Exception reading dungeon room decorator from NBT: ", exception);
+			}
 			this.support = nbt.getBoolean("support");
 		}
 
@@ -250,7 +270,16 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			super.writeNbt(context, nbt);
-			if (this.decorators != null) nbt.putString("decorators", this.decorators.id().toString());
+			if (this.decorators != null) {
+				nbt.put(
+					"decorators",
+					BigGlobeAutoCodec.AUTO_CODEC.encode(
+						DECORATORS_CODER,
+						this.decorators,
+						RegistryOps.of(NbtOps.INSTANCE, BigGlobeMod.getCurrentServer().getRegistryManager())
+					)
+				);
+			}
 			nbt.putBoolean("support", this.support);
 		}
 
@@ -314,12 +343,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			int y = this.y();
 			int z = this.z();
 			if (this.decorators != null && contains(chunkBox, x, y, z)) {
-				RegistryEntryList<ConfiguredFeature<?, ?>> tag = RegistryVersions.getTagNullable(world.getRegistryManager(), this.decorators);
-				if (tag != null) {
-					RegistryEntry<ConfiguredFeature<?, ?>> entry = tag.getRandom(random).orElse(null);
-					if (entry != null) {
-						entry.value().generate(world, chunkGenerator, new MojangPermuter(Permuter.permute(world.getSeed() ^ 0x265B4B7BF1BC7786L, x, y, z)), new BlockPos(x, y, z));
-					}
+				ConfiguredFeature<?, ?> feature = this.decorators.randomObject(random.nextLong());
+				if (feature != null) {
+					feature.generate(world, chunkGenerator, new MojangPermuter(Permuter.permute(world.getSeed() ^ 0x265B4B7BF1BC7786L, x, y, z)), new BlockPos(x, y, z));
 				}
 			}
 		}
@@ -468,9 +494,9 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static abstract class SpawnerDungeonPiece extends DecorationDungeonPiece {
 
-		public final EntityType<?> spawnerType;
+		public final RegistryEntry<EntityType<?>> spawnerType;
 
-		public SpawnerDungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette, EntityType<?> spawnerType) {
+		public SpawnerDungeonPiece(StructurePieceType type, int length, BlockBox boundingBox, Palette palette, RegistryEntry<EntityType<?>> spawnerType) {
 			super(type, length, boundingBox, palette);
 			this.spawnerType = spawnerType;
 		}
@@ -479,18 +505,18 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 			super(type, context, nbt);
 			String id = nbt.getString("entityType");
 			if (id.isEmpty()) id = "minecraft:zombie";
-			this.spawnerType = Registries.ENTITY_TYPE.get(IdentifierVersions.create(id));
+			this.spawnerType = RegistryVersions.getEntry(Registries.ENTITY_TYPE, RegistryKey.of(RegistryKeys.ENTITY_TYPE, IdentifierVersions.create(id)));
 		}
 
 		@Override
 		@MustBeInvokedByOverriders
 		public void writeNbt(StructureContext context, NbtCompound nbt) {
 			super.writeNbt(context, nbt);
-			nbt.putString("entityType", Registries.ENTITY_TYPE.getId(this.spawnerType).toString());
+			nbt.putString("entityType", UnregisteredObjectException.getID(this.spawnerType).toString());
 		}
 
 		public void initSpawner(BlockPos pos, MobSpawnerBlockEntity spawner) {
-			spawner.setEntityType(this.spawnerType, new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
+			spawner.setEntityType(this.spawnerType.value(), new Permuter(Permuter.permute(0x61DE982B73AD4955L, pos)).mojang());
 		}
 	}
 
@@ -576,47 +602,24 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	public static record Palette(
 		@DefaultDouble(IRandomList.DEFAULT_WEIGHT) double weight,
 		ColumnRestriction restrictions,
-		IRandomList<@UseName("block") Block> main,
-		IRandomList<@UseName("block") Block> slab,
-		IRandomList<@UseName("block") Block> stairs,
-		IRandomList<@UseName("block") Block> wall
+		IRandomList<@UseName("block") RegistryEntry<Block>> main,
+		IRandomList<@UseName("block") RegistryEntry<Block>> slab,
+		IRandomList<@UseName("block") RegistryEntry<Block>> stairs,
+		IRandomList<@UseName("block") RegistryEntry<Block>> wall
 	)
 	implements IRestrictedListElement {
 
 		public static final AutoCoder<Palette> CODER = BigGlobeAutoCodec.AUTO_CODEC.createCoder(Palette.class);
 
+		@SuppressWarnings("deprecation")
 		public static Palette
 			COBBLE = new Palette(
 				IRandomList.DEFAULT_WEIGHT,
 				ColumnRestriction.EMPTY,
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE_SLAB), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS, Blocks.MOSSY_COBBLESTONE_STAIRS), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL, Blocks.MOSSY_COBBLESTONE_WALL), 1.0D)
-			),
-			BRICKS = new Palette(
-				IRandomList.DEFAULT_WEIGHT,
-				ColumnRestriction.EMPTY,
-				new RandomList<Block>(3).addSelf(Blocks.MOSSY_STONE_BRICKS, 1.5D).addSelf(Blocks.STONE_BRICKS, 1.0D).addSelf(Blocks.CRACKED_STONE_BRICKS, 0.5D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICK_SLAB), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_STAIRS, Blocks.MOSSY_STONE_BRICK_STAIRS), 1.0D),
-				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.STONE_BRICK_WALL, Blocks.MOSSY_STONE_BRICK_WALL), 1.0D)
-			),
-			DEEPSLATE_COBBLE = new Palette(
-				IRandomList.DEFAULT_WEIGHT,
-				ColumnRestriction.EMPTY,
-				new SingletonRandomList<>(Blocks.COBBLED_DEEPSLATE, 1.0D),
-				new SingletonRandomList<>(Blocks.COBBLED_DEEPSLATE_SLAB, 1.0D),
-				new SingletonRandomList<>(Blocks.COBBLED_DEEPSLATE_STAIRS, 1.0D),
-				new SingletonRandomList<>(Blocks.COBBLED_DEEPSLATE_WALL, 1.0D)
-			),
-			DEEPSLATE_BRICKS = new Palette(
-				IRandomList.DEFAULT_WEIGHT,
-				ColumnRestriction.EMPTY,
-				new RandomList<Block>().addSelf(Blocks.DEEPSLATE_BRICKS, 1.5D).addSelf(Blocks.CRACKED_DEEPSLATE_BRICKS, 0.5D),
-				new SingletonRandomList<>(Blocks.DEEPSLATE_BRICK_SLAB, 1.0D),
-				new SingletonRandomList<>(Blocks.DEEPSLATE_BRICK_STAIRS, 1.0D),
-				new SingletonRandomList<>(Blocks.DEEPSLATE_BRICK_WALL, 1.0D)
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE.getRegistryEntry()), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_SLAB.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE_SLAB.getRegistryEntry()), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_STAIRS.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE_STAIRS.getRegistryEntry()), 1.0D),
+				new RandomAccessConstantWeightRandomList<>(List.of(Blocks.COBBLESTONE_WALL.getRegistryEntry(), Blocks.MOSSY_COBBLESTONE_WALL.getRegistryEntry()), 1.0D)
 			);
 
 		@Override
@@ -676,10 +679,10 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static interface BlockStateSupplier extends CoordinateSupplier<BlockState> {
 
-		public static BlockStateSupplier forBlocks(IRandomList<Block> blocks) {
+		public static BlockStateSupplier forBlocks(IRandomList<RegistryEntry<Block>> blocks) {
 			return (
 				blocks.size() == 1
-				? new SingleStateSupplier(blocks.get(0).getDefaultState())
+				? new SingleStateSupplier(blocks.get(0).value().getDefaultState())
 				: new RandomListBlockStateSupplier(blocks)
 			);
 		}
@@ -689,10 +692,10 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 
 	public static class RandomListBlockStateSupplier implements BlockStateSupplier {
 
-		public IRandomList<Block> blocks;
+		public IRandomList<RegistryEntry<Block>> blocks;
 		public List<Object> properties;
 
-		public RandomListBlockStateSupplier(IRandomList<Block> blocks) {
+		public RandomListBlockStateSupplier(IRandomList<RegistryEntry<Block>> blocks) {
 			this.blocks = blocks;
 			this.properties = new ArrayList<>(4);
 		}
@@ -707,7 +710,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public BlockState get(BlockPos.Mutable pos) {
-			BlockState state = this.blocks.getRandomElement(Permuter.permute(0xFE1FCB62BC2A3608L, pos)).getDefaultState();
+			BlockState state = this.blocks.getRandomElement(Permuter.permute(0xFE1FCB62BC2A3608L, pos)).value().getDefaultState();
 			List<Object> properties = this.properties;
 			for (int index = 0, size = properties.size(); index < size; index += 2) {
 				Property property = (Property<?>)(properties.get(index));

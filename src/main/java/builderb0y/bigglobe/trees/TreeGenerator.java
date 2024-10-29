@@ -250,7 +250,7 @@ public class TreeGenerator {
 	}
 
 	public boolean canTrunkReplaceBush(BlockPos.Mutable mutablePos, BlockState existingState) {
-		if (this.palette.woodBlocks().contains(existingState.getBlock())) {
+		if (this.palette.woodBlocks().contains(existingState.getRegistryEntry())) {
 			//hacky workaround for bushes.
 			int oldY = mutablePos.getY();
 			mutablePos.setY(oldY - 1);

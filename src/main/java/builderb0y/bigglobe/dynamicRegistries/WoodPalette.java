@@ -32,11 +32,11 @@ import builderb0y.bigglobe.randomLists.IRandomList;
 @UseVerifier(name = "verify", usage = MemberUsage.METHOD_IS_HANDLER)
 public class WoodPalette {
 
-	public final EnumMap<WoodPaletteType, @SingletonArray IRandomList<@UseName("block") Block>> blocks;
+	public final EnumMap<WoodPaletteType, @SingletonArray IRandomList<@UseName("block") RegistryEntry<Block>>> blocks;
 	public final @DefaultEmpty Map<@Intern String, RegistryEntry<ConfiguredFeature<?, ?>>> features;
 
 	public WoodPalette(
-		EnumMap<WoodPaletteType, IRandomList<Block>> blocks,
+		EnumMap<WoodPaletteType, IRandomList<RegistryEntry<Block>>> blocks,
 		Map<String, RegistryEntry<ConfiguredFeature<?, ?>>> features
 	) {
 		this.blocks = blocks;
@@ -68,8 +68,8 @@ public class WoodPalette {
 	//////////////////////////////// block ////////////////////////////////
 
 	public Block getBlock(RandomGenerator random, WoodPaletteType type) {
-		Block block = this.getBlocks(type).getRandomElement(random);
-		if (block != null) return block;
+		RegistryEntry<Block> block = this.getBlocks(type).getRandomElement(random);
+		if (block != null) return block.value();
 		else throw new IllegalStateException("WoodPaletteType not present: " + type);
 	}
 
@@ -96,32 +96,32 @@ public class WoodPalette {
 
 	//////////////////////////////// blocks ////////////////////////////////
 
-	public IRandomList<Block> getBlocks(WoodPaletteType type) {
-		IRandomList<Block> block = this.blocks.get(type);
+	public IRandomList<RegistryEntry<Block>> getBlocks(WoodPaletteType type) {
+		IRandomList<RegistryEntry<Block>> block = this.blocks.get(type);
 		if (block != null) return block;
 		else throw new IllegalStateException("WoodPaletteType not present: " + type);
 	}
 
-	public IRandomList<Block> logBlocks            () { return this.getBlocks(WoodPaletteType.LOG              ); }
-	public IRandomList<Block> woodBlocks           () { return this.getBlocks(WoodPaletteType.WOOD             ); }
-	public IRandomList<Block> strippedLogBlocks    () { return this.getBlocks(WoodPaletteType.STRIPPED_LOG     ); }
-	public IRandomList<Block> strippedWoodBlocks   () { return this.getBlocks(WoodPaletteType.STRIPPED_WOOD    ); }
-	public IRandomList<Block> planksBlocks         () { return this.getBlocks(WoodPaletteType.PLANKS           ); }
-	public IRandomList<Block> stairsBlocks         () { return this.getBlocks(WoodPaletteType.STAIRS           ); }
-	public IRandomList<Block> slabBlocks           () { return this.getBlocks(WoodPaletteType.SLAB             ); }
-	public IRandomList<Block> fenceBlocks          () { return this.getBlocks(WoodPaletteType.FENCE            ); }
-	public IRandomList<Block> fenceGateBlocks      () { return this.getBlocks(WoodPaletteType.FENCE_GATE       ); }
-	public IRandomList<Block> doorBlocks           () { return this.getBlocks(WoodPaletteType.DOOR             ); }
-	public IRandomList<Block> trapdoorBlocks       () { return this.getBlocks(WoodPaletteType.TRAPDOOR         ); }
-	public IRandomList<Block> pressurePlateBlocks  () { return this.getBlocks(WoodPaletteType.PRESSURE_PLATE   ); }
-	public IRandomList<Block> buttonBlocks         () { return this.getBlocks(WoodPaletteType.BUTTON           ); }
-	public IRandomList<Block> leavesBlocks         () { return this.getBlocks(WoodPaletteType.LEAVES           ); }
-	public IRandomList<Block> saplingBlocks        () { return this.getBlocks(WoodPaletteType.SAPLING          ); }
-	public IRandomList<Block> pottedSaplingBlocks  () { return this.getBlocks(WoodPaletteType.POTTED_SAPLING   ); }
-	public IRandomList<Block> standingSignBlocks   () { return this.getBlocks(WoodPaletteType.STANDING_SIGN    ); }
-	public IRandomList<Block> wallSignBlocks       () { return this.getBlocks(WoodPaletteType.WALL_SIGN        ); }
-	public IRandomList<Block> hangingSignBlocks    () { return this.getBlocks(WoodPaletteType.HANGING_SIGN     ); }
-	public IRandomList<Block> wallHangingSignBlocks() { return this.getBlocks(WoodPaletteType.WALL_HANGING_SIGN); }
+	public IRandomList<RegistryEntry<Block>> logBlocks            () { return this.getBlocks(WoodPaletteType.LOG              ); }
+	public IRandomList<RegistryEntry<Block>> woodBlocks           () { return this.getBlocks(WoodPaletteType.WOOD             ); }
+	public IRandomList<RegistryEntry<Block>> strippedLogBlocks    () { return this.getBlocks(WoodPaletteType.STRIPPED_LOG     ); }
+	public IRandomList<RegistryEntry<Block>> strippedWoodBlocks   () { return this.getBlocks(WoodPaletteType.STRIPPED_WOOD    ); }
+	public IRandomList<RegistryEntry<Block>> planksBlocks         () { return this.getBlocks(WoodPaletteType.PLANKS           ); }
+	public IRandomList<RegistryEntry<Block>> stairsBlocks         () { return this.getBlocks(WoodPaletteType.STAIRS           ); }
+	public IRandomList<RegistryEntry<Block>> slabBlocks           () { return this.getBlocks(WoodPaletteType.SLAB             ); }
+	public IRandomList<RegistryEntry<Block>> fenceBlocks          () { return this.getBlocks(WoodPaletteType.FENCE            ); }
+	public IRandomList<RegistryEntry<Block>> fenceGateBlocks      () { return this.getBlocks(WoodPaletteType.FENCE_GATE       ); }
+	public IRandomList<RegistryEntry<Block>> doorBlocks           () { return this.getBlocks(WoodPaletteType.DOOR             ); }
+	public IRandomList<RegistryEntry<Block>> trapdoorBlocks       () { return this.getBlocks(WoodPaletteType.TRAPDOOR         ); }
+	public IRandomList<RegistryEntry<Block>> pressurePlateBlocks  () { return this.getBlocks(WoodPaletteType.PRESSURE_PLATE   ); }
+	public IRandomList<RegistryEntry<Block>> buttonBlocks         () { return this.getBlocks(WoodPaletteType.BUTTON           ); }
+	public IRandomList<RegistryEntry<Block>> leavesBlocks         () { return this.getBlocks(WoodPaletteType.LEAVES           ); }
+	public IRandomList<RegistryEntry<Block>> saplingBlocks        () { return this.getBlocks(WoodPaletteType.SAPLING          ); }
+	public IRandomList<RegistryEntry<Block>> pottedSaplingBlocks  () { return this.getBlocks(WoodPaletteType.POTTED_SAPLING   ); }
+	public IRandomList<RegistryEntry<Block>> standingSignBlocks   () { return this.getBlocks(WoodPaletteType.STANDING_SIGN    ); }
+	public IRandomList<RegistryEntry<Block>> wallSignBlocks       () { return this.getBlocks(WoodPaletteType.WALL_SIGN        ); }
+	public IRandomList<RegistryEntry<Block>> hangingSignBlocks    () { return this.getBlocks(WoodPaletteType.HANGING_SIGN     ); }
+	public IRandomList<RegistryEntry<Block>> wallHangingSignBlocks() { return this.getBlocks(WoodPaletteType.WALL_HANGING_SIGN); }
 
 	//////////////////////////////// states ////////////////////////////////
 

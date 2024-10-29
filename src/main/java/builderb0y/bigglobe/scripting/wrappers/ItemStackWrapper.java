@@ -6,6 +6,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.registry.Registries;
 
 import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -30,7 +31,7 @@ public class ItemStackWrapper {
 	}
 
 	public static ItemStack create(Item item, NbtCompound nbt) {
-		NbtElement oldID = nbt.put("id", NbtString.of(RegistryVersions.item().getId(item).toString()));
+		NbtElement oldID = nbt.put("id", NbtString.of(Registries.ITEM.getId(item).toString()));
 		try {
 			return create(nbt);
 		}
@@ -40,7 +41,7 @@ public class ItemStackWrapper {
 	}
 
 	public static ItemStack create(Item item, int count, NbtCompound nbt) {
-		NbtElement oldID = nbt.put("id", NbtString.of(RegistryVersions.item().getId(item).toString()));
+		NbtElement oldID = nbt.put("id", NbtString.of(Registries.ITEM.getId(item).toString()));
 		try {
 			NbtElement oldCount = nbt.put("count", NbtInt.of(count));
 			try {

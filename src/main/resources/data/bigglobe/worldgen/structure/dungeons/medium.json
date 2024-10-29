@@ -5,7 +5,7 @@
 	"step": "underground_structures",
 	"terrain_adaptation": "bury",
 	"surface_y": "world_traits.`bigglobe:y_level_in_surface`",
-	"room_decorators": "bigglobe:overworld/dungeons/medium",
+	"room_decorators": "#bigglobe:overworld/dungeons/medium",
 	"spawner_entries": [
 		{ "weight": 14, "entity": "minecraft:zombie" },
 		{ "weight": 10, "entity": "minecraft:skeleton" },

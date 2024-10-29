@@ -16,6 +16,7 @@ import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -34,7 +35,6 @@ import net.minecraft.world.tick.ScheduledTickView;
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.ClientState;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.codecs.UseSuperClass;
 import builderb0y.bigglobe.gamerules.BigGlobeGameRules;
 
 @AddPseudoField("fluid")
@@ -50,13 +50,12 @@ public class RiverWaterBlock extends FluidBlock {
 		}
 	#endif
 
-	public RiverWaterBlock(FlowableFluid fluid, Settings settings) {
-		super(fluid, settings);
+	public RiverWaterBlock(RegistryEntry<Fluid> fluid, Settings settings) {
+		super((FlowableFluid)(fluid.value()), settings);
 	}
 
-	@UseSuperClass(Fluid.class)
-	public FlowableFluid fluid() {
-		return this.fluid;
+	public RegistryEntry<Fluid> fluid() {
+		return this.fluid.getRegistryEntry();
 	}
 
 	public boolean isDangerous(World world) {

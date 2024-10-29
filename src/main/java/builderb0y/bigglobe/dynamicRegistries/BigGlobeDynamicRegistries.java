@@ -82,29 +82,4 @@ public class BigGlobeDynamicRegistries {
 		}
 		throw new IllegalStateException(before + " not in DYNAMIC_REGISTRIES");
 	}
-
-	public static <T extends IWeightedListElement> IRandomList<RegistryEntry<T>> sortAndCollect(BetterRegistry<T> registry) {
-		ConstantComputedRandomList<RegistryEntry<T>> list = new ConstantComputedRandomList<>() {
-
-			@Override
-			public double getWeightOfElement(RegistryEntry<T> element) {
-				return element.value().getWeight();
-			}
-		};
-		registry
-		.streamEntries()
-		.sorted(
-			Comparator.comparing(
-				(RegistryEntry<T> entry) -> (
-					UnregisteredObjectException.getKey(entry).getValue()
-				),
-				Comparator
-				.comparing(Identifier::getNamespace)
-				.thenComparing(Identifier::getPath)
-			)
-		)
-		.forEachOrdered(list::add);
-		if (list.isEmpty()) throw new IllegalStateException(registry.getKey().getValue() + " is empty");
-		return list;
-	}
 }

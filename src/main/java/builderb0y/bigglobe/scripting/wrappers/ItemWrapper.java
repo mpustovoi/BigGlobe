@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 import builderb0y.bigglobe.util.UnregisteredObjectException;
@@ -27,8 +28,8 @@ public class ItemWrapper {
 	public static Item getItem(String id) {
 		if (id == null) return null;
 		Identifier identifier = IdentifierVersions.create(id);
-		if (RegistryVersions.item().containsId(identifier)) {
-			return RegistryVersions.item().get(identifier);
+		if (Registries.ITEM.containsId(identifier)) {
+			return Registries.ITEM.get(identifier);
 		}
 		else {
 			throw new IllegalArgumentException("Unknown item: " + identifier);

@@ -145,7 +145,7 @@
 					"raw": "bigglobe:noop",
 					"normal": "bigglobe:noop"
 				},
-				"overriders": "bigglobe:empty"
+				"overriders": "#bigglobe:empty"
 			}
 		},
 		"minecraft:overworld": {
@@ -243,7 +243,7 @@
 					"raw": "bigglobe:paradise/raw_root",
 					"normal": "bigglobe:noop"
 				},
-				"overriders": "bigglobe:empty"
+				"overriders": "#bigglobe:empty"
 			}
 		},
 		"bigglobe:external": {
@@ -284,7 +284,7 @@
 					"raw": "bigglobe:noop",
 					"normal": "bigglobe:noop"
 				},
-				"overriders": "bigglobe:empty"
+				"overriders": "#bigglobe:empty"
 			}
 		}
 	}

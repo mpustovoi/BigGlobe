@@ -39,9 +39,8 @@ import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.IRandomList;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
 import builderb0y.bigglobe.randomSources.RandomSource;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.Directions;
-import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectList;
-import builderb0y.bigglobe.util.LazyRegistryObjectCollection.LazyRegistryObjectSet;
 import builderb0y.bigglobe.util.Vectors;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
@@ -77,8 +76,8 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	}
 
 	public static record GrowthConfig(
-		LazyRegistryObjectList.Impl<Block> place,
-		LazyRegistryObjectSet.Impl<Block> against
+		DelayedEntryList<Block> place,
+		DelayedEntryList<Block> against
 	) {}
 
 	public static record BlocksConfig(
@@ -385,7 +384,7 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 							Block against = world.getBlockState(pos.move(direction)).getBlock();
 							for (GrowthConfig growthConfig : growth) {
 								if (growthConfig.against.contains(against) && !growthConfig.place.isEmpty()) {
-									BlockState toPlace = Permuter.choose(permuter, growthConfig.place).getDefaultState();
+									BlockState toPlace = growthConfig.place.randomObject(permuter).getDefaultState();
 									if (toPlace.contains(Properties.FACING)) {
 										toPlace = toPlace.with(Properties.FACING, direction.getOpposite());
 									}

@@ -19,7 +19,6 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.condition.LootConditionTypes;
 import net.minecraft.loot.entry.LootPoolEntry;
 import net.minecraft.loot.entry.LootPoolEntryTypes;
 import net.minecraft.loot.function.LootFunction;
@@ -27,13 +26,10 @@ import net.minecraft.loot.function.LootFunctionTypes;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.potion.Potion;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.structure.processor.StructureProcessorList;
@@ -52,10 +48,7 @@ import net.minecraft.world.gen.structure.Structure;
 import builderb0y.autocodec.AutoCodec;
 import builderb0y.autocodec.coders.*;
 import builderb0y.autocodec.coders.AutoCoder.CoderFactory;
-import builderb0y.autocodec.common.LookupFactory;
-import builderb0y.autocodec.decoders.AutoDecoder.DecoderFactory;
 import builderb0y.autocodec.decoders.*;
-import builderb0y.autocodec.encoders.AutoEncoder.EncoderFactory;
 import builderb0y.autocodec.encoders.*;
 import builderb0y.autocodec.imprinters.CollectionImprinter;
 import builderb0y.autocodec.imprinters.ImprinterFactoryList;
@@ -84,10 +77,9 @@ import builderb0y.bigglobe.noise.Grid.GridRegistryEntryCoder;
 import builderb0y.bigglobe.overriders.Overrider;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
-import builderb0y.bigglobe.util.TagOrObject;
-import builderb0y.bigglobe.util.TagOrObjectKey;
+import builderb0y.bigglobe.util.DelayedEntry;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.versions.IdentifierVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.input.ScriptTemplate;
 
 public class BigGlobeAutoCodec {
@@ -104,8 +96,8 @@ public class BigGlobeAutoCodec {
 	public static AutoCoder<Identifier> createNamespacedIdentifierCodec(String namespace) {
 		return PrimitiveCoders.stringBased(
 			"Identifier with default namespace '" + namespace + '\'',
-			string -> toID(string, namespace),
-			id -> toString(id, namespace)
+			(String string) -> toID(string, namespace),
+			(Identifier id) -> toString(id, namespace)
 		);
 	}
 
@@ -127,14 +119,14 @@ public class BigGlobeAutoCodec {
 		return identifier.getNamespace().equals(defaultNamespace) ? identifier.getPath() : identifier.toString();
 	}
 
-	public static final RegistryCoders<Block>                                         BLOCK_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Block                                 .class), Registries.BLOCK);
-	public static final RegistryCoders<Item>                                           ITEM_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Item                                  .class), Registries.ITEM);
-	public static final RegistryCoders<Fluid>                                         FLUID_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Fluid                                 .class), Registries.FLUID);
-	public static final RegistryCoders<Potion>                                       POTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Potion                                .class), Registries.POTION);
-	public static final RegistryCoders<BlockEntityType<?>>                BLOCK_ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType  .class), Registries.BLOCK_ENTITY_TYPE);
-	public static final RegistryCoders<EntityType<?>>                           ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType       .class), Registries.ENTITY_TYPE);
+	public static final RegistryCoders<Block>                                         BLOCK_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Block                                 .class), RegistryKeys.BLOCK);
+	public static final RegistryCoders<Item>                                           ITEM_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Item                                  .class), RegistryKeys.ITEM);
+	public static final RegistryCoders<Fluid>                                         FLUID_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Fluid                                 .class), RegistryKeys.FLUID);
+	public static final RegistryCoders<Potion>                                       POTION_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(Potion                                .class), RegistryKeys.POTION);
+	public static final RegistryCoders<BlockEntityType<?>>                BLOCK_ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(BlockEntityType  .class), RegistryKeys.BLOCK_ENTITY_TYPE);
+	public static final RegistryCoders<EntityType<?>>                           ENTITY_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(EntityType       .class), RegistryKeys.ENTITY_TYPE);
 	#if MC_VERSION >= MC_1_20_3
-	public static final RegistryCoders<StatusEffect>                          STATUS_EFFECT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StatusEffect                          .class), Registries.STATUS_EFFECT);
+	public static final RegistryCoders<StatusEffect>                          STATUS_EFFECT_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(StatusEffect                          .class), RegistryKeys.STATUS_EFFECT);
 	#endif
 	public static final RegistryCoders<DimensionType>                        DIMENSION_TYPE_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.from(DimensionType                         .class), RegistryKeys.DIMENSION_TYPE);
 	public static final RegistryCoders<ConfiguredCarver<?>>               CONFIGURED_CARVER_REGISTRY_CODERS = new RegistryCoders<>(ReifiedType.parameterizeWithWildcards(ConfiguredCarver .class), RegistryKeys.CONFIGURED_CARVER);
@@ -356,118 +348,38 @@ public class BigGlobeAutoCodec {
 		}
 	};
 
-	public static <T> AutoCoder<@Nullable T> forceNullable(AutoCoder<@NotNull T> coder) {
-		return new AutoCoder<>() {
-
-			@Override
-			public <T_Encoded> @Nullable T decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
-				return context.isEmpty() ? null : context.decodeWith(coder);
-			}
-
-			@Override
-			public <T_Encoded> @NotNull T_Encoded encode(@NotNull EncodeContext<T_Encoded, T> context) throws EncodeException {
-				return context.object == null ? context.empty() : context.encodeWith(coder);
-			}
-		};
-	}
-
 	public static class RegistryCoders<T> {
 
 		public final @NotNull RegistryKey<Registry<T>> registryKey;
-		public final @Nullable Registry<T> registry;
 
 		public final @NotNull ReifiedType<T> objectType;
 		public final @NotNull ReifiedType<Registry<T>> registryType;
-		public final @NotNull ReifiedType<RegistryKey<T>> registryKeyType;
-		public final @NotNull ReifiedType<RegistryEntry<T>> registryEntryType;
-		public final @NotNull ReifiedType<TagKey<T>> tagKeyType;
-		public final @NotNull ReifiedType<RegistryEntryList<T>> tagType;
-		public final @NotNull ReifiedType<TagOrObject<T>> tagOrObjectType;
-		public final @NotNull ReifiedType<TagOrObjectKey<T>> tagOrObjectKeyType;
 		public final @NotNull ReifiedType<BetterRegistry<T>> betterRegistryType;
+		public final @NotNull ReifiedType<RegistryEntry<T>> registryEntryType;
+		public final @NotNull ReifiedType<DelayedEntryList<T>> delayedTagType;
 
-		public final @Nullable BetterDynamicRegistryCoder<T> betterDynamicRegistryCoder;
-		public final @Nullable BetterHardCodedRegistryCoder<T> betterHardCodedRegistryCoder;
-		public final @Nullable DynamicRegistryEntryCoder<T> dynamicRegistryEntryCoder;
-		public final @Nullable DynamicTagCoder<T> dynamicTagCoder;
-		public final @Nullable HardCodedObjectCoder<T> hardCodedObjectCoder;
-		public final @Nullable HardCodedRegistryEntryCoder<T> hardCodedRegistryEntryCoder;
-		public final @Nullable HardCodedTagCoder<T> hardCodedTagCoder;
-		public final @NotNull RegistryKeyCoder<T> registryKeyCoder;
-		public final @NotNull TagKeyCoder<T> tagKeyCoder;
-		public final @NotNull TagOrObjectCoder<T> tagOrObjectCoder;
-		public final @NotNull TagOrObjectKeyCoder<T> tagOrObjectKeyCoder;
+		public final @NotNull BetterRegistryCoder<T> betterRegistryCoder;
+		public final @NotNull RegistryEntryCoder<T> registryEntryCoder;
+		public final @NotNull DelayedEntryListCoder<T> delayedEntryListCoder;
 
 		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull RegistryKey<Registry<T>> registryKey) {
-			this.                    registryKey = registryKey;
-			this.                       registry = null;
+			this.          registryKey = registryKey;
 
-			this.                     objectType = objectType;
-			this.                   registryType = ReifiedType.parameterize(            Registry.class, objectType);
-			this.                registryKeyType = ReifiedType.parameterize(         RegistryKey.class, objectType);
-			this.              registryEntryType = ReifiedType.parameterize(       RegistryEntry.class, objectType);
-			this.                     tagKeyType = ReifiedType.parameterize(              TagKey.class, objectType);
-			this.                        tagType = ReifiedType.parameterize(   RegistryEntryList.class, objectType);
-			this.                tagOrObjectType = ReifiedType.parameterize(         TagOrObject.class, objectType);
-			this.             tagOrObjectKeyType = ReifiedType.parameterize(      TagOrObjectKey.class, objectType);
-			this.             betterRegistryType = ReifiedType.parameterize(      BetterRegistry.class, objectType);
+			this.           objectType = objectType;
+			this.         registryType = ReifiedType.parameterize(        Registry.class, objectType);
+			this.    registryEntryType = ReifiedType.parameterize(   RegistryEntry.class, objectType);
+			this.       delayedTagType = ReifiedType.parameterize(DelayedEntryList.class, objectType);
+			this.   betterRegistryType = ReifiedType.parameterize(  BetterRegistry.class, objectType);
 
-			this.     betterDynamicRegistryCoder = new BetterDynamicRegistryCoder<>(registryKey);
-			this.   betterHardCodedRegistryCoder = null;
-			this.      dynamicRegistryEntryCoder = new DynamicRegistryEntryCoder<>(this.betterDynamicRegistryCoder);
-			this.                dynamicTagCoder = new DynamicTagCoder<>(this.betterDynamicRegistryCoder);
-			this.           hardCodedObjectCoder = null;
-			this.    hardCodedRegistryEntryCoder = null;
-			this.              hardCodedTagCoder = null;
-			this.               registryKeyCoder = new RegistryKeyCoder<>(registryKey);
-			this.                    tagKeyCoder = new TagKeyCoder<>(registryKey);
-			this.               tagOrObjectCoder = new TagOrObjectCoder<>(registryKey, this.dynamicTagCoder, this.dynamicRegistryEntryCoder);
-			this.            tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(registryKey);
-		}
-
-		public RegistryCoders(@NotNull ReifiedType<T> objectType, @NotNull Registry<T> registry) {
-			this.                    registryKey = RegistryVersions.getRegistryKey(registry);
-			this.                       registry = registry;
-
-			this.                     objectType = objectType;
-			this.                   registryType = ReifiedType.parameterize(            Registry.class, objectType);
-			this.                registryKeyType = ReifiedType.parameterize(         RegistryKey.class, objectType);
-			this.              registryEntryType = ReifiedType.parameterize(       RegistryEntry.class, objectType);
-			this.                     tagKeyType = ReifiedType.parameterize(              TagKey.class, objectType);
-			this.                        tagType = ReifiedType.parameterize(   RegistryEntryList.class, objectType);
-			this.                tagOrObjectType = ReifiedType.parameterize(         TagOrObject.class, objectType);
-			this.             tagOrObjectKeyType = ReifiedType.parameterize(      TagOrObjectKey.class, objectType);
-			this.             betterRegistryType = ReifiedType.parameterize(      BetterRegistry.class, objectType);
-
-			this.     betterDynamicRegistryCoder = null;
-			this.   betterHardCodedRegistryCoder = new BetterHardCodedRegistryCoder<>(registry);
-			this.      dynamicRegistryEntryCoder = null;
-			this.                dynamicTagCoder = null;
-			this.           hardCodedObjectCoder = new HardCodedObjectCoder<>(registry);
-			this.    hardCodedRegistryEntryCoder = new HardCodedRegistryEntryCoder<>(registry);
-			this.              hardCodedTagCoder = new HardCodedTagCoder<>(registry);
-			this.               registryKeyCoder = new RegistryKeyCoder<>(this.registryKey);
-			this.                    tagKeyCoder = new TagKeyCoder<>(this.registryKey);
-			this.               tagOrObjectCoder = new TagOrObjectCoder<>(this.registryKey, this.hardCodedTagCoder, this.hardCodedRegistryEntryCoder);
-			this.            tagOrObjectKeyCoder = new TagOrObjectKeyCoder<>(this.registryKey);
+			this.  betterRegistryCoder = new   BetterRegistryCoder<>(this.betterRegistryType, registryKey);
+			this.   registryEntryCoder = new    RegistryEntryCoder<>(this. registryEntryType, registryKey);
+			this.delayedEntryListCoder = new DelayedEntryListCoder<>(this.    delayedTagType, registryKey);
 		}
 
 		public void addAllTo(LookupCoderFactory factory) {
-			addTo(factory, this.      registryEntryType, this.      dynamicRegistryEntryCoder);
-			addTo(factory, this.                tagType, this.                dynamicTagCoder);
-			addTo(factory, this.             objectType, this.           hardCodedObjectCoder);
-			addTo(factory, this.      registryEntryType, this.    hardCodedRegistryEntryCoder);
-			addTo(factory, this.                tagType, this.              hardCodedTagCoder);
-			addTo(factory, this.        registryKeyType, this.               registryKeyCoder);
-			addTo(factory, this.             tagKeyType, this.                    tagKeyCoder);
-			addTo(factory, this.        tagOrObjectType, this.               tagOrObjectCoder);
-			addTo(factory, this.     tagOrObjectKeyType, this.            tagOrObjectKeyCoder);
-			addTo(factory, this.     betterRegistryType, this.     betterDynamicRegistryCoder);
-			addTo(factory, this.     betterRegistryType, this.   betterHardCodedRegistryCoder);
-		}
-
-		public static <T> void addTo(LookupCoderFactory factory, ReifiedType<T> type, AutoCoder<T> coder) {
-			if (coder != null) factory.doAddGeneric(type, coder);
+			factory.addGeneric(this.betterRegistryType, this.  betterRegistryCoder);
+			factory.addGeneric(this. registryEntryType, this.   registryEntryCoder);
+			factory.addGeneric(this.    delayedTagType, this.delayedEntryListCoder);
 		}
 	}
 

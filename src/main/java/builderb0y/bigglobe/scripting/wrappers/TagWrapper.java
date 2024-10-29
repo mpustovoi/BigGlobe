@@ -39,7 +39,7 @@ public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 	public default T_Entry randomImpl(RandomGenerator random) {
 		TagKey<T_Raw> key = this.key();
 		RegistryKey<Registry<T_Raw>> registryKey = TagKeyVersions.registry(key);
-		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(registryKey).getOrCreateTag(key);
+		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(registryKey).getTag(key);
 		if (list == null) throw new RuntimeException("#" + registryKey.getValue() + " / " + key.id() + " does not exist.");
 		if (list.size() == 0) throw new RuntimeException("#" + registryKey.getValue() + " / " + key.id() + " is empty.");
 		RegistryEntry<T_Raw> element = list.get(random.nextInt(list.size()));
@@ -51,7 +51,7 @@ public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 	public default T_Entry randomImpl(long seed) {
 		TagKey<T_Raw> key = this.key();
 		RegistryKey<Registry<T_Raw>> registryKey = TagKeyVersions.registry(key);
-		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(registryKey).getOrCreateTag(key);
+		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(registryKey).getTag(key);
 		if (list == null) throw new RuntimeException("#" + registryKey.getValue() + " / " + key.id() + " does not exist.");
 		if (list.size() == 0) throw new RuntimeException("#" + registryKey.getValue() + " / " + key.id() + " is empty.");
 		RegistryEntry<T_Raw> element = list.get(Permuter.nextBoundedInt(seed, list.size()));
@@ -62,7 +62,7 @@ public interface TagWrapper<T_Raw, T_Entry> extends Iterable<T_Entry> {
 	public default Iterator<T_Entry> iterator() {
 		TagKey<T_Raw> key = this.key();
 		RegistryKey<Registry<T_Raw>> registryKey = TagKeyVersions.registry(key);
-		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(registryKey).getOrCreateTag(key);
+		RegistryEntryList<T_Raw> list = BigGlobeMod.getRegistry(registryKey).getTag(key);
 		if (list == null || list.size() == 0) throw new RuntimeException("#" + registryKey.getValue() + " / " + key.id() + " does not exist");
 		return list.stream().map(this::wrap).iterator();
 	}

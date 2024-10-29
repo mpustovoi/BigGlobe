@@ -30,7 +30,7 @@ import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
 import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
-import builderb0y.bigglobe.codecs.registries.BetterHardCodedRegistryCoder;
+import builderb0y.bigglobe.codecs.registries.AbstractRegistryCoder;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
@@ -38,8 +38,6 @@ import builderb0y.bigglobe.versions.RegistryVersions;
 public class BlockStateCoder extends NamedCoder<BlockState> {
 
 	public static final BlockStateCoder INSTANCE = new BlockStateCoder("BlockStateCoder.INSTANCE");
-
-	public static final AutoCoder<BetterRegistry<Block>> BLOCK_REGISTRY_CODER = new BetterHardCodedRegistryCoder<>(Registries.BLOCK);
 
 	public BlockStateCoder(String toString) {
 		super(toString);
@@ -67,7 +65,7 @@ public class BlockStateCoder extends NamedCoder<BlockState> {
 		if (context.isEmpty()) return null;
 		String string = context.tryAsString();
 		if (string != null) try {
-			BetterRegistry<Block> blockRegistry = context.decodeWith(BLOCK_REGISTRY_CODER);
+			BetterRegistry<Block> blockRegistry = AbstractRegistryCoder.registry(RegistryKeys.BLOCK, context);
 			BlockProperties blockProperties = decodeState(blockRegistry, string);
 			Set<Property<?>> missing = blockProperties.missing();
 			if (!missing.isEmpty()) {

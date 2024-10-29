@@ -77,7 +77,7 @@ public sealed interface Overrider permits ColumnValueOverrider.Entry, StructureO
 		public final String[] rawColumnValueDependencies, featureColumnValueDependencies;
 
 		public SortedOverriders(BigGlobeScriptedChunkGenerator generator) {
-			Map<Type, List<Overrider>> map = generator.overriders.stream().sorted(Comparator.comparing(UnregisteredObjectException::getID)).map(RegistryEntry::value).collect(Collectors.groupingBy(Overrider::getOverriderType));
+			Map<Type, List<Overrider>> map = generator.overriders.objectStream().collect(Collectors.groupingBy(Overrider::getOverriderType));
 			this.structures = map.getOrDefault(Type.STRUCTURE, Collections.emptyList()).stream().map(StructureOverrider.Entry.class::cast).map(StructureOverrider.Entry::script).toArray(StructureOverrider.Holder[]::new);
 			this.rawColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::raw_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);
 			this.featureColumnValues = map.getOrDefault(Type.COLUMN_VALUE, Collections.emptyList()).stream().map(ColumnValueOverrider.Entry.class::cast).filter(ColumnValueOverrider.Entry::feature_generation).map(ColumnValueOverrider.Entry::script).toArray(ColumnValueOverrider.Holder[]::new);

@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -26,7 +27,7 @@ public class ShortChorusSporeBlock extends ChorusSporeBlock {
 		}
 	#endif
 
-	public ShortChorusSporeBlock(Settings settings, Block grow_into) {
+	public ShortChorusSporeBlock(Settings settings, RegistryEntry<Block> grow_into) {
 		super(settings, grow_into);
 	}
 

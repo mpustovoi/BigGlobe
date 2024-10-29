@@ -23,7 +23,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.autocodec.coders.AutoCoder;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
-import builderb0y.bigglobe.util.TagOrObject;
+import builderb0y.bigglobe.util.DelayedEntryList;
 
 public class DelegatingStructure extends Structure {
 
@@ -51,7 +51,7 @@ public class DelegatingStructure extends Structure {
 
 	@Override
 	public RegistryEntryList<Biome> getValidBiomes() {
-		return this.nullable_config.biomes != null ? this.nullable_config.biomes.toRegistryEntryList() : this.delegate.value().getValidBiomes();
+		return this.nullable_config.biomes != null ? this.nullable_config.biomes.tag() : this.delegate.value().getValidBiomes();
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class DelegatingStructure extends Structure {
 	}
 
 	public static record NullableConfig(
-		@VerifyNullable TagOrObject<Biome> biomes,
+		@VerifyNullable DelayedEntryList<Biome> biomes,
 		@VerifyNullable Map<
 			@UseCoder(name = "SPAWN_GROUP_AUTO_CODER", in = NullableConfig.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) SpawnGroup,
 			@UseCoder(name = "STRUCTURE_SPAWNS_AUTO_CODER", in = NullableConfig.class, usage = MemberUsage.FIELD_CONTAINS_HANDLER) StructureSpawns
@@ -101,10 +101,10 @@ public class DelegatingStructure extends Structure {
 		public Config toConfig() {
 			//fill in sensible defaults in case some other mod tries accessing this in a hacky way.
 			return new Config(
-				this.biomes             != null ? this.biomes.toRegistryEntryList() : RegistryEntryList.of(Collections.emptyList()),
-				this.spawn_overrides    != null ? this.spawn_overrides              : Collections.emptyMap(),
-				this.step               != null ? this.step                         : GenerationStep.Feature.RAW_GENERATION,
-				this.terrain_adaptation != null ? this.terrain_adaptation           : StructureTerrainAdaptation.NONE
+				this.biomes             != null ? this.biomes.tag()       : RegistryEntryList.of(Collections.emptyList()),
+				this.spawn_overrides    != null ? this.spawn_overrides    : Collections.emptyMap(),
+				this.step               != null ? this.step               : GenerationStep.Feature.RAW_GENERATION,
+				this.terrain_adaptation != null ? this.terrain_adaptation : StructureTerrainAdaptation.NONE
 			);
 		}
 	}

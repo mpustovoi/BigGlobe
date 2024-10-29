@@ -56,10 +56,10 @@ public class SaplingGrowHandler {
 		) {
 			RegistryEntry<ConfiguredFeature<?, ?>> saplingGrowFeature = palette.getSaplingGrowFeature();
 			if (saplingGrowFeature != null) {
-				IRandomList<Block> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
+				IRandomList<RegistryEntry<Block>> blocks = palette.blocks.get(WoodPaletteType.SAPLING);
 				if (blocks != null) {
-					for (Block block : blocks) {
-						map.computeIfAbsent(block, $ -> new ArrayList<>(1)).add(saplingGrowFeature);
+					for (RegistryEntry<Block> block : blocks) {
+						map.computeIfAbsent(block.value(), $ -> new ArrayList<>(1)).add(saplingGrowFeature);
 					}
 				}
 			}

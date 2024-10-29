@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.BlockArgumentParser.BlockResult;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
@@ -78,8 +79,8 @@ public class BlockStateWrapper {
 	public static BlockState getDefaultState(String id) {
 		if (id == null) return null;
 		Identifier identifier = IdentifierVersions.create(id);
-		if (RegistryVersions.block().containsId(identifier)) {
-			return RegistryVersions.block().get(identifier).getDefaultState();
+		if (Registries.BLOCK.containsId(identifier)) {
+			return Registries.BLOCK.get(identifier).getDefaultState();
 		}
 		else {
 			throw new RuntimeException("Unknown block: " + id);

@@ -168,7 +168,7 @@ public class CoordinatorScriptEnvironment {
 	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName) {
 		Identifier identifier = IdentifierVersions.create(entityTypeName);
 		if (Registries.ENTITY_TYPE.containsId(identifier)) {
-			EntityType<?> entityType = RegistryVersions.entityType().get(identifier);
+			EntityType<?> entityType = Registries.ENTITY_TYPE.get(identifier);
 			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
 			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);
 			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);
@@ -193,7 +193,7 @@ public class CoordinatorScriptEnvironment {
 
 	public static void summon(Coordinator coordinator, double x, double y, double z, String entityTypeName, NbtCompound data) {
 		Identifier identifier = IdentifierVersions.create(entityTypeName);
-		if (RegistryVersions.entityType().containsId(identifier)) {
+		if (Registries.ENTITY_TYPE.containsId(identifier)) {
 			double offsetX = BigGlobeMath.modulus_BP(x, 1.0D);
 			double offsetY = BigGlobeMath.modulus_BP(y, 1.0D);
 			double offsetZ = BigGlobeMath.modulus_BP(z, 1.0D);

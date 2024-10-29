@@ -23,7 +23,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.features.OreFeature;
 import builderb0y.bigglobe.math.BigGlobeMath;
-import builderb0y.bigglobe.util.TagOrObject;
+import builderb0y.bigglobe.util.DelayedEntryList;
 import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.versions.RegistryVersions;
 
@@ -104,7 +104,7 @@ public class DevDebugCommand {
 						);
 						Arrays
 						.stream(generator.feature_dispatcher.rock_replacers)
-						.flatMap(TagOrObject::stream)
+						.flatMap(DelayedEntryList::entryStream)
 						.filter((RegistryEntry<ConfiguredFeature<?, ?>> entry) -> (
 							entry.value().config() instanceof OreFeature.Config
 						))

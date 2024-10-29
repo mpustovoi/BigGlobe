@@ -3,6 +3,7 @@ package builderb0y.bigglobe.blocks;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.block.*;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -23,9 +24,9 @@ public abstract class ChorusSporeBlock extends PlantBlock implements Fertilizabl
 		public abstract MapCodec getCodec();
 	#endif
 
-	public final Block grow_into;
+	public final RegistryEntry<Block> grow_into;
 
-	public ChorusSporeBlock(Settings settings, Block grow_into) {
+	public ChorusSporeBlock(Settings settings, RegistryEntry<Block> grow_into) {
 		super(settings);
 		this.grow_into = grow_into;
 	}
@@ -57,6 +58,6 @@ public abstract class ChorusSporeBlock extends PlantBlock implements Fertilizabl
 
 	@Override
 	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
-		SingleBlockFeature.place(world, pos, this.grow_into.getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
+		SingleBlockFeature.place(world, pos, this.grow_into.value().getDefaultState(), SingleBlockFeature.IS_REPLACEABLE);
 	}
 }

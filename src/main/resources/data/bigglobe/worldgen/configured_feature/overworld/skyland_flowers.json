@@ -5,6 +5,6 @@
 			"SkylandBounds bounds = `bigglobe:overworld/skyland`.bounds",
 			"bounds != null && bounds.max_y > bounds.min_y ? floorInt(bounds.max_y) + 1 : 16x8000_0000U"
 		],
-		"flowers": "bigglobe:overworld/skyland_flowers"
+		"flowers": "#bigglobe:overworld/skyland_flowers"
 	}
 }

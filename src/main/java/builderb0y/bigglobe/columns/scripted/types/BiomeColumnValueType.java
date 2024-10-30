@@ -27,7 +27,7 @@ public class BiomeColumnValueType extends AbstractColumnValueType {
 		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
 		//create the entry early so that if it doesn't exist, the world will fail to load.
-		context.registry.registries.getRegistry(RegistryKeys.BIOME).getOrCreateEntry(RegistryKey.of(RegistryKeys.BIOME, IdentifierVersions.create(string)));
+		context.registry.registries.getRegistry(RegistryKeys.BIOME).getByName(string);
 		return BiomeEntry.CONSTANT_FACTORY.createConstant(constant(string));
 	}
 

@@ -1,9 +1,7 @@
 package builderb0y.bigglobe.dynamicRegistries;
 
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,14 +31,28 @@ public interface BetterRegistry<T> {
 
 	public abstract RegistryKey<Registry<T>> getKey();
 
-	public abstract RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key);
+	public abstract @Nullable RegistryEntry<T> getEntry(RegistryKey<T> key);
+
+	public default @NotNull RegistryEntry<T> requireEntry(RegistryKey<T> key) {
+		RegistryEntry<T> entry = this.getEntry(key);
+		if (entry != null) return entry;
+		StringBuilder message = new StringBuilder(128).append("Key ").append(key.getValue()).append(" not present in registry ").append(this.getKey().getValue()).append('.');
+		if (this.getTag(TagKey.of(RegistryVersions.getRegistryKey(key), key.getValue())) != null) {
+			message.append(" Note: a tag with this name exists. Did you forget to prefix the name with '#'?");
+		}
+		throw new IllegalStateException(message.toString());
+	}
 
 	public abstract @Nullable RegistryEntryList<T> getTag(TagKey<T> key);
 
 	public default @NotNull RegistryEntryList<T> requireTag(TagKey<T> key) {
 		RegistryEntryList<T> tag = this.getTag(key);
 		if (tag != null) return tag;
-		else throw new NullPointerException(key + " does not exist");
+		StringBuilder message = new StringBuilder().append("Tag ").append(key.id()).append(" not present in registry ").append(this.getKey().getValue()).append('.');
+		if (this.getEntry(RegistryKey.of(RegistryVersions.getRegistryKey(key), key.id())) != null) {
+			message.append(" Note: an entry with this name exists. Did you prefix the name with '#' by mistake?");
+		}
+		throw new NullPointerException(message.toString());
 	}
 
 	public abstract Stream<RegistryEntry<T>> streamEntries();
@@ -48,7 +60,7 @@ public interface BetterRegistry<T> {
 	public abstract Stream<RegistryEntryList<T>> streamTags();
 
 	public default RegistryEntry<T> getById(Identifier id) {
-		return this.getOrCreateEntry(RegistryKey.of(this.getKey(), id));
+		return this.requireEntry(RegistryKey.of(this.getKey(), id));
 	}
 
 	public default RegistryEntry<T> getByName(String name) {
@@ -81,9 +93,9 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
-		public RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key) {
+		public RegistryEntry<T> getEntry(RegistryKey<T> key) {
 			#if MC_VERSION >= MC_1_21_2
-				return this.registry.getOrThrow(key);
+				return this.registry.getOptional(key).orElse(null);
 			#else
 				return this.registry.entryOf(key);
 			#endif
@@ -92,7 +104,7 @@ public interface BetterRegistry<T> {
 		@Override
 		public RegistryEntryList<T> getTag(TagKey<T> key) {
 			#if MC_VERSION >= MC_1_21_2
-				return this.registry.getOrThrow(key);
+				return this.registry.getOptional(key).orElse(null);
 			#else
 				todo: ensure this returns a non-null value.
 				return this.registry.getEntryList(key);
@@ -131,8 +143,8 @@ public interface BetterRegistry<T> {
 		}
 
 		@Override
-		public RegistryEntry<T> getOrCreateEntry(RegistryKey<T> key) {
-			return this.lookup.getOrThrow(key);
+		public RegistryEntry<T> getEntry(RegistryKey<T> key) {
+			return this.lookup.getOptional(key).orElse(null);
 		}
 
 		@Override

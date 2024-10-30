@@ -19,6 +19,23 @@ public class RegistryVersions {
 		return (RegistryKey<Registry<T>>)(registry.getKey());
 	}
 
+	public static <T> RegistryKey<Registry<T>> getRegistryKey(RegistryKey<T> key) {
+		#if MC_VERSION >= MC_1_21_2
+			return key.getRegistryRef();
+		#else
+			return key.getRegistry();
+		#endif
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> RegistryKey<Registry<T>> getRegistryKey(TagKey<T> key) {
+		#if MC_VERSION >= MC_1_21_2
+			return (RegistryKey<Registry<T>>)(key.registryRef());
+		#else
+			return key.registry();
+		#endif
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> RegistryKey<Registry<T>> getRegistryKey(RegistryWrapper.Impl<T> registry) {
 		#if MC_VERSION >= MC_1_21_2

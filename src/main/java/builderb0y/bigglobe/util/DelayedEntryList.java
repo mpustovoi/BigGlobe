@@ -158,7 +158,7 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 					return registry.requireTag(TagKey.of(registry.getKey(), element.id)).stream();
 				}
 				else {
-					return Stream.of(registry.getOrCreateEntry(RegistryKey.of(registry.getKey(), element.id)));
+					return Stream.of(registry.getById(element.id));
 				}
 			})
 			.collect(

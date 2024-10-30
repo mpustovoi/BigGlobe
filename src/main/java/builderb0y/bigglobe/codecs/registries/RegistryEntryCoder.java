@@ -25,7 +25,7 @@ public class RegistryEntryCoder<T> extends AbstractRegistryCoder<T, RegistryEntr
 	@OverrideOnly
 	public <T_Encoded> @Nullable RegistryEntry<T> decode(@NotNull DecodeContext<T_Encoded> context) throws DecodeException {
 		if (context.isEmpty()) return null;
-		return this.registry(context).getOrCreateEntry(RegistryKey.of(this.key, IdentifierVersions.create(context.forceAsString())));
+		return this.registry(context).getByName(context.forceAsString());
 	}
 
 	@Override

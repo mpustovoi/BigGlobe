@@ -1,5 +1,7 @@
 package builderb0y.bigglobe.columns.scripted.types;
 
+import com.mojang.datafixers.util.Unit;
+
 import net.minecraft.block.Block;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -24,10 +26,9 @@ public class BlockColumnValueType extends AbstractColumnValueType {
 
 	@Override
 	public InsnTree createConstant(Object object, ColumnCompileContext context) {
+		if (object == Unit.INSTANCE) return ldc(null, this.getTypeInfo());
 		String string = (String)(object);
-		Identifier identifier = IdentifierVersions.create(string);
-		RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, identifier);
-		RegistryEntry<Block> blockEntry = context.registry.registries.getRegistry(RegistryKeys.BLOCK).getOrCreateEntry(key);
+		RegistryEntry<Block> blockEntry = context.registry.registries.getRegistry(RegistryKeys.BLOCK).getByName(string);
 		return ldc(blockEntry.value(), type(Block.class));
 	}
 

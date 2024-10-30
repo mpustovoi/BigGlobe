@@ -10,7 +10,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.AbstractBlock;
@@ -19,8 +18,6 @@ import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
-import net.minecraft.item.FuelRegistry;
-import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTables;
@@ -43,10 +40,6 @@ import builderb0y.bigglobe.versions.ItemStackVersions;
 import builderb0y.bigglobe.versions.RegistryVersions;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-
-#if MC_VERSION < MC_1_21_2
-	import net.fabricmc.fabric.api.registry.FuelRegistry;
-#endif
 
 #if MC_VERSION >= MC_1_21_0
 	import net.minecraft.world.biome.GrassColors;
@@ -86,7 +79,7 @@ public class BigGlobeItems {
 		SLATED_PRISMARINE        = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
 		SLATED_PRISMARINE_STAIRS = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
-		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, new Item.Settings().registryKey(key("rock")))),
+		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings("rock"))),
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -104,9 +97,7 @@ public class BigGlobeItems {
 		CHARRED_SIGN             = register(
 			"charred_sign",
 			new ColoredSignItem(
-				new Item.Settings()
-				.registryKey(key("charred_sign"))
-				.maxCount(16),
+				settings("charred_sign").maxCount(16),
 				BigGlobeBlocks.CHARRED_SIGN,
 				BigGlobeBlocks.CHARRED_WALL_SIGN,
 				DyeColor.LIGHT_GRAY
@@ -115,9 +106,7 @@ public class BigGlobeItems {
 		CHARRED_HANGING_SIGN     = register(
 			"charred_hanging_sign",
 			new ColoredHangingSignItem(
-				new Item.Settings()
-				.registryKey(key("charred_hanging_sign"))
-				.maxCount(16),
+				settings("charred_hanging_sign").maxCount(16),
 				BigGlobeBlocks.CHARRED_HANGING_SIGN,
 				BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN,
 				DyeColor.LIGHT_GRAY
@@ -134,8 +123,7 @@ public class BigGlobeItems {
 			"charred_door",
 			new TallBlockItem(
 				BigGlobeBlocks.CHARRED_DOOR,
-				new Item.Settings()
-				.registryKey(key("charred_door"))
+				settings("charred_door")
 			)
 		),
 		SOUL_MAGMA               = registerPlacer(BigGlobeBlocks.SOUl_MAGMA),
@@ -171,7 +159,7 @@ public class BigGlobeItems {
 
 	public static final TorchArrowItem TORCH_ARROW = register(
 		"torch_arrow",
-		new TorchArrowItem(new Item.Settings().registryKey(key("torch_arrow")))
+		new TorchArrowItem(settings("torch_arrow"))
 	);
 	public static final PercussiveHammerItem PERCUSSIVE_HAMMER = register(
 		"percussive_hammer",
@@ -184,44 +172,42 @@ public class BigGlobeItems {
 				ToolMaterials.IRON
 			#endif,
 			BigGlobeBlockTags.MINEABLE_PERCUSSIVE_HAMMER,
-			new Item.Settings()
-			.registryKey(key("percussive_hammer"))
+			settings("percussive_hammer")
 			.maxDamage(166) //2/3'rds of the iron pickaxe durability, rounded down.
 		)
 	);
 	public static final SlingshotItem SLINGSHOT = register(
 		"slingshot",
-		new SlingshotItem(new Item.Settings().registryKey(key("slingshot")).maxDamage(192))
+		new SlingshotItem(settings("slingshot").maxDamage(192))
 	);
 	public static final BallOfStringItem BALL_OF_STRING = register(
 		"ball_of_string",
-		new BallOfStringItem(new Item.Settings().registryKey(key("ball_of_string")).maxCount(1))
+		new BallOfStringItem(settings("ball_of_string").maxCount(1))
 	);
-	public static final Item ASH = register("ash", new Item(new Item.Settings().registryKey(key("ash"))));
-	public static final Item SULFUR = register("sulfur", new Item(new Item.Settings().registryKey(key("sulfur"))));
+	public static final Item ASH = register("ash", new Item(settings("ash")));
+	public static final Item SULFUR = register("sulfur", new Item(settings("sulfur")));
 	public static final BucketItem SOUL_LAVA_BUCKET = register(
 		"soul_lava_bucket",
 		new BucketItem(
 			BigGlobeFluids.SOUL_LAVA,
-			new Item.Settings()
-			.registryKey(key("soul_lava_bucket"))
+			settings("soul_lava_bucket")
 			.recipeRemainder(Items.BUCKET)
 			.maxCount(1)
 		)
 	);
-	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(new Item.Settings().registryKey(key("chorus_spore"))));
+	public static final Item CHORUS_SPORE = register("chorus_spore", new Item(settings("chorus_spore")));
 	public static final @Nullable WaypointItem
-		PUBLIC_WAYPOINT  = register("public_waypoint",  new WaypointItem(new Item.Settings().registryKey(key("public_waypoint")), false)),
-		PRIVATE_WAYPOINT = register("private_waypoint", new WaypointItem(new Item.Settings().registryKey(key("private_waypoint")), true ));
+		PUBLIC_WAYPOINT  = register("public_waypoint",  new WaypointItem(settings("public_waypoint"), false)),
+		PRIVATE_WAYPOINT = register("private_waypoint", new WaypointItem(settings("private_waypoint"), true ));
 	public static final EnumMap<CloudColor, AuraBottleItem> AURA_BOTTLES = new EnumMap<>(CloudColor.class);
 	static {
 		for (CloudColor color : CloudColor.VALUES) {
 			if (color != CloudColor.BLANK) {
-				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(new Item.Settings().registryKey(key(color.bottleName)), color)));
+				AURA_BOTTLES.put(color, register(color.bottleName, new AuraBottleItem(settings(color.bottleName), color)));
 			}
 		}
 	}
-	public static final Item VOIDMETAL_INGOT = register("voidmetal_ingot", new Item(new Item.Settings().registryKey(key("voidmetal_ingot"))));
+	public static final Item VOIDMETAL_INGOT = register("voidmetal_ingot", new Item(settings("voidmetal_ingot")));
 	public static final SmithingTemplateItem VOIDMETAL_UPGRADE = register(
 		"voidmetal_upgrade",
 		new SmithingTemplateItem(
@@ -251,26 +237,26 @@ public class BigGlobeItems {
 	#if MC_VERSION >= MC_1_21_2
 
 		public static final ArmorItem
-			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.HELMET,     new Item.Settings().registryKey(key("voidmetal_helmet"    )))),
-			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.CHESTPLATE, new Item.Settings().registryKey(key("voidmetal_chestplate")))),
-			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.LEGGINGS,   new Item.Settings().registryKey(key("voidmetal_leggings"  )))),
-			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, EquipmentType.BOOTS,      new Item.Settings().registryKey(key("voidmetal_boots"     ))));
+			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.HELMET,     settings("voidmetal_helmet"    ))),
+			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.CHESTPLATE, settings("voidmetal_chestplate"))),
+			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.LEGGINGS,   settings("voidmetal_leggings"  ))),
+			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, net.minecraft.item.equipment.EquipmentType.BOOTS,      settings("voidmetal_boots"     )));
 
 	#elif MC_VERSION >= MC_1_20_5
 
 		public static final ArmorItem
-			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     new Item.Settings().maxDamage(ArmorItem.Type.HELMET    .getMaxDamage(37)))),
-			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, new Item.Settings().maxDamage(ArmorItem.Type.CHESTPLATE.getMaxDamage(37)))),
-			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   new Item.Settings().maxDamage(ArmorItem.Type.LEGGINGS  .getMaxDamage(37)))),
-			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      new Item.Settings().maxDamage(ArmorItem.Type.BOOTS     .getMaxDamage(37))));
+			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     settings("voidmetal_helmet"    ).maxDamage(ArmorItem.Type.HELMET    .getMaxDamage(37)))),
+			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, settings("voidmetal_chestplate").maxDamage(ArmorItem.Type.CHESTPLATE.getMaxDamage(37)))),
+			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   settings("voidmetal_leggings"  ).maxDamage(ArmorItem.Type.LEGGINGS  .getMaxDamage(37)))),
+			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      settings("voidmetal_boots"     ).maxDamage(ArmorItem.Type.BOOTS     .getMaxDamage(37))));
 
 	#else
 
 		public static final ArmorItem
-			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     new Item.Settings())),
-			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, new Item.Settings())),
-			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   new Item.Settings())),
-			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      new Item.Settings()));
+			VOIDMETAL_HELMET     = register("voidmetal_helmet",     new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.HELMET,     settings("voidmetal_helmet"    ))),
+			VOIDMETAL_CHESTPLATE = register("voidmetal_chestplate", new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.CHESTPLATE, settings("voidmetal_chestplate"))),
+			VOIDMETAL_LEGGINGS   = register("voidmetal_leggings",   new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.LEGGINGS,   settings("voidmetal_leggings"  ))),
+			VOIDMETAL_BOOTS      = register("voidmetal_boots",      new ArmorItem(VoidmetalArmorMaterial.INSTANCE, ArmorItem.Type.BOOTS,      settings("voidmetal_boots"     )));
 
 	#endif
 
@@ -280,16 +266,28 @@ public class BigGlobeItems {
 		return RegistryKey.of(RegistryKeys.ITEM, BigGlobeMod.modID(name));
 	}
 
+	public static Item.Settings settings(String name) {
+		#if MC_VERSION >= MC_1_21_2
+			return new Item.Settings().registryKey(key(name));
+		#else
+			return new Item.Settings();
+		#endif
+	}
+
+	public static Item.Settings settings(Identifier name) {
+		#if MC_VERSION >= MC_1_21_2
+			return new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, name));
+		#else
+			return new Item.Settings();
+		#endif
+	}
+
 	public static BlockItem registerPlacer(Block block) {
 		Identifier id = Registries.BLOCK.getId(block);
 		return Registry.register(
 			Registries.ITEM,
 			id,
-			new BlockItem(
-				block,
-				new Item.Settings()
-				.registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
-			)
+			new BlockItem(block, settings(id))
 		);
 	}
 
@@ -303,16 +301,16 @@ public class BigGlobeItems {
 
 	public static void init() {
 		#if MC_VERSION >= MC_1_21_2
-			FuelRegistryEvents.BUILD.register((net.minecraft.item.FuelRegistry.Builder builder, FuelRegistryEvents.Context context) -> {
+			net.fabricmc.fabric.api.registry.FuelRegistryEvents.BUILD.register((net.minecraft.item.FuelRegistry.Builder builder, net.fabricmc.fabric.api.registry.FuelRegistryEvents.Context context) -> {
 				int baseTime = context.baseSmeltTime();
 				builder.add(SOUL_LAVA_BUCKET, baseTime * 100);
 				builder.add(SULFUR,           baseTime * 6);
 				builder.add(SULFUR_BLOCK,     baseTime * 60);
 			});
 		#else
-			FuelRegistry.INSTANCE.add(SOUL_LAVA_BUCKET, 20000);
-			FuelRegistry.INSTANCE.add(SULFUR, 1200);
-			FuelRegistry.INSTANCE.add(SULFUR_BLOCK, 12000);
+			net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.add(SOUL_LAVA_BUCKET, 20000);
+			net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.add(SULFUR, 1200);
+			net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.add(SULFUR_BLOCK, 12000);
 		#endif
 
 		LootTableEvents.MODIFY.register(

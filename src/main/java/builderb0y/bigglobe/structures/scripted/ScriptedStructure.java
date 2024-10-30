@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.nbt.NbtCompound;

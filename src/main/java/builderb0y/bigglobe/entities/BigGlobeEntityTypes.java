@@ -107,11 +107,11 @@ public class BigGlobeEntityTypes {
 				canSpawnInside,
 				dimensions,
 				#if MC_VERSION >= MC_1_20_5
-				1.0F,
+					1.0F,
 				#endif
 				maxTrackDistance,
 				trackTickInterval,
-				#if MC_VERSION >= MC_1_20_2
+				#if MC_VERSION >= MC_1_21_2
 					Util.createTranslationKey("entity", BigGlobeMod.modID(name)),
 					Optional.empty(),
 				#endif

@@ -2,6 +2,8 @@ package builderb0y.bigglobe.versions;
 
 import java.util.stream.Stream;
 
+import com.mojang.datafixers.util.Pair;
+
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -20,10 +22,10 @@ public class RegistryVersions {
 	}
 
 	public static <T> RegistryKey<Registry<T>> getRegistryKey(RegistryKey<T> key) {
-		#if MC_VERSION >= MC_1_21_2
+		#if MC_VERSION >= MC_1_20_5
 			return key.getRegistryRef();
 		#else
-			return key.getRegistry();
+			return RegistryKey.ofRegistry(key.getRegistry());
 		#endif
 	}
 
@@ -32,7 +34,7 @@ public class RegistryVersions {
 		#if MC_VERSION >= MC_1_21_2
 			return (RegistryKey<Registry<T>>)(key.registryRef());
 		#else
-			return key.registry();
+			return (RegistryKey<Registry<T>>)(key.registry());
 		#endif
 	}
 
@@ -47,17 +49,17 @@ public class RegistryVersions {
 
 	public static <T> T getObject(DynamicRegistryManager manager, RegistryKey<T> key) {
 		#if MC_VERSION >= MC_1_21_2
-			return manager.getOrThrow(key.getRegistryRef()).get(key);
+			return manager.getOrThrow(getRegistryKey(key)).get(key);
 		#else
-			return manager.get(key.getRegistryRef()).get(key);
+			return manager.get(getRegistryKey(key)).get(key);
 		#endif
 	}
 
 	public static <T> RegistryEntry<T> getEntry(DynamicRegistryManager manager, RegistryKey<T> key) {
 		#if MC_VERSION >= MC_1_21_2
-			return manager.getOrThrow(key.getRegistryRef()).getOrThrow(key);
+			return manager.getOrThrow(getRegistryKey(key)).getOrThrow(key);
 		#else
-			return manager.get(key.getRegistryRef()).entryOf(key);
+			return manager.get(getRegistryKey(key)).entryOf(key);
 		#endif
 	}
 

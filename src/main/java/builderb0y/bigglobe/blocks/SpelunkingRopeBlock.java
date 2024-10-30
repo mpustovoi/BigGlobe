@@ -211,13 +211,14 @@ public class SpelunkingRopeBlock extends FallingBlock {
 	}
 
 	@Override
-	public
-		#if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
-			net.minecraft.util.ItemActionResult
-		#else
-			net.minecraft.util.ActionResult
-		#endif
-	onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	#if MC_VERSION >= MC_1_21_2
+		public net.minecraft.util.ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	#elif MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
+		public net.minecraft.util.ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	#else
+		public net.minecraft.util.ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		ItemStack stack = player.getStackInHand(hand);
+	#endif
 		if (stack.getItem() == BigGlobeItems.SPELUNKING_ROPE) {
 			BlockPos.Mutable mutablePos = pos.mutableCopy().move(0, -1, 0);
 			if (this.placeRopesAuto(world, mutablePos, state, player, stack)) {

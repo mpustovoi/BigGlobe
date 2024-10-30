@@ -2,6 +2,7 @@ package builderb0y.bigglobe.dynamicRegistries;
 
 import java.util.stream.Stream;
 
+import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,8 +107,7 @@ public interface BetterRegistry<T> {
 			#if MC_VERSION >= MC_1_21_2
 				return this.registry.getOptional(key).orElse(null);
 			#else
-				todo: ensure this returns a non-null value.
-				return this.registry.getEntryList(key);
+				return this.registry.getEntryList(key).orElse(null);
 			#endif
 		}
 

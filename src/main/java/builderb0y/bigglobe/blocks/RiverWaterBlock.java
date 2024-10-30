@@ -30,7 +30,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
 
 import builderb0y.autocodec.annotations.AddPseudoField;
 import builderb0y.bigglobe.ClientState;
@@ -149,7 +148,7 @@ public class RiverWaterBlock extends FluidBlock {
 		#if MC_VERSION >= MC_1_21_2
 			BlockState state,
 			WorldView world,
-			ScheduledTickView tickView,
+			net.minecraft.world.tick.ScheduledTickView tickView,
 			BlockPos pos,
 			Direction direction,
 			BlockPos neighborPos,

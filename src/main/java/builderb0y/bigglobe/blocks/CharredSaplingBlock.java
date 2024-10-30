@@ -7,16 +7,15 @@ import net.minecraft.block.SaplingBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 
-#if MC_VERSION >= MC_1_20_3
-import net.minecraft.block.SaplingGenerator;
-
-import builderb0y.autocodec.annotations.AddPseudoField;
-import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.versions.BlockStateVersions;
-#else
-import net.minecraft.block.sapling.SaplingGenerator;
 
-import builderb0y.autocodec.annotations.AddPseudoField;
+#if MC_VERSION >= MC_1_20_3
+	import net.minecraft.block.SaplingGenerator;
+
+	import builderb0y.autocodec.annotations.AddPseudoField;
+	import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+#else
+	import net.minecraft.block.sapling.SaplingGenerator;
 #endif
 
 #if MC_VERSION >= MC_1_20_3

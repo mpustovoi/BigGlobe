@@ -249,7 +249,18 @@ public class RespawnCommand {
 				)
 			) {
 				float yaw = player.getSpawnAngle();
-				EntityVersions.teleport(player, world, position.toBottomCenterPos(), Vec3d.ZERO, yaw, 0.0F);
+				EntityVersions.teleport(
+					player,
+					world,
+					new Vec3d(
+						position.getX() + 0.5D,
+						position.getY(),
+						position.getZ() + 0.5D
+					),
+					Vec3d.ZERO,
+					yaw,
+					0.0F
+				);
 				return null;
 			}
 

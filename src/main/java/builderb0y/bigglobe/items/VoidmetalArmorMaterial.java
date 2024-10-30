@@ -5,6 +5,7 @@ import java.util.EnumMap;
 
 import net.minecraft.item.ArmorItem;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
@@ -57,7 +58,7 @@ public class VoidmetalArmorMaterial {
 			defence.put(ArmorItem.Type.HELMET, 3);
 			defence.put(ArmorItem.Type.BODY, 11);
 			INSTANCE = Registry.registerReference(
-				RegistryVersions.armorMaterial(),
+				Registries.ARMOR_MATERIAL,
 				BigGlobeMod.modID("voidmetal"),
 				new ArmorMaterial(
 					defence,

@@ -42,26 +42,26 @@ public class CloudBlock extends Block {
 	}
 
 	@Override
-	public
-		#if MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
-			net.minecraft.util.ItemActionResult
-		#else
-			net.minecraft.util.ActionResult
-		#endif
-	onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	#if MC_VERSION >= MC_1_21_2
+		public net.minecraft.util.ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	#elif MC_VERSION >= MC_1_20_5 && MC_VERSION < MC_1_21_2
+		public net.minecraft.util.ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	#else
+		public net.minecraft.util.ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		ItemStack stack = player.getStackInHand(hand);
+	#endif
 		if (!player.isSneaking()) {
-			ItemStack heldItem = player.getStackInHand(hand);
 			if (this.color != CloudColor.BLANK) {
-				if (heldItem.getItem() == Items.GLASS_BOTTLE) {
+				if (stack.getItem() == Items.GLASS_BOTTLE) {
 					world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(CloudColor.BLANK).getDefaultState());
-					player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
+					player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(BigGlobeItems.AURA_BOTTLES.get(this.color))));
 					return ActionResultVersions.ITEM_SUCCESS;
 				}
 			}
 			else {
-				if (heldItem.getItem() instanceof AuraBottleItem bottle) {
+				if (stack.getItem() instanceof AuraBottleItem bottle) {
 					world.setBlockState(pos, (this.isVoid ? BigGlobeBlocks.VOID_CLOUDS : BigGlobeBlocks.CLOUDS).get(bottle.color).getDefaultState());
-					player.setStackInHand(hand, ItemUsage.exchangeStack(heldItem, player, new ItemStack(Items.GLASS_BOTTLE)));
+					player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
 					return ActionResultVersions.ITEM_SUCCESS;
 				}
 			}

@@ -166,7 +166,7 @@ public class WaypointEntity extends Entity {
 	}
 
 	@Override
-	public boolean damage(#if MC_VERSION >= MC_1_20_2 ServerWorld world, #endif DamageSource source, float amount) {
+	public boolean damage(#if MC_VERSION >= MC_1_21_2 ServerWorld world, #endif DamageSource source, float amount) {
 		return this.implDamage(source, amount);
 	}
 

@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.block.*;

@@ -274,8 +274,15 @@ public class ClientState {
 						if (registry == null) return Optional.empty();
 						return Optional.of(
 							new RegistryInfo<>(
-								registry,
-								registry,
+								#if MC_VERSION >= MC_1_21_2
+									registry,
+									registry,
+								#else
+									registry.getEntryOwner(),
+									mutable
+									? registry.createMutableEntryLookup()
+									: registry.getReadOnlyWrapper(),
+								#endif
 								Lifecycle.experimental()
 							)
 						);

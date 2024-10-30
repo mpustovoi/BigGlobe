@@ -27,8 +27,10 @@ import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.HoeItem;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.intprovider.UniformIntProvider;
@@ -226,7 +228,7 @@ public class BigGlobeBlocks {
 	public static final RiverWaterBlock RIVER_WATER = register(
 		"river_water",
 		new RiverWaterBlock(
-			Fluids.WATER,
+			Fluids.WATER.getRegistryEntry(),
 			AbstractBlock.Settings.copy(Blocks.WATER)
 		)
 	);
@@ -366,7 +368,7 @@ public class BigGlobeBlocks {
 	public static final SoulLavaBlock SOUL_LAVA = register(
 		"soul_lava",
 		new SoulLavaBlock(
-			BigGlobeFluids.SOUL_LAVA,
+			BigGlobeFluids.SOUL_LAVA.getRegistryEntry(),
 			AbstractBlock.Settings
 			.create()
 			.mapColor(MapColor.DIAMOND_BLUE)
@@ -409,7 +411,7 @@ public class BigGlobeBlocks {
 			new SaplingGenerator(
 				"bigglobe:charred",
 				Optional.empty(),
-				Optional.of(RegistryKey.of(RegistryKeyVersions.configuredFeature(), BigGlobeMod.modID("charred_tree_vanilla"))),
+				Optional.of(RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, BigGlobeMod.modID("charred_tree_vanilla"))),
 				Optional.empty()
 			),
 			AbstractBlock.Settings
@@ -747,7 +749,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			TALL_CHORUS_SPORES
+			TALL_CHORUS_SPORES.getRegistryEntry()
 		)
 	);
 	public static final ChorusSporeBlock SHORT_CHORUS_SPORES = register(
@@ -763,7 +765,7 @@ public class BigGlobeBlocks {
 			.nonOpaque()
 			.breakInstantly()
 			.pistonBehavior(PistonBehavior.DESTROY),
-			MEDIUM_CHORUS_SPORES
+			MEDIUM_CHORUS_SPORES.getRegistryEntry()
 		)
 	);
 	public static final EnumMap<CloudColor, CloudBlock> VOID_CLOUDS = new EnumMap<>(CloudColor.class);
@@ -822,7 +824,7 @@ public class BigGlobeBlocks {
 	}
 
 	public static <B extends Block> B register(String name, B block) {
-		return Registry.register(RegistryVersions.block(), BigGlobeMod.modID(name), block);
+		return Registry.register(Registries.BLOCK, BigGlobeMod.modID(name), block);
 	}
 
 	public static void init() {

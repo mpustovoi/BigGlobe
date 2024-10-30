@@ -57,11 +57,11 @@ public class ActionResultVersions {
 		}
 
 		public static net.minecraft.util.TypedActionResult<ItemStack> typePass(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.pass();
+			return net.minecraft.util.TypedActionResult.pass(stack);
 		}
 
 		public static net.minecraft.util.TypedActionResult<ItemStack> typedFail(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.fail();
+			return net.minecraft.util.TypedActionResult.fail(stack);
 		}
 
 	#else
@@ -86,11 +86,11 @@ public class ActionResultVersions {
 		}
 
 		public static net.minecraft.util.TypedActionResult<ItemStack> typePass(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.pass();
+			return net.minecraft.util.TypedActionResult.pass(stack);
 		}
 
 		public static net.minecraft.util.TypedActionResult<ItemStack> typedFail(ItemStack stack) {
-			return net.minecraft.util.TypedActionResult.fail();
+			return net.minecraft.util.TypedActionResult.fail(stack);
 		}
 
 	#endif

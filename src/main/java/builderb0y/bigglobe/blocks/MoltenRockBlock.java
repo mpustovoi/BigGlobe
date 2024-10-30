@@ -14,7 +14,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
-import net.minecraft.world.tick.ScheduledTickView;
 
 import builderb0y.autocodec.annotations.VerifyIntRange;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
@@ -53,7 +52,7 @@ public class MoltenRockBlock extends Block {
 		#if MC_VERSION >= MC_1_21_2
 			BlockState state,
 			WorldView world,
-			ScheduledTickView tickView,
+			net.minecraft.world.tick.ScheduledTickView tickView,
 			BlockPos pos,
 			Direction direction,
 			BlockPos neighborPos,

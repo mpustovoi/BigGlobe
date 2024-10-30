@@ -37,7 +37,7 @@ public class SpawnHelper_MoreMobsInTallerWorlds {
 		SpawnHelper.Checker checker,
 		SpawnHelper.Runner runner
 	) {
-		for (int baseY = world.getBottomY(), topY = HeightLimitViewVersions.getTopY(world); baseY < topY; baseY += 128) {
+		for (int baseY = HeightLimitViewVersions.getMinY(world), topY = HeightLimitViewVersions.getMaxY(world); baseY < topY; baseY += 128) {
 			int rng = world.random.nextInt();
 			int x = chunk.getPos().getStartX() | (rng & 15);
 			int z = chunk.getPos().getStartZ() | ((rng >>> 4) & 15);

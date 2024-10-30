@@ -23,7 +23,6 @@ import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry.DelayedCompileable;
 import builderb0y.bigglobe.dynamicRegistries.BetterRegistry;
 import builderb0y.bigglobe.noise.Permuter;
-import builderb0y.bigglobe.versions.IdentifierVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 public class DelayedEntryList<T> implements DelayedCompileable {
@@ -62,13 +61,11 @@ public class DelayedEntryList<T> implements DelayedCompileable {
 		}
 	}
 
-	public static DelayedEntryList<?> constant(String... args) {
-		RegistryKey<Registry<Object>> key = RegistryKey.ofRegistry(IdentifierVersions.create(args[0]));
-		List<DelayedEntry> entries = Arrays.stream(args, 1, args.length).map(DelayedEntry::new).toList();
-		return new DelayedEntryList<>(key, entries);
+	public static <T> DelayedEntryList<T> create(RegistryKey<Registry<T>> key, String... args) {
+		return new DelayedEntryList<>(key, Arrays.stream(args).map(DelayedEntry::new).toList());
 	}
 
-	public static <T> DelayedEntryList<T> constant(RegistryKey<Registry<T>> registryKey, String input) {
+	public static <T> DelayedEntryList<T> create(RegistryKey<Registry<T>> registryKey, String input) {
 		return new DelayedEntryList<>(registryKey, Collections.singletonList(new DelayedEntry(input)));
 	}
 

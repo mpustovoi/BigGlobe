@@ -9,7 +9,6 @@ import builderb0y.bigglobe.dynamicRegistries.BigGlobeDynamicRegistries;
 import builderb0y.bigglobe.scripting.wrappers.entries.StructurePlacementScriptEntry;
 import builderb0y.bigglobe.structures.scripted.ScriptedStructure.CombinedStructureScripts;
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -17,19 +16,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class StructurePlacementScriptTag extends TagWrapper<CombinedStructureScripts, StructurePlacementScriptEntry> {
 
 	public static final TypeInfo TYPE = type(StructurePlacementScriptTag.class);
-	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
+	public static final TagParser PARSER = new TagParser("StructurePlacementScriptTag", StructurePlacementScriptTag.class);
 
 	public StructurePlacementScriptTag(DelayedEntryList<CombinedStructureScripts> list) {
 		super(list);
 	}
 
-	public static StructurePlacementScriptTag of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+	public static StructurePlacementScriptTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... id) {
 		return of(id);
 	}
 
-	public static StructurePlacementScriptTag of(String id) {
+	public static StructurePlacementScriptTag of(String... id) {
 		if (id == null) return null;
-		return new StructurePlacementScriptTag(DelayedEntryList.constant(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, id));
+		return new StructurePlacementScriptTag(DelayedEntryList.create(BigGlobeDynamicRegistries.SCRIPT_STRUCTURE_PLACEMENT_REGISTRY_KEY, id));
 	}
 
 	@Override

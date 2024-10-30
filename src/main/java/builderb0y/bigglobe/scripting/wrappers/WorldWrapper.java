@@ -37,7 +37,6 @@ import builderb0y.bigglobe.structures.ScriptStructures;
 import builderb0y.bigglobe.overriders.ColumnValueOverrider;
 import builderb0y.bigglobe.util.SymmetricOffset;
 import builderb0y.bigglobe.util.Symmetry;
-import builderb0y.bigglobe.util.UnregisteredObjectException;
 import builderb0y.bigglobe.util.WorldOrChunk;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.coordinators.Coordinator;
@@ -326,7 +325,7 @@ public class WorldWrapper implements ScriptedColumnLookup {
 	}
 
 	public int maxValidYLevel() {
-		return HeightLimitViewVersions.getTopY(this.world);
+		return HeightLimitViewVersions.getMaxY(this.world);
 	}
 
 	public @Nullable NbtCompound getBlockData(int x, int y, int z) {

@@ -32,10 +32,9 @@ to finish before release:
 	document version for Purpose/Hints refactors.
 	document version for offset grids.
 	document version for tag-type feature dispatchers.
-	Tag('a', 'b')
-	object.isIn('a', 'b')
 
 changelog:
+	* Ported to MC 1.21.3.
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.
 	* gold, redstone, and lapis ore are now more common.
 	* Mega dungeons are now less common.

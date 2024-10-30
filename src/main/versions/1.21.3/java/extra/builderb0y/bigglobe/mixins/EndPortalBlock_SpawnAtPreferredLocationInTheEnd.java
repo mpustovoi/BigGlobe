@@ -18,6 +18,7 @@ import net.minecraft.world.chunk.Chunk;
 
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 //used in 1.21+
 @Mixin(EndPortalBlock.class)
@@ -42,7 +43,7 @@ public class EndPortalBlock_SpawnAtPreferredLocationInTheEnd {
 			Chunk chunk = destination.getChunk(pos);
 			while (BlockStateVersions.isReplaceable(chunk.getBlockState(pos))) {
 				pos.setY(pos.getY() - 1);
-				if (pos.getY() < destination.getBottomY()) {
+				if (pos.getY() < HeightLimitViewVersions.getMinY(destination)) {
 					platformPosition.set(result = new BlockPos(position[0], position[1], position[2]));
 					return result;
 				}

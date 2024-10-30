@@ -30,7 +30,7 @@ public class WoodPaletteScriptEnvironment {
 		.addType("WoodPalette", WoodPaletteEntry.class)
 		.addType("WoodPaletteTag", WoodPaletteTag.class)
 		.addCastConstant(WoodPaletteEntry.CONSTANT_FACTORY, true)
-		.addCastConstant(WoodPaletteTag.CONSTANT_FACTORY, true)
+		.configure(WoodPaletteTag.PARSER)
 		.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, RandomGenerator.class)
 		.addMethodInvokeSpecific(WoodPaletteTag.class, "random", WoodPaletteEntry.class, long.class)
 		.addFieldInvoke(WoodPaletteEntry.class, "features")

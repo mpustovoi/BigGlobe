@@ -40,11 +40,12 @@ public class StructureScriptEnvironment {
 		.addFieldInvokes(ScriptedStructure.Piece.class, "symmetry", "offsetX", "offsetZ", "placement")
 
 		.addCastConstant(StructureEntry               .CONSTANT_FACTORY, true)
-		.addCastConstant(StructureTag                 .CONSTANT_FACTORY, true)
 		.addCastConstant(StructureTypeEntry           .CONSTANT_FACTORY, true)
-		.addCastConstant(StructureTypeTag             .CONSTANT_FACTORY, true)
 		.addCastConstant(StructurePieceTypeEntry      .CONSTANT_FACTORY, true)
-		.addCastConstant(StructurePieceTypeTag        .CONSTANT_FACTORY, true)
 		.addCastConstant(StructurePlacementScriptEntry.CONSTANT_FACTORY, true)
+		.configure      (StructureTag                 .PARSER)
+		.configure      (StructureTypeTag             .PARSER)
+		.configure      (StructurePieceTypeTag        .PARSER)
+		.configure      (StructurePlacementScriptTag  .PARSER)
 	);
 }

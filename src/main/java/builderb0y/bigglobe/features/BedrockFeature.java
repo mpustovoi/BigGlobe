@@ -43,8 +43,8 @@ public class BedrockFeature extends DummyFeature<BedrockFeature.Config> implemen
 		int adjustedEmptyY = config.empty_y + Integer.signum(config.full_y - config.empty_y);
 		int minY = Math.min(config.full_y, adjustedEmptyY);
 		int maxY = Math.max(config.full_y, adjustedEmptyY);
-		int clampedMinY = Math.max(minY, chunk.getBottomY());
-		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getTopY(chunk) - 1);
+		int clampedMinY = Math.max(minY, HeightLimitViewVersions.getMinY(chunk));
+		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getMaxY(chunk) - 1);
 		int sectionMinY = clampedMinY >> 4;
 		int sectionMaxY = clampedMaxY >> 4;
 		Async.loop(BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {

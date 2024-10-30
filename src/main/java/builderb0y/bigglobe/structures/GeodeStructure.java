@@ -2,7 +2,6 @@ package builderb0y.bigglobe.structures;
 
 import java.util.Optional;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import org.joml.Vector3d;
 
@@ -15,7 +14,6 @@ import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -308,10 +306,10 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 		public void generateRaw(RawGenerationStructurePiece.Context context) {
 			ChunkPos chunkPos = context.chunk.getPos();
 			int minX = chunkPos.getStartX();
-			int minY = Math.max(this.boundingBox.getMinY(), context.chunk.getBottomY());
+			int minY = Math.max(this.boundingBox.getMinY(), HeightLimitViewVersions.getMinY(context.chunk));
 			int minZ = chunkPos.getStartZ();
 			int maxX = chunkPos.getEndX();
-			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getTopY(context.chunk) - 1);
+			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
 			int maxZ = chunkPos.getEndZ();
 			try (NumberArray samples = NumberArray.allocateDoublesDirect(maxY - minY + 1)) {
 				double rcpRadius = 1.0D / this.data.radius;
@@ -484,10 +482,10 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 			Data data = this.data;
 			ChunkPos chunkPos = context.chunk.getPos();
 			int minX = chunkPos.getStartX();
-			int minY = Math.max(this.boundingBox.getMinY(), context.chunk.getBottomY());
+			int minY = Math.max(this.boundingBox.getMinY(), HeightLimitViewVersions.getMinY(context.chunk));
 			int minZ = chunkPos.getStartZ();
 			int maxX = chunkPos.getEndX();
-			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getTopY(context.chunk) - 1);
+			int maxY = Math.min(this.boundingBox.getMaxY(), HeightLimitViewVersions.getMaxY(context.chunk) - 1);
 			int maxZ = chunkPos.getEndZ();
 
 			Vector3d spikeOffset = new Vector3d(data.x2 - data.x1, data.y2 - data.y1, data.z2 - data.z1);

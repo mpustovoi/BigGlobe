@@ -15,8 +15,8 @@ public class NetherPortalUtil {
 		BlockPos.Mutable mutable = startPos.mutableCopy();
 		int startX = startPos.getX();
 		int startZ = startPos.getZ();
-		int minY = world.getBottomY();
-		int maxY = HeightLimitViewVersions.getTopY(world) - size.getY();
+		int minY = HeightLimitViewVersions.getMinY(world);
+		int maxY = HeightLimitViewVersions.getMaxY(world) - size.getY();
 		for (int y = maxY; y >= minY; y--) {
 			if (canPortalSpawnHere(world, mutable.set(startX, y, startZ), size)) {
 				return mutable.set(startX, y, startZ);

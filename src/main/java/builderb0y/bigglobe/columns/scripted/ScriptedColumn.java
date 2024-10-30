@@ -151,7 +151,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 	) {
 
 		public Params(long seed, int x, int z, HeightLimitView world, Hints hints, WorldTraits traits) {
-			this(seed, x, z, world.getBottomY(), HeightLimitViewVersions.getTopY(world), hints, traits);
+			this(seed, x, z, HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world), hints, traits);
 		}
 
 		public Params(BigGlobeScriptedChunkGenerator generator, int x, int z, Hints hints) {
@@ -171,7 +171,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 		}
 
 		public Params heightRange(HeightLimitView world) {
-			return this.heightRange(world.getBottomY(), HeightLimitViewVersions.getTopY(world));
+			return this.heightRange(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		}
 
 		public Params hints(Hints hints) {
@@ -233,7 +233,7 @@ public abstract class ScriptedColumn implements ColumnValueHolder {
 
 		public int defaultUndergroundMode() {
 			return switch (this) {
-				case GENERIC        -> CARVE;
+				case GENERIC        -> DECORATE;
 				case HEIGHTMAP      -> FILL;
 				case RAW_GENERATION -> DECORATE;
 				case FEATURES       -> DECORATE;

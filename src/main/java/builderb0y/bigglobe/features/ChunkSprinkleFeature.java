@@ -20,6 +20,7 @@ import builderb0y.bigglobe.scripting.wrappers.WorldWrapper;
 import builderb0y.bigglobe.util.Async;
 import builderb0y.bigglobe.util.BigGlobeThreadPool;
 import builderb0y.bigglobe.util.BlockState2ObjectMap;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Config> implements RockReplacerFeature<ChunkSprinkleFeature.Config> {
 
@@ -41,7 +42,7 @@ public class ChunkSprinkleFeature extends DummyFeature<ChunkSprinkleFeature.Conf
 		Config config
 	) {
 		long chunkSeed = Permuter.permute(generator.columnSeed ^ 0x86F84DE15D2E462BL, chunk.getPos().x, chunk.getPos().z);
-		Async.loop(BigGlobeThreadPool.autoExecutor(), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int yCoord) -> {
+		Async.loop(BigGlobeThreadPool.autoExecutor(), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int yCoord) -> {
 			ChunkSection section = chunk.getSection(chunk.sectionCoordToIndex(yCoord));
 			SectionGenerationContext context = SectionGenerationContext.forSectionCoord(chunk, section, yCoord);
 			PaletteIdReplacer replacer = PaletteIdReplacer.of(context, config.blocks);

@@ -19,7 +19,6 @@ import builderb0y.bigglobe.compat.DistantHorizonsCompat;
 import builderb0y.bigglobe.mixinInterfaces.MutableBlockEntityType;
 import builderb0y.bigglobe.versions.BlockStateVersions;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 
 public class WorldUtil {
 
@@ -94,10 +93,10 @@ public class WorldUtil {
 	public static BlockBox chunkBox(ChunkPos pos, HeightLimitView height) {
 		return new BlockBox(
 			pos.getStartX(),
-			height.getBottomY(),
+			HeightLimitViewVersions.getMinY(height),
 			pos.getStartZ(),
 			pos.getEndX(),
-			HeightLimitViewVersions.getTopY(height) - 1,
+			HeightLimitViewVersions.getMaxY(height) - 1,
 			pos.getEndZ()
 		);
 	}
@@ -109,10 +108,10 @@ public class WorldUtil {
 	public static BlockBox surroundingChunkBox(ChunkPos pos, HeightLimitView height) {
 		return new BlockBox(
 			(pos.x - 1) << 4,
-			height.getBottomY(),
+			HeightLimitViewVersions.getMinY(height),
 			(pos.z - 1) << 4,
 			((pos.x + 1) << 4) | 15,
-			HeightLimitViewVersions.getTopY(height) - 1,
+			HeightLimitViewVersions.getMaxY(height) - 1,
 			((pos.z + 1) << 4) | 15
 		);
 	}

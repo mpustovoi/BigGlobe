@@ -19,7 +19,7 @@ public class ItemScriptEnvironment {
 		.addType("ItemStack", ItemStackWrapper.TYPE)
 		.addType("ItemTag", ItemTag.TYPE)
 		.addCastConstant(ItemWrapper.CONSTANT_FACTORY, true)
-		.addCastConstant(ItemTag.CONSTANT_FACTORY, true)
+		.configure(ItemTag.PARSER)
 		.addQualifiedFunctionRenamedMultiInvokeStatic(ItemStackWrapper.TYPE, ItemStackWrapper.class, "new", "create")
 
 		.addFieldInvokeStatic(ItemWrapper.class, "id")

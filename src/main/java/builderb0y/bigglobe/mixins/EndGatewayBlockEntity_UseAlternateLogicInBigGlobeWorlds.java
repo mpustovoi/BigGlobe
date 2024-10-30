@@ -28,6 +28,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.pointSequences.GoldenSpiralIterator;
 import builderb0y.bigglobe.versions.BlockStateVersions;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 /** vanilla end gateway logic is a mess. */
 @Mixin(EndGatewayBlockEntity.class)
@@ -106,7 +107,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 					iterator.next()
 				) {
 					int topY = generator.getHeight(iterator.floorX(), iterator.floorY(), Heightmap.Type.WORLD_SURFACE_WG, world, manager.getNoiseConfig());
-					if (topY > world.getBottomY()) {
+					if (topY > HeightLimitViewVersions.getMinY(world)) {
 						mutablePos.set(iterator.floorX(), topY, iterator.floorY());
 						Chunk newChunk = world.getChunk(mutablePos);
 						if (
@@ -145,7 +146,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 		if (world instanceof ServerWorld serverWorld && serverWorld.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator && generator.end_overrides != null) {
 			BlockPos.Mutable
 				search = new BlockPos.Mutable(),
-				found  = pos.mutableCopy().setY(world.getBottomY());
+				found  = pos.mutableCopy().setY(HeightLimitViewVersions.getMinY(world));
 			for (int offsetX = -searchRadius; offsetX <= searchRadius; offsetX++) {
 				innerSquare:
 				for (int offsetZ = -searchRadius; offsetZ <= searchRadius; offsetZ++) {
@@ -160,7 +161,7 @@ public class EndGatewayBlockEntity_UseAlternateLogicInBigGlobeWorlds {
 					found.set(search);
 				}
 			}
-			if (found.getY() == world.getBottomY()) found.set(pos);
+			if (found.getY() == HeightLimitViewVersions.getMinY(world)) found.set(pos);
 			callback.setReturnValue(found.toImmutable());
 		}
 	}

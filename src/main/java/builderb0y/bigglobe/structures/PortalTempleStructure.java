@@ -6,7 +6,6 @@ import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.block.*;
@@ -74,8 +73,8 @@ public class PortalTempleStructure extends BigGlobeStructure {
 		int x = context.chunkPos().getStartX() | (permuter.nextInt() & 15);
 		int z = context.chunkPos().getStartZ() | (permuter.nextInt() & 15);
 		VerticalBlockSample sample = context.chunkGenerator().getColumnSample(x, z, context.world(), context.noiseConfig());
-		int minY = context.world().getBottomY();
-		int maxY = HeightLimitViewVersions.getTopY(context.world());
+		int minY = HeightLimitViewVersions.getMinY(context.world());
+		int maxY = HeightLimitViewVersions.getMaxY(context.world());
 		for (int startAttempt = 0; startAttempt < 16; startAttempt++) {
 			int y = permuter.nextInt(minY, maxY);
 			if (sample.getState(y).isAir()) {

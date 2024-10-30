@@ -82,7 +82,7 @@ public class TreeGenerator {
 	public void generateTrunk() throws NotEnoughSpaceException {
 		int startY = this.trunk.startY;
 		int height = this.trunk.height;
-		if (startY + height >= HeightLimitViewVersions.getTopY(this.worldQueue)) {
+		if (startY + height >= HeightLimitViewVersions.getMaxY(this.worldQueue)) {
 			throw NotEnoughSpaceException.INSTANCE;
 		}
 		for (int offsetY = height; true; offsetY--) {

@@ -119,7 +119,6 @@ import builderb0y.bigglobe.util.*;
 import builderb0y.bigglobe.util.WorldOrChunk.ChunkDelegator;
 import builderb0y.bigglobe.util.WorldOrChunk.WorldDelegator;
 import builderb0y.bigglobe.versions.HeightLimitViewVersions;
-import builderb0y.bigglobe.versions.RegistryVersions;
 import builderb0y.scripting.parsing.ScriptParsingException;
 
 #if MC_VERSION < MC_1_21_2
@@ -488,7 +487,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	public void populateEntities(ChunkRegion region) {
 		//copy-pasted from NoiseChunkGenerator.
 		ChunkPos chunkPos = region.getCenterPos();
-		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(HeightLimitViewVersions.getTopY(region) - 1));
+		RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(HeightLimitViewVersions.getMaxY(region) - 1));
 		ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
 		chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
 		SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
@@ -517,13 +516,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		}
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		ScriptStructures structures = ScriptStructures.getStructures(structureAccessor, chunk.getPos(), distantHorizons);
-		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, chunk.getBottomY(), HeightLimitViewVersions.getTopY(chunk), ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons), this.compiledWorldTraits);
+		ScriptedColumn.Params params = new ScriptedColumn.Params(this.columnSeed, 0, 0, HeightLimitViewVersions.getMinY(chunk), HeightLimitViewVersions.getMaxY(chunk), ColumnUsage.RAW_GENERATION.maybeDhHints(distantHorizons), this.compiledWorldTraits);
 		return CompletableFuture.runAsync(
 			() -> {
 				int startX = chunk.getPos().getStartX();
 				int startZ = chunk.getPos().getStartZ();
-				int chunkMinY = chunk.getBottomY();
-				int chunkMaxY = HeightLimitViewVersions.getTopY(chunk);
+				int chunkMinY = HeightLimitViewVersions.getMinY(chunk);
+				int chunkMaxY = HeightLimitViewVersions.getMaxY(chunk);
 				ScriptedColumn[] columns = this.chunkReuseColumns.get();
 				BlockSegmentList[] lists = new BlockSegmentList[256];
 				try (AsyncRunner async = BigGlobeThreadPool.runner(distantHorizons)) {
@@ -630,7 +629,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 						BlockSegmentList list = lists[horizontalIndex];
 						if (!list.isEmpty()) {
 							int height = getHeight(list, type);
-							height = MathHelper.clamp(height - chunk.getBottomY(), 0, chunk.getHeight());
+							height = MathHelper.clamp(height - HeightLimitViewVersions.getMinY(chunk), 0, HeightLimitViewVersions.getHeight(chunk));
 							heightmapStorage.set(horizontalIndex, height);
 						}
 					}
@@ -662,7 +661,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 							replacer.replaceRocks(this, worldWrapper, chunk, minFilledSectionY_, maxFilledSectionY_);
 						}
 					}
-					Async.loop(BigGlobeThreadPool.executor(distantHorizons), chunk.getBottomSectionCoord(), chunk.getTopSectionCoord(), 1, (int coord) -> {
+					Async.loop(BigGlobeThreadPool.executor(distantHorizons), HeightLimitViewVersions.getSectionMinY(chunk), HeightLimitViewVersions.getSectionMaxY(chunk), 1, (int coord) -> {
 						chunk.getSection(chunk.sectionCoordToIndex(coord)).calculateCounts();
 					});
 					this.generateRawStructures(chunk, structureAccessor, worldWrapper);
@@ -973,8 +972,8 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 		boolean distantHorizons = DistantHorizonsCompat.isOnDistantHorizonThread();
 		return CompletableFuture.runAsync(
 			() -> {
-				int bottomY = chunk.getBottomY();
-				int topY    = HeightLimitViewVersions.getTopY(chunk);
+				int bottomY = HeightLimitViewVersions.getMinY(chunk);
+				int topY    = HeightLimitViewVersions.getMaxY(chunk);
 				ScriptedColumn column = this.newColumn(chunk, 0, 0, ColumnUsage.GENERIC.maybeDhHints(distantHorizons));
 				for (int z = 0; z < 16; z += 4) {
 					for (int x = 0; x < 16; x += 4) {
@@ -1016,7 +1015,7 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
-		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), HeightLimitViewVersions.getTopY(world));
+		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.emitSegments(column, list);
 		return getHeight(list, heightmap);
 	}
@@ -1034,13 +1033,13 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 	@Override
 	public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
 		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
-		BlockSegmentList list = new BlockSegmentList(world.getBottomY(), HeightLimitViewVersions.getTopY(world));
+		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.emitSegments(column, list);
 		BlockState[] states = list.flatten(BlockState[]::new);
 		for (int index = 0, length = states.length; index < length; index++) {
 			if (states[index] == null) states[index] = BlockStates.AIR;
 		}
-		return new VerticalBlockSample(world.getBottomY(), states);
+		return new VerticalBlockSample(HeightLimitViewVersions.getMinY(world), states);
 	}
 
 	@Override

@@ -71,11 +71,11 @@ public class MinecraftScriptEnvironment {
 
 		.addCastConstant(BlockWrapper          .CONSTANT_FACTORY, true)
 		.addCastConstant(BlockStateWrapper     .CONSTANT_FACTORY, true)
-		.addCastConstant(BlockTag              .CONSTANT_FACTORY, true)
 		.addCastConstant(BiomeEntry            .CONSTANT_FACTORY, true)
-		.addCastConstant(BiomeTag              .CONSTANT_FACTORY, true)
 		.addCastConstant(ConfiguredFeatureEntry.CONSTANT_FACTORY, true)
-		.addCastConstant(ConfiguredFeatureTag  .CONSTANT_FACTORY, true)
+		.configure      (BlockTag              .PARSER)
+		.configure      (BiomeTag              .PARSER)
+		.configure      (ConfiguredFeatureTag  .PARSER)
 
 		.addKeyword("BlockState", blockStateKeyword())
 	);

@@ -18,6 +18,7 @@ import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
+import builderb0y.bigglobe.versions.HeightLimitViewVersions;
 
 //config needs to be encoded inline, but I can't annotate the field on the super class.
 //and also my ReflectionManager can't see the backing field anyway.
@@ -51,7 +52,7 @@ public abstract class BigGlobeStructure extends Structure {
 			? this.surface_y.get(scripted.newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints()))
 			: context.chunkGenerator().getHeightInGround(x, z, Heightmap.Type.OCEAN_FLOOR_WG, context.world(), context.noiseConfig())
 		);
-		if (y >= context.world().getBottomY()) {
+		if (y >= HeightLimitViewVersions.getMinY(context.world())) {
 			return new BlockPos(x, y + offset, z);
 		}
 		else {

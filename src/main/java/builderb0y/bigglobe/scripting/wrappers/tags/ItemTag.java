@@ -8,7 +8,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -16,19 +15,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ItemTag extends TagWrapper<Item, Item> {
 
 	public static final TypeInfo TYPE = type(ItemTag.class);
-	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
+	public static final TagParser PARSER = new TagParser("ItemTag", ItemTag.class);
 
 	public ItemTag(DelayedEntryList<Item> list) {
 		super(list);
 	}
 
-	public static ItemTag of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+	public static ItemTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... id) {
 		return of(id);
 	}
 
-	public static ItemTag of(String id) {
+	public static ItemTag of(String... id) {
 		if (id == null) return null;
-		return new ItemTag(DelayedEntryList.constant(RegistryKeys.ITEM, id));
+		return new ItemTag(DelayedEntryList.create(RegistryKeys.ITEM, id));
 	}
 
 	@Override

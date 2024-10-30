@@ -9,7 +9,6 @@ import net.minecraft.world.gen.structure.StructureType;
 
 import builderb0y.bigglobe.scripting.wrappers.entries.StructureTypeEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -17,19 +16,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class StructureTypeTag extends TagWrapper<StructureType<?>, StructureTypeEntry> {
 
 	public static final TypeInfo TYPE = type(StructureTypeTag.class);
-	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
+	public static final TagParser PARSER = new TagParser("StructureTypeTag", StructureTypeTag.class);
 
 	public StructureTypeTag(DelayedEntryList<StructureType<?>> list) {
 		super(list);
 	}
 
-	public static StructureTypeTag of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+	public static StructureTypeTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... id) {
 		return of(id);
 	}
 
-	public static StructureTypeTag of(String id) {
+	public static StructureTypeTag of(String... id) {
 		if (id == null) return null;
-		return new StructureTypeTag(DelayedEntryList.constant(RegistryKeys.STRUCTURE_TYPE, id));
+		return new StructureTypeTag(DelayedEntryList.create(RegistryKeys.STRUCTURE_TYPE, id));
 	}
 
 	@Override

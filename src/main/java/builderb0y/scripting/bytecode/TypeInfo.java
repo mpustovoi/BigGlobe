@@ -443,11 +443,9 @@ public class TypeInfo {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder(64).append(this.type.name().toLowerCase(Locale.ROOT)).append(' ').append(this.name.getClassName());
-		if (this.superClass != null) builder.append(" extends ").append(this.superClass.name.getInternalName());
-		if (this.superInterfaces.length != 0) builder.append(" implements ").append(Arrays.stream(this.superInterfaces).map(anInterface -> anInterface.name.getInternalName()).collect(Collectors.joining(", ")));
-		if (this.componentType != null) builder.append(" arrayof ").append(this.componentType.name.getInternalName());
-		if (this.isGeneric) builder.append(" (generic)");
+		StringBuilder builder = new StringBuilder(64);
+		if (this.isGeneric) builder.append("generic ");
+		builder.append(this.type.name().toLowerCase(Locale.ROOT)).append(' ').append(this.getSimpleClassName());
 		return builder.toString();
 	}
 

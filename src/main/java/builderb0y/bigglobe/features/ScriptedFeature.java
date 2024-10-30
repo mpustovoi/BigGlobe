@@ -23,7 +23,6 @@ import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnEntryRegistry;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
-import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.columns.scripted.entries.ColumnEntry.ExternalEnvironmentParams;
 import builderb0y.bigglobe.noise.NumberArray;
 import builderb0y.bigglobe.noise.Permuter;
@@ -94,10 +93,10 @@ public class ScriptedFeature extends Feature<ScriptedFeature.Config> implements 
 				)
 				: new BlockBox(
 					(chunkX - 1) << 4,
-					context.getWorld().getBottomY(),
+					HeightLimitViewVersions.getMinY(context.getWorld()),
 					(chunkZ - 1) << 4,
 					((chunkX + 1) << 4) | 15,
-					HeightLimitViewVersions.getTopY(context.getWorld()),
+					HeightLimitViewVersions.getMaxY(context.getWorld()),
 					((chunkZ + 1) << 4) | 15
 				)
 			);

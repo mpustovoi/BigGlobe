@@ -42,7 +42,7 @@ public class MutableScriptEnvironment implements ScriptEnvironment {
 	public Map<String,                     TypeInfo       > types          = new HashMap<>( 8);
 	public Map<String,               KeywordHandler.Named > keywords       = new HashMap<>( 8);
 	public Map<NamedType, List<MemberKeywordHandler.Named>> memberKeywords = new HashMap<>( 8);
-	//         from          to
+	//         from           to
 	public Map<TypeInfo,  Map<TypeInfo, CastHandlerHolder>> casters        = new HashMap<>(16);
 
 	public static IdentifierDescriptor prefix(String type, String name, String descriptor, Object value) {

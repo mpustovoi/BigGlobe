@@ -9,7 +9,6 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 
 import builderb0y.bigglobe.scripting.wrappers.entries.ConfiguredFeatureEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -17,19 +16,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class ConfiguredFeatureTag extends TagWrapper<ConfiguredFeature<?, ?>, ConfiguredFeatureEntry> {
 
 	public static final TypeInfo TYPE = type(ConfiguredFeatureTag.class);
-	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
+	public static final TagParser PARSER = new TagParser("ConfiguredFeatureTag", ConfiguredFeatureTag.class);
 
 	public ConfiguredFeatureTag(DelayedEntryList<ConfiguredFeature<?, ?>> list) {
 		super(list);
 	}
 
-	public static ConfiguredFeatureTag of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+	public static ConfiguredFeatureTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... id) {
 		return of(id);
 	}
 
-	public static ConfiguredFeatureTag of(String id) {
+	public static ConfiguredFeatureTag of(String... id) {
 		if (id == null) return null;
-		return new ConfiguredFeatureTag(DelayedEntryList.constant(RegistryKeys.CONFIGURED_FEATURE, id));
+		return new ConfiguredFeatureTag(DelayedEntryList.create(RegistryKeys.CONFIGURED_FEATURE, id));
 	}
 
 	@Override

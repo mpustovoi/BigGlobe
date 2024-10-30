@@ -52,8 +52,8 @@ public class MoltenRockReplacerFeature extends DummyFeature<MoltenRockReplacerFe
 		int adjustedHotY  = config.hot_y  + Integer.signum(config.cold_y - config.hot_y );
 		int minY = Math.min(adjustedColdY, adjustedHotY);
 		int maxY = Math.max(adjustedColdY, adjustedHotY);
-		int clampedMinY = Math.max(minY, chunk.getBottomY());
-		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getTopY(chunk) - 1);
+		int clampedMinY = Math.max(minY, HeightLimitViewVersions.getMinY(chunk));
+		int clampedMaxY = Math.min(maxY, HeightLimitViewVersions.getMaxY(chunk) - 1);
 		int sectionMinY = clampedMinY >> 4;
 		int sectionMaxY = clampedMaxY >> 4;
 		Async.loop(BigGlobeThreadPool.autoExecutor(), sectionMinY, sectionMaxY + 1, 1, (int yCoord) -> {

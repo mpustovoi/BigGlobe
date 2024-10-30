@@ -9,7 +9,6 @@ import net.minecraft.world.biome.Biome;
 
 import builderb0y.bigglobe.scripting.wrappers.entries.BiomeEntry;
 import builderb0y.bigglobe.util.DelayedEntryList;
-import builderb0y.scripting.bytecode.ConstantFactory;
 import builderb0y.scripting.bytecode.TypeInfo;
 
 import static builderb0y.scripting.bytecode.InsnTrees.*;
@@ -17,19 +16,19 @@ import static builderb0y.scripting.bytecode.InsnTrees.*;
 public class BiomeTag extends TagWrapper<Biome, BiomeEntry> {
 
 	public static final TypeInfo TYPE = type(BiomeTag.class);
-	public static final ConstantFactory CONSTANT_FACTORY = ConstantFactory.autoOfString();
+	public static final TagParser PARSER = new TagParser("BiomeTag", BiomeTag.class);
 
 	public BiomeTag(DelayedEntryList<Biome> list) {
 		super(list);
 	}
 
-	public static BiomeTag of(MethodHandles.Lookup caller, String name, Class<?> type, String id) {
+	public static BiomeTag of(MethodHandles.Lookup caller, String name, Class<?> type, String... id) {
 		return of(id);
 	}
 
-	public static BiomeTag of(String id) {
+	public static BiomeTag of(String... id) {
 		if (id == null) return null;
-		return new BiomeTag(DelayedEntryList.constant(RegistryKeys.BIOME, id));
+		return new BiomeTag(DelayedEntryList.create(RegistryKeys.BIOME, id));
 	}
 
 	@Override

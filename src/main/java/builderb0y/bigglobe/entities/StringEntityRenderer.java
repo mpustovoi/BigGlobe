@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -30,52 +31,57 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 
 	@Override
 	public void doRender(State state, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light) {
-		if (state.posC != null) {
+		Vector3d scratch = new Vector3d();
+		MatrixStack.Entry matrix = matrices.peek();
+		VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayer.getEntitySolid(TEXTURE));
+		class VertexHelper {
+
+			public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier) {
+				return this.add(
+					pos, u, v, normal, normalMultiplier,
+					LightmapTextureManager.pack(
+						lerpInt(
+							LightmapTextureManager.getBlockLightCoordinates(light),
+							LightmapTextureManager.getBlockLightCoordinates(state.lightC),
+							u
+						),
+						lerpInt(
+							LightmapTextureManager.getSkyLightCoordinates(light),
+							LightmapTextureManager.getSkyLightCoordinates(state.lightC),
+							u
+						)
+					)
+				);
+			}
+
+			public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier, int lightLevel) {
+				buffer
+				.vertex(matrix.getPositionMatrix(), (float)(pos.x - state.posB.x), (float)(pos.y - state.posB.y), (float)(pos.z - state.posB.z))
+				.color(255, 255, 255, 255)
+				.texture(u, v)
+				.overlay(OverlayTexture.DEFAULT_UV)
+				.light(lightLevel)
+				.normal(matrix #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
+				#if MC_VERSION < MC_1_21_0 .next() #endif
+				;
+				return this;
+			}
+
+			public static int lerpInt(int low, int high, float level) {
+				return Math.min(BigGlobeMath.floorI(Interpolator.mixLinear(low, high + 1, level)), high);
+			}
+		}
+		VertexHelper helper = new VertexHelper();
+		if (state.nextString) {
 			BendVector from = new BendVector(state.posA, state.posB, state.posC, state.posD);
 			BendVector to = new BendVector(from);
 			from.setFrac(0.0D);
-			Vector3d scratch = new Vector3d();
-			MatrixStack.Entry matrix = matrices.peek();
-			VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayer.getEntitySolid(TEXTURE));
-			class VertexHelper {
-
-				public VertexHelper add(Vector3d pos, float u, float v, Vector3d normal, double normalMultiplier) {
-					buffer
-					.vertex(matrix.getPositionMatrix(), (float)(pos.x - state.posB.x), (float)(pos.y - state.posB.y), (float)(pos.z - state.posB.z))
-					.color(255, 255, 255, 255)
-					.texture(u, v)
-					.overlay(OverlayTexture.DEFAULT_UV)
-					.light(
-						LightmapTextureManager.pack(
-							lerpInt(
-								LightmapTextureManager.getBlockLightCoordinates(light),
-								LightmapTextureManager.getBlockLightCoordinates(state.lightC),
-								u
-							),
-							lerpInt(
-								LightmapTextureManager.getSkyLightCoordinates(light),
-								LightmapTextureManager.getSkyLightCoordinates(state.lightC),
-								u
-							)
-						)
-					)
-					.normal(matrix #if MC_VERSION < MC_1_20_5 .getNormalMatrix() #endif, (float)(normal.x * normalMultiplier), (float)(normal.y * normalMultiplier), (float)(normal.z * normalMultiplier))
-					#if MC_VERSION < MC_1_21_0 .next() #endif
-					;
-					return this;
-				}
-
-				public static int lerpInt(int low, int high, float level) {
-					return Math.min(BigGlobeMath.floorI(Interpolator.mixLinear(low, high + 1, level)), high);
-				}
-			}
-			VertexHelper helper = new VertexHelper();
 			if (!state.prevString) {
 				helper
-				.add(scratch.set(from.position).sub(from.right).add(from.up), 0.0F,   0.5F,   from.forward, -1.0D)
-				.add(scratch.set(from.position).sub(from.right),              0.0F,   0.625F, from.forward, -1.0D)
-				.add(scratch.set(from.position).add(from.right),              0.125F, 0.625F, from.forward, -1.0D)
-				.add(scratch.set(from.position).add(from.right).add(from.up), 0.125F, 0.5F,   from.forward, -1.0D)
+				.add(scratch.set(from.position).sub(from.right).add(from.up), 0.0F,   0.5F,   from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).sub(from.right),              0.0F,   0.625F, from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).add(from.right),              0.125F, 0.625F, from.forward, -1.0D, state.lightB)
+				.add(scratch.set(from.position).add(from.right).add(from.up), 0.125F, 0.5F,   from.forward, -1.0D, state.lightB)
 				;
 			}
 			int segmentCount = Math.max(this.calcSegments(state.posA, state.posB, state.posC), this.calcSegments(state.posB, state.posC, state.posD));
@@ -110,14 +116,66 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 				from = to;
 				to = tmp;
 			}
-			if (!state.nextString) {
+			if (!state.nextNextString) {
 				helper
-				.add(scratch.set(from.position).add(from.right).add(from.up), 0.875F, 0.5F,   from.forward, 1.0D)
-				.add(scratch.set(from.position).add(from.right),              0.875F, 0.625F, from.forward, 1.0D)
-				.add(scratch.set(from.position).sub(from.right),              1.0F,   0.625F, from.forward, 1.0D)
-				.add(scratch.set(from.position).sub(from.right).add(from.up), 1.0F,   0.5F,   from.forward, 1.0D)
+				.add(scratch.set(from.position).add(from.right).add(from.up), 0.875F, 0.5F,   from.forward, 1.0D, state.lightC)
+				.add(scratch.set(from.position).add(from.right),              0.875F, 0.625F, from.forward, 1.0D, state.lightC)
+				.add(scratch.set(from.position).sub(from.right),              1.0F,   0.625F, from.forward, 1.0D, state.lightC)
+				.add(scratch.set(from.position).sub(from.right).add(from.up), 1.0F,   0.5F,   from.forward, 1.0D, state.lightC)
 				;
 			}
+		}
+		else if (!state.prevString) {
+			Vector3d origin = new Vector3d(state.posB.x, state.posB.y, state.posB.z);
+			Vector3d normal = new Vector3d();
+
+			normal.set(0.0D, 0.0D, -1.0D);
+			helper
+			.add(scratch.set(origin).add(+0.0625D, 0.125D, -0.0625D), 0.0F,   0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.0D,   -0.0625D), 0.0F,   1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.0D,   -0.0625D), 0.125F, 1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.125D, -0.0625D), 0.125F, 0.875F, normal, 1.0D, state.lightB)
+			;
+
+			normal.set(-1.0D, 0.0D, 0.0D);
+			helper
+			.add(scratch.set(origin).add(-0.0625D, 0.125D, -0.0625D), 0.125F, 0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.0D,   -0.0625D), 0.125F, 1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.0D,   +0.0625D), 0.25F,  1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.125D, +0.0625D), 0.25F,  0.875F, normal, 1.0D, state.lightB)
+			;
+
+			normal.set(0.0D, 0.0D, 1.0D);
+			helper
+			.add(scratch.set(origin).add(-0.0625D, 0.125D, +0.0625D), 0.25F,  0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.0D,   +0.0625D), 0.25F,  1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.0D,   +0.0625D), 0.375F, 1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.125D, +0.0625D), 0.375F, 0.875F, normal, 1.0D, state.lightB)
+			;
+
+			normal.set(1.0D, 0.0D, 0.0D);
+			helper
+			.add(scratch.set(origin).add(+0.0625D, 0.125D, +0.0625D), 0.375F, 0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.0D,   +0.0625D), 0.375F, 1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.0D,   -0.0625D), 0.5F,   1.0F,   normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.125D, -0.0625D), 0.5F,   0.875F, normal, 1.0D, state.lightB)
+			;
+
+			normal.set(0.0D, 1.0D, 0.0D);
+			helper
+			.add(scratch.set(origin).add(-0.0625D, 0.125D, -0.0625D), 0.0F,   0.75F,  normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.125D, +0.0625D), 0.0F,   0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.125D, +0.0625D), 0.125F, 0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.125D, -0.0625D), 0.125F, 0.75F,  normal, 1.0D, state.lightB)
+			;
+
+			normal.set(0.0D, -1.0D, 0.0D);
+			helper
+			.add(scratch.set(origin).add(-0.0625D, 0.0D, +0.0625D), 0.125F, 0.75F,  normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(-0.0625D, 0.0D, -0.0625D), 0.125F, 0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.0D, -0.0625D), 0.25F,  0.875F, normal, 1.0D, state.lightB)
+			.add(scratch.set(origin).add(+0.0625D, 0.0D, +0.0625D), 0.25F,  0.75F,  normal, 1.0D, state.lightB)
+			;
 		}
 	}
 
@@ -167,10 +225,14 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 
 	@Override
 	public void updateState(StringEntity entity, State state, float partialTicks) {
-		state.posA = getPos(entity.getPrevEntity(), partialTicks);
+		Entity prevEntity = entity.getPrevEntity();
+		Entity nextEntity = entity.getNextEntity();
+		Entity nextNextEntity = nextEntity instanceof StringEntity string ? string.getNextEntity() : null;
+
+		state.posA = getPos(prevEntity, partialTicks);
 		state.posB = getPos(entity, partialTicks);
-		state.posC = getPos(entity.getNextEntity(), partialTicks);
-		state.posD = getPos(entity.getNextEntity() instanceof StringEntity string ? string.getNextEntity() : null, partialTicks);
+		state.posC = getPos(nextEntity, partialTicks);
+		state.posD = getPos(nextNextEntity, partialTicks);
 
 		if (state.posA == null) state.posA = state.posB;
 		if (state.posD == null) state.posD = state.posC;
@@ -178,15 +240,16 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		state.lightB = this.dispatcher.getLight(entity, partialTicks);
 		state.lightC = entity.getNextEntity() != null ? this.dispatcher.getLight(entity.getNextEntity(), partialTicks) : 0;
 
-		state.prevString = entity.getPrevEntity() instanceof StringEntity;
-		state.nextString = entity.getNextEntity() instanceof StringEntity;
+		state.prevString = prevEntity instanceof StringEntity;
+		state.nextString = nextEntity instanceof StringEntity;
+		state.nextNextString = nextNextEntity instanceof StringEntity;
 	}
 
 	public static class State extends BigGlobeEntityRenderer.State {
 
 		public Vec3d posA, posB, posC, posD;
 		public int lightB, lightC;
-		public boolean prevString, nextString;
+		public boolean prevString, nextString, nextNextString;
 	}
 
 	public static class BendComponent {

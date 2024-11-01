@@ -98,7 +98,7 @@ public interface BetterRegistry<T> {
 			#if MC_VERSION >= MC_1_21_2
 				return this.registry.getOptional(key).orElse(null);
 			#else
-				return this.registry.entryOf(key);
+				return this.registry.getEntry(key).orElse(null);
 			#endif
 		}
 

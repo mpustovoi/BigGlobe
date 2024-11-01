@@ -31,7 +31,9 @@ public abstract class ServerWorld_CustomTimeSpeed extends World {
 
 	@Shadow public abstract void setTimeOfDay(long timeOfDay);
 
-	@Shadow public abstract GameRules getGameRules();
+	#if MC_VERSION >= MC_1_21_2
+		@Shadow public abstract GameRules getGameRules();
+	#endif
 
 	@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
 	private void bigglobe_tickTime(ServerWorld instance, long timeOfDay, Operation<Void> original) {

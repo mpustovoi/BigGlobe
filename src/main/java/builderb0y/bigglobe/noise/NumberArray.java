@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import org.intellij.lang.annotations.MagicConstant;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.scripting.bytecode.MethodInfo;
 import builderb0y.scripting.util.InfoHolder;
 
@@ -1112,7 +1113,21 @@ public class NumberArray implements AutoCloseable {
 		}
 		public static final int FIRST_ALIGNED_INDEX;
 		static {
-			FIRST_ALIGNED_INDEX = -ByteBuffer.wrap(new byte[0]).alignmentOffset(0, Long.BYTES) & (Long.BYTES - 1);
+			ByteBuffer buffer = ByteBuffer.wrap(new byte[0]);
+			int firstAlignedIndex;
+			got: {
+				for (int alignment : new int[] { 8, 4, 2, 1 }) {
+					try {
+						firstAlignedIndex = -buffer.alignmentOffset(0, alignment) & (alignment - 1);
+						BigGlobeMod.LOGGER.info("Got first aligned index " + firstAlignedIndex + " for alignment " + alignment);
+						break got;
+					}
+					catch (Exception ignored) {}
+				}
+				firstAlignedIndex = 0;
+				BigGlobeMod.LOGGER.info("Failed to get alignment index. Assuming 0.");
+			}
+			FIRST_ALIGNED_INDEX = firstAlignedIndex;
 		}
 
 		public static final ThreadLocal<Manager> INSTANCES = ThreadLocal.withInitial(Manager::new);

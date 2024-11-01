@@ -14,7 +14,15 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
+import net.minecraft.loot.context.LootWorldContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -23,12 +31,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class StringEntity extends Entity {
 
+	public static final RegistryKey<LootTable> LOOT_TABLE_KEY = RegistryKey.of(RegistryKeys.LOOT_TABLE, BigGlobeMod.modID("entities/string"));
 	public static final TrackedData<Integer>
 		PREVIOUS_ID = DataTracker.registerData(StringEntity.class, TrackedDataHandlerRegistry.INTEGER),
 		NEXT_ID     = DataTracker.registerData(StringEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -77,7 +87,7 @@ public class StringEntity extends Entity {
 
 	@Override
 	public boolean canHit() {
-		return this.getNextEntity() == null;
+		return true;
 	}
 
 	#if MC_VERSION >= MC_1_21_2
@@ -87,11 +97,43 @@ public class StringEntity extends Entity {
 			if (this.isAlwaysInvulnerableTo(source)) {
 				return false;
 			}
+			this.dropString(world, source);
 			this.remove(RemovalReason.KILLED);
 			return true;
 		}
 
+	#else
+
+		@Override
+		public boolean damage(DamageSource source, float amount) {
+			if (this.isInvulnerableTo(source)) {
+				return false;
+			}
+			if (this.getWorld() instanceof ServerWorld serverWorld) {
+				this.dropString(serverWorld, source);
+				this.remove(RemovalReason.KILLED);
+			}
+			return true;
+		}
+
 	#endif
+
+	public void dropString(ServerWorld world, DamageSource damageSource) {
+		world
+		.getServer()
+		.getReloadableRegistries()
+		.getLootTable(LOOT_TABLE_KEY)
+		.generateLoot(
+			new LootWorldContext.Builder(world)
+			.add(LootContextParameters.THIS_ENTITY, this)
+			.add(LootContextParameters.ORIGIN, this.getPos())
+			.add(LootContextParameters.DAMAGE_SOURCE, damageSource)
+			.addOptional(LootContextParameters.ATTACKING_ENTITY, damageSource.getAttacker())
+			.addOptional(LootContextParameters.DIRECT_ATTACKING_ENTITY, damageSource.getSource())
+			.build(LootContextTypes.ENTITY),
+			(ItemStack stack) -> this.dropStack(world, stack)
+		);
+	}
 
 	@Override
 	public ActionResult interact(PlayerEntity player, Hand hand) {

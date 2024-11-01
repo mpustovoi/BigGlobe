@@ -29,8 +29,14 @@ public abstract class ClientWorld_CustomTimeSpeed extends World {
 		#endif
 	}
 
-	@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld$Properties;setTimeOfDay(J)V"))
-	private void bigglobe_tickTime(Properties instance, long timeOfDay, Operation<Void> original) {
+	#if MC_VERSION >= MC_1_21_2
+		@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld$Properties;setTimeOfDay(J)V"))
+		private void bigglobe_tickTime(Properties instance, long timeOfDay, Operation<Void> original)
+	#else
+		@WrapOperation(method = "tickTime", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;setTimeOfDay(J)V"))
+		private void bigglobe_tickTime(ClientWorld instance, long timeOfDay, Operation<Void> original)
+	#endif
+	{
 		this.bigglobe_customTime += ClientState.timeSpeed;
 		int elapsedTicks = (int)(this.bigglobe_customTime);
 		if (elapsedTicks > 0) {

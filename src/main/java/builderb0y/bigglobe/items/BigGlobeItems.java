@@ -79,7 +79,7 @@ public class BigGlobeItems {
 		SLATED_PRISMARINE        = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE),
 		SLATED_PRISMARINE_SLAB   = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_SLAB),
 		SLATED_PRISMARINE_STAIRS = registerPlacer(BigGlobeBlocks.SLATED_PRISMARINE_STAIRS),
-		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings("rock"))),
+		ROCK                     = register("rock", new RockItem(BigGlobeBlocks.ROCK, settings(BigGlobeBlocks.ROCK))),
 		ASHEN_NETHERRACK         = registerPlacer(BigGlobeBlocks.ASHEN_NETHERRACK),
 		SULFUR_ORE               = registerPlacer(BigGlobeBlocks.SULFUR_ORE),
 		SULFUR_BLOCK             = registerPlacer(BigGlobeBlocks.SULFUR_BLOCK),
@@ -97,7 +97,7 @@ public class BigGlobeItems {
 		CHARRED_SIGN             = register(
 			"charred_sign",
 			new ColoredSignItem(
-				settings("charred_sign").maxCount(16),
+				settings(BigGlobeBlocks.CHARRED_SIGN).maxCount(16),
 				BigGlobeBlocks.CHARRED_SIGN,
 				BigGlobeBlocks.CHARRED_WALL_SIGN,
 				DyeColor.LIGHT_GRAY
@@ -106,7 +106,7 @@ public class BigGlobeItems {
 		CHARRED_HANGING_SIGN     = register(
 			"charred_hanging_sign",
 			new ColoredHangingSignItem(
-				settings("charred_hanging_sign").maxCount(16),
+				settings(BigGlobeBlocks.CHARRED_HANGING_SIGN).maxCount(16),
 				BigGlobeBlocks.CHARRED_HANGING_SIGN,
 				BigGlobeBlocks.CHARRED_WALL_HANGING_SIGN,
 				DyeColor.LIGHT_GRAY
@@ -123,7 +123,7 @@ public class BigGlobeItems {
 			"charred_door",
 			new TallBlockItem(
 				BigGlobeBlocks.CHARRED_DOOR,
-				settings("charred_door")
+				settings(BigGlobeBlocks.CHARRED_DOOR)
 			)
 		),
 		SOUL_MAGMA               = registerPlacer(BigGlobeBlocks.SOUl_MAGMA),
@@ -274,28 +274,43 @@ public class BigGlobeItems {
 		#endif
 	}
 
-	public static Item.Settings settings(Identifier name) {
+	public static Item.Settings settings(Block block) {
+		Identifier id = Registries.BLOCK.getId(block);
+		Item.Settings settings = new Item.Settings();
 		#if MC_VERSION >= MC_1_21_2
-			return new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, name));
-		#else
-			return new Item.Settings();
+		settings = (
+			settings
+			.registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
+			.useBlockPrefixedTranslationKey()
+		);
 		#endif
+		return settings;
 	}
 
 	public static BlockItem registerPlacer(Block block) {
 		Identifier id = Registries.BLOCK.getId(block);
+		Item.Settings settings = new Item.Settings();
+		#if MC_VERSION >= MC_1_21_2
+		settings = (
+			settings
+			.registryKey(RegistryKey.of(RegistryKeys.ITEM, id))
+			.useBlockPrefixedTranslationKey()
+		);
+		#endif
 		return Registry.register(
 			Registries.ITEM,
 			id,
-			new BlockItem(block, settings(id))
+			new BlockItem(block, settings)
 		);
 	}
 
 	public static <I extends Item> I register(String name, I item) {
 		Identifier id = BigGlobeMod.modID(name);
-		if (!item.getTranslationKey().equals(Util.createTranslationKey("item", id))) {
-			throw new IllegalArgumentException("Name mismatch");
-		}
+		#if MC_VERSION >= MC_1_21_2
+			if (!item.getTranslationKey().equals(Util.createTranslationKey(item instanceof BlockItem ? "block" : "item", id))) {
+				throw new IllegalArgumentException("Name mismatch");
+			}
+		#endif
 		return Registry.register(Registries.ITEM, id, item);
 	}
 

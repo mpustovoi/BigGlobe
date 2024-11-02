@@ -1,10 +1,20 @@
 package builderb0y.bigglobe.entities;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.function.ToDoubleFunction;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
@@ -26,14 +36,20 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.function.BooleanBiFunction;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.*;
+import net.minecraft.util.math.Direction.Axis;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockCollisionSpliterator;
 import net.minecraft.world.World;
 
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.items.BallOfStringItem;
 import builderb0y.bigglobe.items.BigGlobeItems;
+import builderb0y.bigglobe.math.BigGlobeMath;
+import builderb0y.bigglobe.util.Directions;
 import builderb0y.bigglobe.versions.EntityVersions;
 
 public class StringEntity extends Entity {
@@ -42,6 +58,33 @@ public class StringEntity extends Entity {
 	public static final TrackedData<Integer>
 		PREVIOUS_ID = DataTracker.registerData(StringEntity.class, TrackedDataHandlerRegistry.INTEGER),
 		NEXT_ID     = DataTracker.registerData(StringEntity.class, TrackedDataHandlerRegistry.INTEGER);
+
+	//need to tick string entities in a very specific order.
+	//minecraft doesn't guarantee that order, so I'm guaranteeing it manually.
+	public static final WeakHashMap<World, ArrayList<StringEntity>> TO_TICK = new WeakHashMap<>();
+	static {
+		ServerTickEvents.END_WORLD_TICK.register(StringEntity::onWorldTickEnd);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			initClient();
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void initClient() {
+		ClientTickEvents.END_CLIENT_TICK.register((MinecraftClient client) -> {
+			if (client.world != null) {
+				onWorldTickEnd(client.world);
+			}
+		});
+	}
+
+	public static void onWorldTickEnd(World world) {
+		ArrayList<StringEntity> entities = TO_TICK.get(world);
+		if (entities != null && !entities.isEmpty()) {
+			entities.forEach(StringEntity::tickAll);
+			entities.clear();
+		}
+	}
 
 	public CachedEntity
 		prevEntity = this.new CachedEntity(PREVIOUS_ID),
@@ -137,7 +180,7 @@ public class StringEntity extends Entity {
 
 	@Override
 	public ActionResult interact(PlayerEntity player, Hand hand) {
-		if (player.getStackInHand(hand).getItem() == BigGlobeItems.BALL_OF_STRING) {
+		if (player.getStackInHand(hand).getItem() == BigGlobeItems.BALL_OF_STRING && this.getNextEntity() == null) {
 			this.setNextEntity(player);
 			return ActionResult.SUCCESS;
 		}
@@ -148,124 +191,249 @@ public class StringEntity extends Entity {
 
 	@Override
 	public void tick() {
-		Entity prevEntity = this.prevEntity.update();
-		Entity nextEntity = this.nextEntity.update();
-		//System.out.println((this.world.isClient ? "CLIENT: " : "SERVER: ") + (prevEntity != null ? prevEntity.getId() : 0) + " <- " + this.getId() + " -> " + (nextEntity != null ? nextEntity.getId() : 0));
 		super.tick();
-		this.tickMovement(prevEntity, nextEntity);
-		if (!EntityVersions.getWorld(this).isClient) {
-			this.maybeSplit(prevEntity, nextEntity);
+		if (!(this.getNextEntity() instanceof StringEntity)) {
+			//last entity in the line.
+			TO_TICK.computeIfAbsent(this.getWorld(), $ -> new ArrayList<>(4)).add(this);
 		}
 	}
 
-	public void tickMovement(Entity prevEntity, Entity nextEntity) {
-		Vec3d gravity = this.applyGravitationalVelocity();
-		Vec3d motion = gravity;
-		Vec3d adjustment = this.adjustToNeighbors(prevEntity, nextEntity);
-		if (adjustment != null) {
-			gravity = new Vec3d(0.0D, Math.min(Math.max(gravity.y, adjustment.y), -0.04D), 0.0D);
-			this.setVelocity(gravity);
-			motion = gravity.add(adjustment);
+	public void tickAll() {
+		class Iter {
+
+			public StringEntity current;
+
+			public Iter(StringEntity current) {
+				this.current = current;
+			}
+
+			public boolean next() {
+				if (this.current.getNextEntity() instanceof StringEntity string) {
+					this.current = string;
+					return true;
+				}
+				return false;
+			}
+
+			public boolean prev() {
+				if (this.current.getPrevEntity() instanceof StringEntity string && string.getPrevEntity() != null) {
+					this.current = string;
+					return true;
+				}
+				return false;
+			}
 		}
-		this.setVelocity(this.getVelocity().multiply(0.95D));
-		this.move(MovementType.SELF, motion);
+
+		if (this.getPrevEntity() instanceof StringEntity) {
+			Iter iter = new Iter(this);
+			//tug entities towards player first.
+			do iter.current.moveTowards(iter.current.getNextEntity(), true);
+			while (iter.prev());
+			//then tug towards the start of the line.
+			do iter.current.moveTowards(iter.current.getPrevEntity(), false);
+			while (iter.next());
+		}
+
+		if (!this.getWorld().isClient) {
+			this.maybeSplit();
+		}
 	}
 
-	public Vec3d applyGravitationalVelocity() {
-		this.addVelocity(0.0D, -0.04D, 0.0D);
+	@Override
+	public void baseTick() {
+		this.prevEntity.update();
+		this.nextEntity.update();
+		super.baseTick();
+		this.applyGravitationalVelocity();
+	}
+
+	public void applyGravitationalVelocity() {
+		this.addVelocity(0.0D, -0.015625D, 0.0D);
+		this.move(MovementType.SELF, this.getVelocity());
 		if (EntityVersions.isOnGround(this)) {
 			this.setVelocity(Vec3d.ZERO);
 		}
-		return this.getVelocity();
 	}
 
-	public @Nullable Vec3d adjustToNeighbors(Entity prevEntity, Entity nextEntity) {
-		if (prevEntity != null && nextEntity != null) {
-			Vec3d currentPos = this.getPos();
-			Vec3d idealPos = this.tryToCenterSelfBetweenNeighbors(prevEntity, nextEntity);
-			return idealPos.subtract(currentPos);
-		}
-		return null;
-	}
-
-	public Vec3d tryToCenterSelfBetweenNeighbors(Entity prev, Entity next) {
-		Vec3d
-			selfPos = this.getPos(),
-			prevPos = prev.getPos(),
-			nextPos = next.getPos();
-		double prevNextDistanceSquared = prevPos.squaredDistanceTo(nextPos);
-		if (prevNextDistanceSquared >= 4.0D) {
-			//no valid location, pick the next best option.
-			return middle(prevPos, nextPos);
-		}
-		double prevDistanceSquared = selfPos.squaredDistanceTo(prevPos);
-		double nextDistanceSquared = selfPos.squaredDistanceTo(nextPos);
-		if (prevDistanceSquared <= 1.0D && nextDistanceSquared <= 1.0D) {
-			return selfPos;
-		}
-		//could happen when teleporting one string to another with commands or something,
-		//in which case later logic will NaN out if we don't handle this sanely.
-		if (prevNextDistanceSquared == 0.0D) {
-			return selfPos.subtract(prevPos).normalize().add(prevPos);
-		}
-		Vec3d best;
-		if (prevDistanceSquared > nextDistanceSquared) {
-			best = selfPos.subtract(prevPos).normalize().add(prevPos);
-			if (best.squaredDistanceTo(nextPos) <= 1.0D) {
-				return best;
+	public void moveTowards(Entity other, boolean slow) {
+		if (other == null) return;
+		Vec3d projection = project(this.getPos(), other.getPos(), slow);
+		if (projection != null) {
+			if (other instanceof StringEntity string) {
+				//make 2 adjacent strings "pull" on each other.
+				Vec3d shared = new Vec3d(0.0D, (this.getVelocity().y + string.getVelocity().y) * 0.5D, 0.0D);
+				this.setVelocity(shared);
+				string.setVelocity(shared);
 			}
+			else {
+				this.setVelocity(Vec3d.ZERO);
+			}
+			this.moveLeniently(projection);
+		}
+	}
+
+	public static @Nullable Vec3d project(Vec3d from, Vec3d onto, boolean slow) {
+		double
+			dx = onto.getX() - from.getX(),
+			dy = onto.getY() - from.getY(),
+			dz = onto.getZ() - from.getZ(),
+			scalar = dx * dx + dy * dy + dz * dz;
+		if (scalar > 1.0D) {
+			scalar = Math.sqrt(scalar);
+			//0.125 blocks per move operation seems to be the
+			//max safe value for slabs, stairs, and corners.
+			scalar = (slow ? Math.min(scalar - 1.0D, 0.125D) : (scalar - 1.0D)) / scalar;
+			dx *= scalar;
+			dy *= scalar;
+			dz *= scalar;
+			return new Vec3d(dx + from.x, dy + from.y, dz + from.z);
 		}
 		else {
-			best = selfPos.subtract(nextPos).normalize().add(nextPos);
-			if (best.squaredDistanceTo(prevPos) <= 1.0D) {
-				return best;
+			return null;
+		}
+	}
+
+	public void moveLeniently(Vec3d to) {
+		double scalar = this.getPos().squaredDistanceTo(to);
+		if (!(scalar > 1.0E-7D)) return;
+		this.setPosition(to);
+		this.moveOutOfBlocks();
+	}
+
+	public void moveOutOfBlocks() {
+		record PositionedVoxelShape(BlockPos pos, VoxelShape shape) {
+
+			public PositionedVoxelShape {
+				pos = pos.toImmutable();
 			}
 		}
-		Vec3d middle = middle(prevPos, nextPos);
-		Vec3d midRelative = selfPos.subtract(middle);
-		Vec3d normal = nextPos.subtract(prevPos).normalize();
-		double dot = midRelative.dotProduct(normal);
-		Vec3d onPlane = midRelative.subtract(normal.multiply(dot));
-		double edgeRadius = Math.sqrt(1.0D - prevNextDistanceSquared * 0.25D);
-		return onPlane.multiply(edgeRadius / onPlane.length()).add(middle);
+
+		for (
+			BlockCollisionSpliterator<PositionedVoxelShape> iterator = (
+				new BlockCollisionSpliterator<>(
+					this.getWorld(),
+					this,
+					this.getBoundingBox(),
+					false,
+					PositionedVoxelShape::new
+				)
+			);
+			iterator.hasNext();
+		) {
+			PositionedVoxelShape next = iterator.next();
+			BlockPos pos = next.pos();
+			VoxelShape collision = next.shape();
+			collision.forEachBox(
+				(
+					double collisionMinX,
+					double collisionMinY,
+					double collisionMinZ,
+					double collisionMaxX,
+					double collisionMaxY,
+					double collisionMaxZ
+				)
+				-> {
+					Box bounds = this.getBoundingBox();
+					if (!bounds.intersects(collisionMinX, collisionMinY, collisionMinZ, collisionMaxX, collisionMaxY, collisionMaxZ)) return;
+
+					double[] overlaps = new double[6];
+					overlaps[Directions.POSITIVE_X.ordinal()] = collisionMaxX - bounds.minX;
+					overlaps[Directions.POSITIVE_Y.ordinal()] = collisionMaxY - bounds.minY;
+					overlaps[Directions.POSITIVE_Z.ordinal()] = collisionMaxZ - bounds.minZ;
+					overlaps[Directions.NEGATIVE_X.ordinal()] = bounds.maxX - collisionMinX;
+					overlaps[Directions.NEGATIVE_Y.ordinal()] = bounds.maxY - collisionMinY;
+					overlaps[Directions.NEGATIVE_Z.ordinal()] = bounds.maxZ - collisionMinZ;
+
+					Direction[] directions = Directions.ALL.clone();
+					//sort by distance we need to move to escape the block in this direction.
+					Arrays.sort(directions, Comparator.comparing((Direction direction) -> overlaps[direction.ordinal()]));
+
+					Vec3d oldPos = this.getPos();
+					//try to escape the block by moving the least distance first.
+					for (Direction direction : directions) {
+						double amount = overlaps[direction.ordinal()];
+						Vec3d newPos = oldPos.add(direction.getOffsetX() * amount, direction.getOffsetY() * amount, direction.getOffsetZ() * amount);
+						this.setPosition(newPos);
+						Box newBounds = this.getBoundingBox();
+						BlockPos offsetPos = pos.offset(direction);
+						//check if moving on this axis would put us inside another block or not.
+						if (
+							VoxelShapes.matchesAnywhere(
+								this
+								.getWorld()
+								.getBlockState(offsetPos)
+								.getCollisionShape(this.getWorld(), offsetPos, ShapeContext.of(this)),
+
+								VoxelShapes.cuboidUnchecked(
+									newBounds.minX - offsetPos.getX(),
+									newBounds.minY - offsetPos.getY(),
+									newBounds.minZ - offsetPos.getZ(),
+									newBounds.maxX - offsetPos.getX(),
+									newBounds.maxY - offsetPos.getY(),
+									newBounds.maxZ - offsetPos.getZ()
+								),
+
+								BooleanBiFunction.AND
+							)
+						) {
+							//inside another block. revert to previous position
+							//and try a different axis if one is available.
+							this.setPosition(oldPos);
+						}
+						else {
+							//successfully found a place where we can exist without colliding.
+							//no need to try any more axes.
+							break;
+						}
+					}
+				}
+			);
+		}
 	}
 
-	public static Vec3d middle(Vec3d first, Vec3d second) {
-		return new Vec3d(
-			(first.x + second.x) * 0.5D,
-			(first.y + second.y) * 0.5D,
-			(first.z + second.z) * 0.5D
-		);
-	}
-
-	public void maybeSplit(Entity prevEntity, Entity nextEntity) {
+	public void maybeSplit() {
+		Entity prevEntity = this.getPrevEntity();
+		Entity nextEntity = this.getNextEntity();
 		if (nextEntity instanceof PlayerEntity player) {
 			double distanceSquared = this.getPos().squaredDistanceTo(
 				player.getX(),
 				MathHelper.clamp(
 					this.getY(),
-					player.getBoundingBox().minY,
+					player.getBoundingBox().minY - 1.0D,
 					player.getBoundingBox().maxY
 				),
 				player.getZ()
 			);
 			if (distanceSquared > 4.0D) {
 				if (tryTakeString(player, false)) {
-					double newX = (this.getX() + player.getX()) * 0.5D;
-					double newY = (this.getY() + (player.getBoundingBox().minY + player.getBoundingBox().maxY) * 0.5D) * 0.5D;
-					double newZ = (this.getZ() + player.getZ()) * 0.5D;
-					StringEntity newEntity = new StringEntity(BigGlobeEntityTypes.STRING, EntityVersions.getWorld(this), player.getX(), player.getY(), player.getZ());
-					newEntity.move(MovementType.SELF, new Vec3d(newX - player.getX(), newY - player.getY(), newZ - player.getZ()));
-					EntityVersions.getWorld(this).spawnEntity(newEntity);
-					this.setNextEntity(newEntity);
-					newEntity.setPrevEntity(this);
-					newEntity.setNextEntity(player);
+					Vec3d target = project(
+						player.getBoundingBox().getCenter(),
+						this.getPos(),
+						false
+					);
+					//should always be the case since distance was > 4 to begin with,
+					//but just in case something weird happens,
+					//it's better to handle this sanely.
+					if (target != null) {
+						StringEntity newEntity = new StringEntity(
+							BigGlobeEntityTypes.STRING,
+							EntityVersions.getWorld(this),
+							target.x,
+							target.y,
+							target.z
+						);
+						newEntity.moveOutOfBlocks();
+						this.setNextEntity(newEntity);
+						newEntity.setPrevEntity(this);
+						newEntity.setNextEntity(player);
+						EntityVersions.getWorld(this).spawnEntity(newEntity);
+					}
 				}
 				else {
 					this.setNextEntity(null);
 				}
 			}
-			else if (distanceSquared <= 1.0D) {
+			else if (distanceSquared < 0.99D) {
 				if (tryTakeString(player, true)) {
 					if (prevEntity instanceof StringEntity string) {
 						string.setNextEntity(player);

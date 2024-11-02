@@ -72,11 +72,11 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 			}
 		}
 		VertexHelper helper = new VertexHelper();
-		if (state.nextString) {
+		if (state.nextEntity) {
 			BendVector from = new BendVector(state.posA, state.posB, state.posC, state.posD);
 			BendVector to = new BendVector(from);
 			from.setFrac(0.0D);
-			if (!state.prevString) {
+			if (!state.prevEntity) {
 				helper
 				.add(scratch.set(from.position).sub(from.right).add(from.up), 0.0F,   0.5F,   from.forward, -1.0D, state.lightB)
 				.add(scratch.set(from.position).sub(from.right),              0.0F,   0.625F, from.forward, -1.0D, state.lightB)
@@ -116,7 +116,7 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 				from = to;
 				to = tmp;
 			}
-			if (!state.nextNextString) {
+			if (!state.nextNextEntity) {
 				helper
 				.add(scratch.set(from.position).add(from.right).add(from.up), 0.875F, 0.5F,   from.forward, 1.0D, state.lightC)
 				.add(scratch.set(from.position).add(from.right),              0.875F, 0.625F, from.forward, 1.0D, state.lightC)
@@ -125,7 +125,7 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 				;
 			}
 		}
-		else if (!state.prevString) {
+		else if (!state.prevEntity) {
 			Vector3d origin = new Vector3d(state.posB.x, state.posB.y, state.posB.z);
 			Vector3d normal = new Vector3d();
 
@@ -240,16 +240,16 @@ public class StringEntityRenderer extends BigGlobeEntityRenderer<StringEntity, S
 		state.lightB = this.dispatcher.getLight(entity, partialTicks);
 		state.lightC = entity.getNextEntity() != null ? this.dispatcher.getLight(entity.getNextEntity(), partialTicks) : 0;
 
-		state.prevString = prevEntity instanceof StringEntity;
-		state.nextString = nextEntity instanceof StringEntity;
-		state.nextNextString = nextNextEntity instanceof StringEntity;
+		state.prevEntity = prevEntity != null;
+		state.nextEntity = nextEntity != null;
+		state.nextNextEntity = nextNextEntity != null;
 	}
 
 	public static class State extends BigGlobeEntityRenderer.State {
 
 		public Vec3d posA, posB, posC, posD;
 		public int lightB, lightC;
-		public boolean prevString, nextString, nextNextString;
+		public boolean prevEntity, nextEntity, nextNextEntity;
 	}
 
 	public static class BendComponent {

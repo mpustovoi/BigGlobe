@@ -3,6 +3,8 @@ package builderb0y.bigglobe.util;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Direction.Axis;
+import net.minecraft.util.math.Direction.AxisDirection;
 
 import builderb0y.bigglobe.math.BigGlobeMath;
 
@@ -23,10 +25,19 @@ public class Directions {
 		NEGATIVE_X = Direction.WEST,
 		NEGATIVE_Y = Direction.DOWN,
 		NEGATIVE_Z = Direction.NORTH;
+	public static final Axis[]
+		AXES       = Axis.values();
 	public static final BlockRotation[]
 		ROTATIONS  = BlockRotation.values();
 	public static final BlockMirror[]
 		MIRRORS    = BlockMirror.values();
+
+	public static Direction get(Axis axis, AxisDirection axisDirection) {
+		return switch (axisDirection) {
+			case POSITIVE -> axis.getPositiveDirection();
+			case NEGATIVE -> axis.getNegativeDirection();
+		};
+	}
 
 	/**
 	returns the {@link BlockRotation} which,

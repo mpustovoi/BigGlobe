@@ -7,6 +7,7 @@ import builderb0y.autocodec.annotations.UseCoder;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomSources.RandomSource;
@@ -22,6 +23,7 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 	}};
 
 	public abstract TrunkConfig create(
+		ScriptedColumn column,
 		double startX,
 		int startY,
 		double startZ,
@@ -57,7 +59,7 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 		}
 
 		@Override
-		public TrunkConfig create(double startX, int startY, double startZ, int height, RandomGenerator random) {
+		public TrunkConfig create(ScriptedColumn column, double startX, int startY, double startZ, int height, RandomGenerator random) {
 			return new StraightTrunkConfig(
 				startX,
 				startY,
@@ -85,8 +87,8 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 		}
 
 		@Override
-		public TrunkConfig create(double startX, int startY, double startZ, int height, RandomGenerator random) {
-			double slant = this.slant.get(random);
+		public TrunkConfig create(ScriptedColumn column, double startX, int startY, double startZ, int height, RandomGenerator random) {
+			double slant = this.slant.get(column, startY, random);
 			double angle = random.nextDouble(BigGlobeMath.TAU);
 			return new SlantedTrunkConfig(
 				startX,
@@ -113,7 +115,7 @@ public interface TrunkFactory extends CoderRegistryTyped<TrunkFactory> {
 		}
 
 		@Override
-		public TrunkConfig create(double startX, int startY, double startZ, int height, RandomGenerator random) {
+		public TrunkConfig create(ScriptedColumn column, double startX, int startY, double startZ, int height, RandomGenerator random) {
 			double speed = Permuter.nextUniformDouble(random);
 			speed *= 12.0D - 4.0D * speed * speed;
 			return new TwistedTrunkConfig(

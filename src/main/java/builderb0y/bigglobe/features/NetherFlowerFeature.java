@@ -12,8 +12,11 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 
 import builderb0y.autocodec.annotations.VerifyFloatRange;
 import builderb0y.autocodec.annotations.VerifyNullable;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.restrictions.ColumnRestriction;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.DelegatingContainedRandomList;
@@ -35,11 +38,22 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 
 	@Override
 	public boolean generate(FeatureContext<Config> context) {
+		if (context.getConfig().requiresColumn && !(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator)) return false;
+		ScriptedColumn column = (
+			context.getConfig().requiresColumn
+			? ((BigGlobeScriptedChunkGenerator)(context.getGenerator())).newColumn(
+				context.getWorld(),
+				context.getOrigin().getX(),
+				context.getOrigin().getZ(),
+				ColumnUsage.FEATURES.maybeDhHints()
+			)
+			: null
+		);
 		BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 		Permuter permuter = Permuter.from(context.getRandom());
 		DelegatingContainedRandomList<Entry> entries = new DelegatingContainedRandomList<>(context.getConfig().entries.elements);
 		if (Permuter.nextChancedBoolean(permuter, context.getConfig().randomize_chance)) {
-			double radius = context.getConfig().randomize_radius.get(permuter);
+			double radius = context.getConfig().randomize_radius.get(column, context.getOrigin().getY(), permuter);
 			int count = Permuter.roundRandomlyI(permuter, radius * radius * 0.25D);
 			for (int attempt = 0; attempt < count; attempt++) {
 				Entry entry = entries.getRandomElement(permuter);
@@ -48,7 +62,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		}
 		else {
 			Entry entry = entries.getRandomElement(permuter);
-			double radius = entry.radius.get(permuter);
+			double radius = entry.radius.get(column, context.getOrigin().getY(), permuter);
 			int count = Permuter.roundRandomlyI(permuter, radius * radius * 0.25D);
 			for (int attempt = 0; attempt < count; attempt++) {
 				this.generate(context, permuter, entry, radius, mutablePos);
@@ -94,6 +108,7 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 		public final @VerifyFloatRange(min = 0.0D, max = 1.0D) double randomize_chance;
 		public final @VerifyRandomRange(min = 0.0D, minInclusive = false, max = 16.0D) RandomSource randomize_radius;
 		public final VariationsList<Entry> entries;
+		public final boolean requiresColumn;
 
 		public Config(
 			double randomize_chance,
@@ -103,6 +118,15 @@ public class NetherFlowerFeature extends Feature<NetherFlowerFeature.Config> {
 			this.randomize_chance = randomize_chance;
 			this.randomize_radius = randomize_radius;
 			this.entries = entries;
+			this.requiresColumn = this.requiresColumn();
+		}
+
+		public boolean requiresColumn() {
+			if (this.randomize_radius.requiresColumn()) return true;
+			for (Entry entry : this.entries.elements) {
+				if (entry.radius.requiresColumn()) return true;
+			}
+			return false;
 		}
 	}
 

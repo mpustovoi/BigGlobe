@@ -98,17 +98,19 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		double baseRadius = Math.sqrt(saplingCount / Math.PI);
 		int trunkHeight = config.height.getHeight(baseRadius, permuter);
 		if (trunkHeight <= 0) return false;
+		ScriptedColumn column = generator.newColumn(world, BigGlobeMath.floorI(centerX), BigGlobeMath.floorI(centerZ), ColumnUsage.GENERIC.normalHints());
 		TrunkConfig trunkConfig = config.trunk.create(
+			column,
 			centerX,
 			centerY,
 			centerZ,
 			trunkHeight,
 			permuter
 		);
-		double startFracY = config.branches.start_frac_y.get(permuter);
+		double startFracY = config.branches.start_frac_y.get(column, centerY, permuter);
 		BranchesConfig branchesConfig = BranchesConfig.create(
 			startFracY,
-			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(permuter) * trunkHeight * (1.0D - startFracY)),
+			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(column, centerY, permuter) * trunkHeight * (1.0D - startFracY)),
 			permuter.nextDouble(BigGlobeMath.TAU),
 			trunkConfig.baseRadius,
 			config.branches.length_function,
@@ -116,7 +118,6 @@ public class ArtificialTreeFeature extends Feature<ArtificialTreeFeature.Config>
 		);
 		DecoratorConfig.Builder decorationsBuilder = new DecoratorConfig.Builder();
 		if (config.decorations != null) config.decorations.addTo(decorationsBuilder);
-		ScriptedColumn column = generator.newColumn(world, BigGlobeMath.floorI(centerX), BigGlobeMath.floorI(centerZ), ColumnUsage.GENERIC.normalHints());
 
 		return new TreeGenerator(
 			world,

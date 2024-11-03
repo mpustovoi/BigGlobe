@@ -106,7 +106,7 @@ public class FlowerControllerFeature extends Feature<FlowerControllerFeature.Con
 							if (entry == null) continue;
 							radiusSource = entry.radius();
 						}
-						double radius = radiusSource.get(Permuter.stafford(otherGridSeed += Permuter.PHI64));
+						double radius = radiusSource.get(column, y, Permuter.stafford(otherGridSeed += Permuter.PHI64));
 						double otherGridCenterX = Permuter.nextPositiveDouble(otherGridSeed += Permuter.PHI64) * variation + offsetX;
 						double otherGridCenterZ = Permuter.nextPositiveDouble(otherGridSeed += Permuter.PHI64) * variation + offsetZ;
 						double distanceSquaredToCenter = BigGlobeMath.squareD(inGridX - otherGridCenterX, inGridZ - otherGridCenterZ);

@@ -4,6 +4,7 @@ import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.noise.Permuter;
 
 /** special case of {@link GaussianRandomSource} where samples = 2. */
@@ -14,7 +15,7 @@ public record LinearCenteredRandomSource(
 implements RandomSource {
 
 	@Override
-	public double get(long seed) {
+	public double get(ScriptedColumn column, int y, long seed) {
 		return this.mix(
 			(
 				+ Permuter.nextPositiveDouble(seed += Permuter.PHI64)
@@ -25,7 +26,7 @@ implements RandomSource {
 	}
 
 	@Override
-	public double get(RandomGenerator random) {
+	public double get(ScriptedColumn column, int y, RandomGenerator random) {
 		return this.mix((random.nextDouble() + random.nextDouble()) * 0.5D);
 	}
 }

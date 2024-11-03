@@ -1016,7 +1016,14 @@ public class BigGlobeScriptedChunkGenerator extends ChunkGenerator implements De
 
 	@Override
 	public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-		ScriptedColumn column = this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints());
+		return this.getHeight(
+			this.newColumn(world, x, z, ColumnUsage.HEIGHTMAP.maybeDhHints()),
+			heightmap,
+			world
+		);
+	}
+
+	public int getHeight(ScriptedColumn column, Heightmap.Type heightmap, HeightLimitView world) {
 		BlockSegmentList list = new BlockSegmentList(HeightLimitViewVersions.getMinY(world), HeightLimitViewVersions.getMaxY(world));
 		this.layer.emitSegments(column, list);
 		return getHeight(list, heightmap);

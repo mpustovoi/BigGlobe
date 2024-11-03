@@ -36,19 +36,22 @@ to finish before release:
 changelog:
 	# Known issues:
 	* The renderers for hyperspace and waypoints have not yet been updated.
-		* An error related to this is printed to the game log on launch.
-		* These renderers might not work correctly and might even crash once Satin API updates to 1.21.3.
+		* I am waiting on Satin API to update to 1.21.3 before I fix these renderers.
+		* An error related to this is printed to the game log on launch, but it doesn't seem to hurt anything in-game.
 	# Changes for normal players:
 	* Ported to MC 1.21.3.
 	* Fixed compatibility with LambDynamicLights in MC 1.21.1.
-	* gold, redstone, and lapis ore are now more common.
+	* Gold, redstone, and lapis ore are now more common.
 	* Mega dungeons are now less common.
 	* The bogged mob now spawns in swamps.
 	* Structures should no longer collide with each other.
+	* Balls of string work goodly now and are less glitchy than before.
 	* Fixed some holes in terrain with Distant Horizons and Voxy when using hyperspeed generation (you may need to reset your database though).
 	* Fixed crash when creating a world on some systems.
+	* Removed the config option to grow saplings into big globe trees OUTSIDE of Big Globe worlds, because turns out it hasn't worked in a long time anyway and I never noticed.
 	# Changes for data pack makers:
 	* All tags everywhere must be prefixed with `#` now, including in scripts.
+	* Added new "scripted" random source type.
 	* Data packs that rely on some of the unused ore chance templates now work correctly.
 
 alternate world presets:

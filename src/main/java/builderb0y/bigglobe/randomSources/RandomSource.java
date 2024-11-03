@@ -1,19 +1,28 @@
 package builderb0y.bigglobe.randomSources;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.random.RandomGenerator;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import builderb0y.autocodec.annotations.MemberUsage;
+import builderb0y.autocodec.annotations.Mirror;
 import builderb0y.autocodec.annotations.UseCoder;
+import builderb0y.autocodec.annotations.UseVerifier;
 import builderb0y.autocodec.decoders.DecodeContext;
 import builderb0y.autocodec.decoders.DecodeException;
 import builderb0y.autocodec.encoders.EncodeContext;
 import builderb0y.autocodec.encoders.EncodeException;
+import builderb0y.autocodec.verifiers.VerifyContext;
+import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.codecs.CoderRegistry;
 import builderb0y.bigglobe.codecs.CoderRegistryTyped;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.math.Interpolator;
 
 @UseCoder(name = "REGISTRY", usage = MemberUsage.FIELD_CONTAINS_HANDLER)
@@ -47,11 +56,16 @@ public interface RandomSource extends CoderRegistryTyped<RandomSource> {
 		REGISTRY.registerAuto(BigGlobeMod.modID("gaussian"),              GaussianRandomSource.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("exponential"),        ExponentialRandomSource.class);
 		REGISTRY.registerAuto(BigGlobeMod.modID("average"),               AveragedRandomSource.class);
+		REGISTRY.registerAuto(BigGlobeMod.modID("scripted"),              ScriptedRandomSource.class);
 	}};
 
-	public abstract double get(long seed);
+	public abstract double get(ScriptedColumn column, int y, long seed);
 
-	public abstract double get(RandomGenerator random);
+	public abstract double get(ScriptedColumn column, int y, RandomGenerator random);
+
+	public default boolean requiresColumn() {
+		return false;
+	}
 
 	public abstract double minValue();
 

@@ -26,6 +26,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
+import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.Direction.Axis;
@@ -40,8 +41,12 @@ import net.minecraft.world.gen.structure.StructureType;
 import builderb0y.autocodec.annotations.VerifyNullable;
 import builderb0y.bigglobe.BigGlobeMod;
 import builderb0y.bigglobe.blocks.BlockStates;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.Hints;
 import builderb0y.bigglobe.noise.MojangPermuter;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomLists.RandomList;
@@ -70,6 +75,7 @@ public class PortalTempleStructure extends BigGlobeStructure {
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
+		if (this.cracked_chance.requiresColumn() && !(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator)) return Optional.empty();
 		Permuter permuter = Permuter.from(context.random());
 		int x = context.chunkPos().getStartX() | (permuter.nextInt() & 15);
 		int z = context.chunkPos().getStartZ() | (permuter.nextInt() & 15);
@@ -83,12 +89,17 @@ public class PortalTempleStructure extends BigGlobeStructure {
 				while (y >= minY && sample.getState(y).isAir());
 				if (BlockStateVersions.isOpaqueFullCube(sample.getState(y), EmptyBlockView.INSTANCE, BlockPos.ORIGIN)) {
 					int y_ = y;
+					ScriptedColumn column = (
+						this.cracked_chance.requiresColumn()
+						? ((BigGlobeScriptedChunkGenerator)(context.chunkGenerator())).newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints())
+						: null
+					);
+					double crackedChance = this.cracked_chance.get(column, y_, permuter);
 					return Optional.of(
 						new StructurePosition(
 							new BlockPos(x, y, z),
-							collector -> {
+							(StructurePiecesCollector collector) -> {
 								List<StructurePiece> pieces = new ArrayList<>(8);
-								double crackedChance = this.cracked_chance.get(permuter);
 								pieces.add(new MainBuildingPiece(BigGlobeStructures.PORTAL_TEMPLE_MAIN_BUILDING, x, y_,      z, crackedChance, permuter));
 								pieces.add(new       PortalPiece(BigGlobeStructures.PORTAL_TEMPLE_PORTAL,        x, y_ + 10, z,                permuter));
 								for (int failure = 0; failure < 4;) {

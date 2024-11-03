@@ -99,7 +99,7 @@ public abstract class AbstractDungeonStructure extends BigGlobeStructure impleme
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
-		BlockPos startPos = randomBlockInChunk(context, 64, 64);
+		BlockPos startPos = this.randomBlockInChunk(context, 64, 64);
 		if (startPos == null) return Optional.empty();
 
 		long seed = chunkSeed(context, 0x9DFB0A6E61391175L);

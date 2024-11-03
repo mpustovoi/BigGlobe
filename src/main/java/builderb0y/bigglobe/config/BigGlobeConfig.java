@@ -43,11 +43,6 @@ public class BigGlobeConfig {
 	public boolean bigGlobeTreesInBigGlobeWorlds = true;
 
 	@Tooltip(count = 3)
-	@UseName("Big Globe Trees In Other Worlds")
-	@DefaultIgnore
-	public boolean bigGlobeTreesInOtherWorlds = false;
-
-	@Tooltip(count = 3)
 	@UseName("Hyperspace Enabled")
 	@DefaultIgnore
 	public boolean hyperspaceEnabled = true;

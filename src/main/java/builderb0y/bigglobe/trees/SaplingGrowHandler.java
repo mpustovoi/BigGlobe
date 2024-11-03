@@ -28,11 +28,7 @@ public class SaplingGrowHandler {
 		SAPLING_FEATURES = new ServerValue<>(SaplingGrowHandler::computeSaplingFeatures);
 
 	public static boolean replaceSaplingGrowth(ServerWorld world, BlockPos origin, BlockState saplingState, Random random) {
-		if (
-			world.getChunkManager().getChunkGenerator() instanceof BigGlobeScriptedChunkGenerator
-			? BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds
-			: BigGlobeConfig.INSTANCE.get().bigGlobeTreesInOtherWorlds
-		) {
+		if (BigGlobeConfig.INSTANCE.get().bigGlobeTreesInBigGlobeWorlds) {
 			List<RegistryEntry<ConfiguredFeature<?, ?>>> list = SAPLING_FEATURES.get().get(saplingState.getBlock());
 			if (list != null && !list.isEmpty()) {
 				list

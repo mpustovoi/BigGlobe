@@ -12,7 +12,9 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.noise.Permuter;
 import builderb0y.bigglobe.randomSources.RandomRangeVerifier.VerifyRandomRange;
@@ -31,13 +33,25 @@ public class GenericOreFeature extends Feature<GenericOreFeature.Config> {
 
 	@Override
 	public boolean generate(FeatureContext<Config> context) {
+		if (context.getConfig().radius.requiresColumn() && !(context.getGenerator() instanceof BigGlobeScriptedChunkGenerator)) return false;
 		Permuter permuter = Permuter.from(context.getRandom());
 
 		double centerX = context.getOrigin().getX() + permuter.nextDouble() - 0.5D;
 		double centerY = context.getOrigin().getY() + permuter.nextDouble() - 0.5D;
 		double centerZ = context.getOrigin().getZ() + permuter.nextDouble() - 0.5D;
 
-		double radius  = context.getConfig().radius.get(permuter);
+		double radius  = context.getConfig().radius.get(
+			context.getConfig().radius.requiresColumn()
+			? ((BigGlobeScriptedChunkGenerator)(context.getGenerator())).newColumn(
+				context.getWorld(),
+				context.getOrigin().getX(),
+				context.getOrigin().getZ(),
+				ColumnUsage.FEATURES.maybeDhHints()
+			)
+			: null,
+			context.getOrigin().getY(),
+			permuter
+		);
 		double radius2 = radius * radius;
 		double reciprocalRadius2 = 1.0D / radius2;
 

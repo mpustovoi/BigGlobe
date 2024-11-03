@@ -15,6 +15,7 @@ import net.minecraft.structure.StructurePieceType;
 import net.minecraft.structure.StructurePiecesCollector;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -26,8 +27,11 @@ import builderb0y.autocodec.verifiers.VerifyContext;
 import builderb0y.autocodec.verifiers.VerifyException;
 import builderb0y.bigglobe.blocks.BlockStates;
 import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator;
+import builderb0y.bigglobe.chunkgen.BigGlobeScriptedChunkGenerator.Height;
 import builderb0y.bigglobe.codecs.BigGlobeAutoCodec;
 import builderb0y.bigglobe.columns.scripted.ColumnScript.ColumnToIntScript;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn.ColumnUsage;
 import builderb0y.bigglobe.math.BigGlobeMath;
 import builderb0y.bigglobe.math.Interpolator;
 import builderb0y.bigglobe.math.pointSequences.PointIterator3D;
@@ -114,33 +118,64 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
 		if (!(context.chunkGenerator() instanceof BigGlobeScriptedChunkGenerator generator)) return Optional.empty();
-		double radius = this.radius.get(context.random().nextLong());
-		BlockPos centerBlock = randomBlockInChunk(context, radius, BigGlobeMath.ceilI(radius));
-		if (centerBlock == null) return Optional.empty();
-		Vector3d center = new Vector3d(
-			centerBlock.getX() + context.random().nextDouble(),
-			centerBlock.getY() + context.random().nextDouble(),
-			centerBlock.getZ() + context.random().nextDouble()
-		);
-
 		long worldSeed = generator.columnSeed;
 		long chunkSeed = chunkSeed(context, 0xD7F5815E2C4EAFCAL);
+		Permuter permuter = new Permuter(chunkSeed);
+		int bits = permuter.nextInt();
+		int x = context.chunkPos().getStartX() | (bits & 15);
+		int z = context.chunkPos().getStartZ() | ((bits >>> 4) & 15);
+		ScriptedColumn column = generator.newColumn(context.world(), x, z, ColumnUsage.GENERIC.maybeDhHints());
+		int minY = HeightLimitViewVersions.getMinY(context.world()) + BigGlobeMath.ceilI(this.radius.minValue());
+		int maxY = (
+			(
+				this.surface_y != null
+				? this.surface_y.get(column)
+				: generator.getHeight(column, Heightmap.Type.OCEAN_FLOOR_WG, context.world())
+			)
+			- BigGlobeMath.ceilI(this.radius.minValue())
+		);
+		if (maxY <= minY) return Optional.empty();
+
+		int y = 0;
+		double radius = 0.0D;
+		outer:
+		for (int attempt = 0; attempt < 4; attempt++) {
+			y = permuter.nextInt(minY, maxY);
+			radius = this.radius.get(column, y, context.random().nextLong());
+			if (!(radius > 0.0D) || y - radius <= generator.getMinimumY() || y + radius >= maxY) continue;
+			for (int angleIndex = 0; angleIndex < 8; angleIndex++) {
+				double angle = angleIndex * (BigGlobeMath.TAU / 8.0D);
+				int x2 = BigGlobeMath.floorI(x + Math.cos(angle) * radius);
+				int z2 = BigGlobeMath.floorI(z + Math.sin(angle) * radius);
+				column.setParamsUnchecked(column.params.at(x2, z2));
+				int maxY2 = this.surface_y != null ? this.surface_y.get(column) : generator.getHeight(column, Heightmap.Type.OCEAN_FLOOR_WG, context.world());
+				if (y + radius >= maxY2) continue outer;
+			}
+			break;
+		}
+		Vector3d center = new Vector3d(
+			x + context.random().nextDouble(),
+			y + context.random().nextDouble(),
+			z + context.random().nextDouble()
+		);
+
+		final int y_ = y;
+		final double radius_ = radius;
 		return Optional.of(
 			new StructurePosition(
-				centerBlock,
+				new BlockPos(x, y, z),
 				(StructurePiecesCollector collector) -> {
 					MainPiece mainPiece = new MainPiece(
 						BigGlobeStructures.GEODE_PIECE_TYPE,
 						center.x,
 						center.y,
 						center.z,
-						radius,
+						radius_,
 						this.noise,
 						this.blocks,
 						this.growth
 					);
 					collector.addPiece(mainPiece);
-					Permuter permuter = new Permuter(chunkSeed);
 					PointIterator3D iterator = SphericalPointIterator.halton(permuter.nextInt() & 0xFFFF, 1.0D);
 					BlocksConfig lastConfig = this.blocks[this.blocks.length - 1];
 					double secondLastThreshold = this.blocks.length > 1 ? this.blocks[this.blocks.length - 2].threshold : 0.0D;
@@ -148,13 +183,13 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						unit   = new Vector3d(),
 						point1 = new Vector3d(),
 						point2 = new Vector3d();
-					int spikeCount = (int)(radius * radius * this.spikes.commonness.get(permuter));
+					int spikeCount = (int)(radius_ * radius_ * this.spikes.commonness.get(column, y_, permuter));
 					spikeLoop:
 					for (int spikeIndex = 0; spikeIndex < spikeCount; spikeIndex++) {
 						iterator.next();
 						unit.set(iterator.x(), iterator.y(), iterator.z());
 						binarySearch: {
-							double minRadius = 0.0D, maxRadius = radius;
+							double minRadius = 0.0D, maxRadius = radius_;
 							for (int refine = 0; refine < 8; refine++) {
 								double midRadius = (minRadius + maxRadius) * 0.5D;
 								point1.set(unit).mul(midRadius).add(center);
@@ -178,20 +213,20 @@ public class GeodeStructure extends BigGlobeStructure implements RawGenerationSt
 						}
 						point2
 						.set(unit)
-						.mul(-this.spikes.length.get(permuter))
+						.mul(-this.spikes.length.get(column, y_, permuter))
 						.add(point1)
-						.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(permuter)));
+						.add(Vectors.setInSphere(unit, permuter, this.spikes.crookedness.get(column, y_, permuter)));
 						collector.addPiece(
 							new SpikePiece(
 								BigGlobeStructures.GEODE_SPIKE_PIECE_TYPE,
 								point1.x,
 								point1.y,
 								point1.z,
-								this.spikes.large_radius.get(permuter),
+								this.spikes.large_radius.get(column, y_, permuter),
 								point2.x,
 								point2.y,
 								point2.z,
-								this.spikes.small_radius.get(permuter),
+								this.spikes.small_radius.get(column, y_, permuter),
 								lastConfig.states
 							)
 						);

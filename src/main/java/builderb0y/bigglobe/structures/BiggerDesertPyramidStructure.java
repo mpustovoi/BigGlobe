@@ -56,7 +56,7 @@ public class BiggerDesertPyramidStructure extends BigGlobeStructure {
 
 	@Override
 	public Optional<StructurePosition> getStructurePosition(Context context) {
-		BlockPos pos = randomBlockInSurface(context, 0);
+		BlockPos pos = this.randomBlockInSurface(context, 0);
 		if (pos == null) return Optional.empty();
 
 		long seed = chunkSeed(context, 0xEA158B72242CC93EL);

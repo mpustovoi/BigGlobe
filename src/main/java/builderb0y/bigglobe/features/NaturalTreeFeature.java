@@ -62,16 +62,17 @@ public class NaturalTreeFeature extends Feature<NaturalTreeFeature.Config> {
 		double height = config.height.get(column, permuter, origin.getY());
 		if (!(height > 0.0D)) return false;
 		TrunkConfig trunkConfig = config.trunk.create(
+			column,
 			startX,
 			startY,
 			startZ,
 			Math.max(Permuter.roundRandomlyI(permuter, height), 4),
 			permuter
 		);
-		double startFracY = config.branches.start_frac_y.get(permuter);
+		double startFracY = config.branches.start_frac_y.get(column, startY, permuter);
 		BranchesConfig branchesConfig = BranchesConfig.create(
 			startFracY,
-			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(permuter) * height * (1.0D - startFracY)),
+			Permuter.roundRandomlyI(permuter, config.branches.count_per_layer.get(column, startY, permuter) * height * (1.0D - startFracY)),
 			permuter.nextDouble(BigGlobeMath.TAU),
 			trunkConfig.baseRadius,
 			config.branches.length_function,

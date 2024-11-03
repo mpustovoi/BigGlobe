@@ -190,7 +190,17 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 		long veinSeed,
 		ScriptedColumn column
 	) {
-		double radius = ore.radius.get(Permuter.stafford(veinSeed ^ 0x643CE1A830E16C28L));
+		/**
+		columns are not inherently thread-safe, and we expect to
+		be using many columns at once to compute the ore chance.
+		this presents the possibility of a race condition if 2
+		ore veins try to use the same column at the same time,
+		and both of them try to compute a new value.
+		*/
+		double radius;
+		synchronized (column) {
+			radius = ore.radius.get(column, startYAbsolute, Permuter.stafford(veinSeed ^ 0x643CE1A830E16C28L));
+		}
 		int minX = Math.max(0,  BigGlobeMath. ceilI(centerXRelative - radius));
 		int minY = Math.max(0,  BigGlobeMath. ceilI(centerYRelative - radius));
 		int minZ = Math.max(0,  BigGlobeMath. ceilI(centerZRelative - radius));
@@ -198,13 +208,6 @@ public class OreFeature extends DummyFeature<OreFeature.Config> implements RockR
 		int maxY = Math.min(15, BigGlobeMath.floorI(centerYRelative + radius));
 		int maxZ = Math.min(15, BigGlobeMath.floorI(centerZRelative + radius));
 		if (maxX >= minX && maxY >= minY && maxZ >= minZ) {
-			/**
-			columns are not inherently thread-safe, and we expect to
-			be using many columns at once to compute the ore chance.
-			this presents the possibility of a race condition if 2
-			ore veins try to use the same column at the same time,
-			and both of them try to compute a new value.
-			*/
 			double chance;
 			synchronized (column) {
 				chance = ore.chance.get(column, BigGlobeMath.floorI(startYAbsolute + centerYRelative));

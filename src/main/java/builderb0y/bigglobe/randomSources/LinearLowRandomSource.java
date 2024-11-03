@@ -4,6 +4,7 @@ import java.util.random.RandomGenerator;
 
 import builderb0y.autocodec.annotations.UseName;
 import builderb0y.autocodec.annotations.VerifySorted;
+import builderb0y.bigglobe.columns.scripted.ScriptedColumn;
 import builderb0y.bigglobe.noise.Permuter;
 
 public record LinearLowRandomSource(
@@ -13,7 +14,7 @@ public record LinearLowRandomSource(
 implements RandomSource {
 
 	@Override
-	public double get(long seed) {
+	public double get(ScriptedColumn column, int y, long seed) {
 		return this.mix(
 			Math.min(
 				Permuter.nextPositiveDouble(seed += Permuter.PHI64),
@@ -23,7 +24,7 @@ implements RandomSource {
 	}
 
 	@Override
-	public double get(RandomGenerator random) {
+	public double get(ScriptedColumn column, int y, RandomGenerator random) {
 		return this.mix(Math.min(random.nextDouble(), random.nextDouble()));
 	}
 }

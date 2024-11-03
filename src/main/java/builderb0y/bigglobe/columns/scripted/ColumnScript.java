@@ -996,4 +996,44 @@ public interface ColumnScript extends Script {
 			}
 		}
 	}
+
+	public static interface ColumnYRNGScript extends ColumnScript {
+
+		public abstract double get(ScriptedColumn column, int y, long randomSeed);
+
+		@Wrapper
+		public static class Holder extends BaseHolder<ColumnYRNGScript> implements ColumnYRNGScript {
+
+			public Holder(ScriptUsage usage) {
+				super(usage);
+			}
+
+			@Override
+			public Class<ColumnYRNGScript> getScriptClass() {
+				return ColumnYRNGScript.class;
+			}
+
+			@Override
+			public void addExtraFunctionsToEnvironment(ImplParameters parameters, MutableScriptEnvironment environment) {
+				super.addExtraFunctionsToEnvironment(parameters, environment);
+				environment.addVariableLoad("randomSeed", TypeInfos.LONG);
+			}
+
+			@Override
+			public double get(ScriptedColumn column, int y, long randomSeed) {
+				NumberArray.Manager manager = NumberArray.Manager.INSTANCES.get();
+				int used = manager.used;
+				try {
+					return this.script.get(column, y, randomSeed);
+				}
+				catch (Throwable throwable) {
+					this.onError(throwable);
+					return Double.NaN;
+				}
+				finally {
+					manager.used = used;
+				}
+			}
+		}
+	}
 }

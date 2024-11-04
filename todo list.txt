@@ -140,8 +140,6 @@ breaking changes I want to make:
 
 AutoCodec:
 	log when extra data is provided that isn't a field of the object being deserialized.
-	investigate imprinters.
-		SerializableScriptInputs failed to have a coder created for the imprinter path.
 	allow RecordDecoder to provide DecodeContext to constructors which need it.
 
 scripting:
@@ -153,7 +151,6 @@ scripting:
 	use script debug name in print().
 	SwitchInsnTree needs to manage its case scopes more manually.
 	expose arrays.
-	scriptable RandomSource?
 	general-purpose script bytecode optimization framework.
 		more sophisticated flow analysis to see what values could be where at any given time?
 			could help with more advanced constant jumps?
@@ -227,18 +224,12 @@ scripting:
 			generic(type) type List(of: type) whatever(: body)
 		"expose" fastutil collection types.
 			List(of: int) will compile into IntList.
-	range in switch cases.
-		switch (x:
-			case (range[0, 5): body)
-			case (range[5, 10): body)
-		)
 
 features:
 	general:
 		advancements for finding things?
 		all the todos scattered throughout my code.
 		make charred hanging sign look a bit more programmer art-y?
-		deprecate TagOrObject, just use RegistryEntryList for both, since apparently it can do that.
 		fast DH tree generation
 			skips a lot of the more expensive work for tree generation,
 			and replaces trees with blobs of leaves with a trunk and no branches.
